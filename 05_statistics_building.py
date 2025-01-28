@@ -26,6 +26,18 @@ models = {}
 activities = ["Pattern Recognition", "Deductive Reasoning", "Inductive Reasoning", "Abductive Reasoning",
               "Hypothesis Generation", "Validation", "Backtracking", "Ethical or Moral Reasoning",
               "Counterfactual Reasoning", "Heuristic Reasoning"]
+act_dictio = {
+    "Pattern Recognition": "P.R.",
+    "Deductive Reasoning": "D.R.",
+    "Inductive Reasoning": "I.R.",
+    "Abductive Reasoning": "A.R.",
+    "Hypothesis Generation": "H.G.",
+    "Validation": "V",
+    "Backtracking": "B",
+    "Ethical or Moral Reasoning": "E.R.",
+    "Counterfactual Reasoning": "C.R.",
+    "Heuristic Reasoning": "H.R."
+}
 
 for file in results:
     res = json.load(open(os.path.join(folder, file), "r", encoding="utf-8"))
@@ -100,13 +112,37 @@ ordered_models = [x[0] for x in ordered_models]
 dataframe = [{"Model": mod, "Score": "**%d**" % (models[mod]["score"]), "C": models[mod]["conclusion_correct"], "PC": models[mod]["conclusion_partially_correct"], "W": models[mod]["conclusion_incorrect"], "PE": models[mod]["step_positive_effect"], "IND": models[mod]["step_indifferent"], "NE": models[mod]["step_negative_effect"]} for mod in ordered_models]
 dataframe = pd.DataFrame(dataframe)
 
-
 reasoning_score = dataframe.to_markdown(index=False)
+
+dataframe = [{"Model": mod} for mod in ordered_models]
+for idx, mod in enumerate(ordered_models):
+    dataframe[idx].update({act_dictio[act]: models[mod]["activities"][act]["percentage_over_total"] for act in activities})
+dataframe = pd.DataFrame(dataframe)
+
+percentage_per_reasoning_type_over_total = dataframe.to_markdown(index=False)
+
+dataframe = [{"Model": mod} for mod in ordered_models]
+for idx, mod in enumerate(ordered_models):
+    dataframe[idx].update({act_dictio[act]: models[mod]["activities"][act]["percentage_correct"] for act in activities})
+dataframe = pd.DataFrame(dataframe)
+
+correctness_per_reasoning_tpye = dataframe.to_markdown(index=False)
 
 F = open("reasoning_dashboards.md", "w")
 F.write("# Reasoning Dashboards\n\n")
 F.write("## Model Scores\n\n")
 F.write(reasoning_score)
-F.write("\n\nHere, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.\n\n")
+F.write("\n\nHere, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.\n")
+F.write("**Score formula: (100*C -100*PC -200*W) + (10*PE -1*IND -20*NE)**\n\n")
+F.write("## Percentage per Reasoning Type over Total\n\n")
+F.write(percentage_per_reasoning_type_over_total)
+F.write("\n\n")
+F.write("Dictionary of activities:\n")
+for act in act_dictio:
+    F.write("* **%s** -> %s\n" % (act_dictio[act], act))
+F.write("\n\n")
+F.write("## Percentage of Correctness per Reasoning Type\n\n")
+F.write(correctness_per_reasoning_tpye)
+F.write("\n")
 
 F.close()
