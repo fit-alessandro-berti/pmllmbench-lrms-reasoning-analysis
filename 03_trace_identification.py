@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
     questions_folder = r"C:\Users\berti\pm-llm-benchmark\questions"
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
-    pattern = "DeepSeek-R1-Distill-Qwen-14B"
+    pattern = "DeepSeek-R1-Distill-Qwen-32B"
     prel_folder = r"prel\final_abstract_steps"
 
     main(input_folder, pattern, prel_folder, questions_folder)
