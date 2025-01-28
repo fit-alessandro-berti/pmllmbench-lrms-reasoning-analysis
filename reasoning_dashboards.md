@@ -9,6 +9,7 @@
 | DeepSeek-R1-Distill-Qwen-7B  | **4160** |  30 |   15 |   1 |  353 |    90 |   29 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
+
 **Score formula: (100*C -100*PC -200*W) + (10*PE -1*IND -20*NE)**
 
 ## Percentage per Reasoning Type over Total
