@@ -33,4 +33,4 @@ for file in results:
 
         trace.append(event)
 
-pm4py.write_xes(log, "xes/output_"+datetime.now().strftime("%Y%m%d")+".xes")
+pm4py.write_xes(log, "xes/output_"+datetime.now().strftime("%Y%m%d")+".xes.gz")
