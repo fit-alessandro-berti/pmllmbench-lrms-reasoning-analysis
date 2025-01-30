@@ -151,17 +151,26 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                         "\n\nReasoning trace:",
                         reasoning_trace
                     ])
-                    # Copy to clipboard
-                    pyperclip.copy(clipboard_content)
 
-                    print(f"Copied content of '{filename}' to clipboard with a prepended request.")
+                    if True:
+                        # Copy to clipboard
+                        pyperclip.copy(clipboard_content)
 
-                    with open(prel_path, "w", encoding="utf-8") as f:
-                        f.write("")  # create empty file
+                        print(f"Copied content of '{filename}' to clipboard with a prepended request.")
 
-                    # Open in Notepad (blocking call until user closes)
-                    print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
-                    subprocess.call(["notepad", prel_path])
+                        with open(prel_path, "w", encoding="utf-8") as f:
+                            f.write("")  # create empty file
+
+                        # Open in Notepad (blocking call until user closes)
+                        print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
+                        subprocess.call(["notepad", prel_path])
+                    else:
+                        import pm4py
+
+                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../openai_api.txt", "r").read(), openai_model="gpt-4o-2024-11-20")
+                        F = open(prel_path, "w", encoding="utf-8")
+                        F.write(resp)
+                        F.close()
 
                     # Extract the JSON from the prel file (delimited by ```json ... ```).
                     # Be careful to pick the correct segment if multiple code fences exist.
@@ -213,7 +222,7 @@ if __name__ == "__main__":
 
     questions_folder = r"C:\Users\berti\pm-llm-benchmark\questions"
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
-    pattern = "DeepSeek-R1-Distill-Qwen-32B"
+    pattern = "DeepSeek-R1-Distill-Llama-8B"
     prel_folder = r"prel\final_abstract_steps"
 
     main(input_folder, pattern, prel_folder, questions_folder)
