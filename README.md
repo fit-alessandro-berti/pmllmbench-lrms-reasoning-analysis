@@ -33,9 +33,9 @@ Each reasoning step is stored as a JSON object with:
 - **Text**: The excerpt from the reasoning trace corresponding to that specific activity.
 
 At the end of each sequence of steps, a special **Conclusion** entry is added:
-- **Conclusion - C** (if the overall answer is correct)
-- **Conclusion - PC** (if the overall answer is partially correct)
-- **Conclusion - W** (if the overall answer is wrong)
+- **Conclusion - C** (if the overall reasoning steps is correct)
+- **Conclusion - PC** (if the overall reasoning steps is partially correct)
+- **Conclusion - W** (if the overall reasoning steps is wrong)
 
 This conclusion entry does not contain a text snippet; it only indicates the final correctness of the reasoning process.
 
@@ -46,7 +46,7 @@ This conclusion entry does not contain a text snippet; it only indicates the fin
 After these event logs are produced and validated, the second script aggregates and analyzes various metrics:
 
 1. **Conclusion Outcomes**  
-   Counts how often the final conclusion is:
+   Counts how often the final conclusion of the reasoning process is:
    - **C** (correct)  
    - **PC** (partially correct)  
    - **W** (wrong)
