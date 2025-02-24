@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, identifying cases: each order_id will be a case. So every row in the Orders table starts a new process instance. The main challenge is to track all events related to an order from creation to payment."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Looking at the other tables: Order Lines: each item has a picking date and picker_id. The problem mentions 'Items Picked' events from here. Since multiple items per order can be picked on different dates, perhaps create an event for each item_picking_date with activity name like 'Item Picked'."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Delivery table has dispatch and arrival dates. Each delivery (delivery_id) corresponds to an order. For each delivery, we can have two events: 'Order Dispatched' and 'Order Arrived'. But need to check if the same order has multiple deliveries (like 1002 with DLV-5002 and DLV-5003). So for that order, there would be two dispatches and arrivals. Each should create separate events."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Invoice table has invoice_issue_date; each invoice is linked to an order but might have multiple invoices per order (e.g., order 1002 has INV-1002 and INV-1003), so 'Invoice Issued' for each, possibly leading to different payment events later."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Payments: for each invoice, there's a payment. So each Payment entry would be linked via the invoice_id back to the order through Invoice table."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "For Delivery events, maybe the Resource is Carrier ID mapped to their name. For Payment Received, payments don't have a direct actor, so might leave Resource blank or note payment method here as an attribute."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Each Order (order_id) appears to have the following sequence of events in its lifecycle: (1) Order Created, (2) N 'Item Picked' events from Order Lines, (3) N 'Order Dispatched' and 'Order Arrived' events from Delivery, (4) Invoice Issued events from Invoice table, and (5) Payment Received events from Payments table."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So timeline would likely be: Order Created -> Item Picked(s) -> Order Dispatched(s) -> Order Arrived(s) -> Invoice Issued(s) -> Payment Received(s)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "For order 1001, I verified the sequence of events: Created on 2024-01-01, items picked on 2024-01-02, dispatched on 2024-01-03, arrived on 2024-01-05, invoice issued on 2024-01-06, payment received on 2024-01-10. All dates align chronologically. The same logic can be applied for other orders."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Payments for an order are linked via invoices. For example, for order 1002, there are two invoices (INV-1002 and INV-1003), each of which generates a corresponding payment event. This logic generalizes to all orders with multiple invoices/payments."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "I checked that all resources for activities are consistent: sales_person for 'Order Created', picker_id for 'Item Picked', carrier_id for 'Order Dispatched'/'Arrived', billing_person for 'Invoice Issued', and no resource for 'Payment Received' due to lack of direct actor data."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the event log structure, I decided on: Case ID, Activity Name, Timestamp, Resource/Actor, and Other Attributes. Other Attributes will vary depending on the activity type."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Constructed the event log for order 1001 as a test case: events are in correct chronological order, proper resources are assigned, and other attributes (e.g., item_id, quantity) are included where relevant."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The same process can now be extended to all orders (1002, 1003, 1004, 1005), ensuring all events are included and correctly sequenced within their respective Case IDs."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

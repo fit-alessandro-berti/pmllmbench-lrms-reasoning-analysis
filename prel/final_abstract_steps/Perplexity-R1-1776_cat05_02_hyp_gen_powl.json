@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The process flow is supposed to be R A loop (E and P) xor (N or skip) C. But in the model, there's a loop between E and P. That means after evaluating (E), you can either exit the loop or approve (P) and repeat E again. That seems odd because approval should typically come after evaluation once, not looping between them. So maybe claims are being evaluated multiple times before approval, which could be an anomaly."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Then there's the XOR that skips notifying the customer (N). So some claims might close without notifying the customer, which isn't ideal. The process should always notify, right? So skipping is an anomaly."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The partial order structure has edges RA, Aloop, loopxor, but also AC. This direct edge from A to C might allow closing the claim without going through the loop (evaluate and approve) and the XOR (notify). So claims could be closed prematurely, maybe before evaluation or approval. That's definitely an anomaly because steps E and P are necessary before closing."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For the loop between E and P: Maybe there was a business rule change where claims need re-evaluation if certain conditions aren't met. But perhaps it was implemented as a loop instead of a conditional path. Or maybe a miscommunication where developers thought multiple evaluations were needed."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "The XOR skipping notification: Maybe some claims don't require notification (like denied claims?), but if the process is supposed to always notify, then maybe an error in modeling where skip should not be allowed. Or perhaps a department decided that certain claim types don't need notification but didn't update the model correctly."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Premature closing due to AC edge: Could be a technical error when designing the workflow—maybe someone added an extra edge by mistake. Or perhaps there's a scenario where claims can be closed immediately after assignment if invalid, but that wasn't properly documented or controlled."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Find claim_ids where Close Claim (C) exists but there's no corresponding Evaluate (E) or Approve (P) events before it. Also, check if C happened after A but before E/P. In the claim_events table, for each claim_id, check the sequence of activities."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Check how often N is skipped. Look for claims that have C but no N event before it."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each claim that reached C, ensure there's at least one E followed by a P before C. Alternatively, perhaps multiple evaluations are part of normal process for complex cases—so that's why the model has a loop—but if that's not intended, then it's an anomaly."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So hypothesis here is that some claims have multiple E and/or P events due to the loop structure in the model."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Queries would look for claims with more than one E or more than one P event. Another query would verify claims where after Assign Adjuster (A), Close Claim (C) occurred directly without any E/P in between."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Check for claims closed without proper notification steps—that is, claims that have reached Close Claim (C) without having Notify Customer (N) event before it."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "List all claims closed without prior notification and calculate what percentage of closed claims skipped this step. This helps validate how frequent this anomaly is in practice."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Queries can also find claims with more than one P or E event, verifying cases of multiple evaluations or approvals due to the loop."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]
