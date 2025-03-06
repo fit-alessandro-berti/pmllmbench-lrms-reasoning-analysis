@@ -1,0 +1,53 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The anomaly for R to P is an average of ~25 hours (about 1.04 days) with a very low STDEV of 1 hour. This is suspicious because between Receive and Approve steps there should be Assign and Evaluate steps. The time being too short with very low variability might suggest an automated step skipping human involvement."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "P to N has an average duration of 7 days with a high standard deviation of 2 days. This unusually long delay and high discrepancy indicate potential backlogs, resource issues, or inconsistent manual steps in notification after approval."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "A to C has an average of 2 hours with a standard deviation of 1 hour. These short intervals indicate the possibility of prematurely closing claims without performing intermediate steps like Evaluate or Approve."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "E to N occurs too rapidly, with an average of 5 minutes and standard deviation of 1 minute. This suggests that notifications happen immediately after evaluation without approvals, potentially skipping or missing intermediate steps."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For R to P anomaly: Approval may be automated or triggered by rigid system rules that skip intermediate steps like evaluation or assigning adjusters. Another possibility is mislabeling of events, where 'Approve' is recorded incorrectly."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For P to N anomaly: There could be bottlenecks in manual notification processes or communication delays with external dependencies, like notifying external stakeholders. Inconsistent resource allocation could also be a cause."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For A to C anomaly: Claims might be improperly closed right after assignment due to system bugs, adjusters not following the intended process, or inadequate oversight enforcing intermediate steps."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For E to N anomaly: Notifications might be triggered automatically right after evaluation, bypassing approvals. Alternatively, the approval step could be missing due to incorrect or incomplete event recording."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To validate R to P timing anomalies: Query the durations between Receive and Approve for all claims and review if durations are tightly clustered around 25 hours, indicating rigid time triggers. Example SQL: SELECT e1.claim_id, (e2.timestamp - e1.timestamp) AS duration FROM claim_events e1 JOIN claim_events e2 ON e1.claim_id = e2.claim_id WHERE e1.activity = 'R' AND e2.activity = 'P' AND e2.timestamp > e1.timestamp."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To validate P to N timing anomalies: Query the durations between Approve and Notify for all claims and identify extreme cases with durations exceeding 7 days plus 3 standard deviations, or extremely short durations. Example SQL: WITH pton AS (SELECT e1.claim_id, EXTRACT(EPOCH FROM (e2.timestamp - e1.timestamp)) AS duration FROM claim_events e1 JOIN claim_events e2 ON e1.claim_id = e2.claim_id WHERE e1.activity = 'P' AND e2.activity = 'N' AND e2.timestamp > e1.timestamp) SELECT * FROM pton WHERE duration > (SELECT AVG(duration) FROM pton) + 3*(SELECT STDDEV(duration) FROM pton)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To validate A to C anomalies: Query to find durations between Assign and Close for claims, identifying durations shorter than expected intervals. Example SQL: SELECT claim_id, EXTRACT(EPOCH FROM (e_c.timestamp - e_a.timestamp)) AS duration_s FROM claim_events e_a JOIN claim_events e_c ON e_a.claim_id = e_c.claim_id WHERE e_a.activity = 'A' AND e_c.activity = 'C' AND e_c.timestamp > e_a.timestamp ORDER BY duration_s ASC."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To validate E to N anomalies: Query the durations between Evaluate and Notify, and check if proper approvals occur between the two activities, indicating adherence to process flow. Example SQL: SELECT claim_id FROM claim_events WHERE activity IN ('E', 'P', 'N') GROUP BY claim_id HAVING NOT (EXISTS (SELECT 1 FROM claim_events AS cpe WHERE cpe.claim_id = claim_events.claim_id AND cpe.activity = 'P' AND cpe.timestamp BETWEEN (SELECT MAX(timestamp) FROM claim_events WHERE claim_id = cpe.claim_id AND activity = 'E') AND (SELECT MIN(timestamp) FROM claim_events WHERE claim_id = cpe.claim_id AND activity = 'N')))."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

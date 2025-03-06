@@ -15,6 +15,7 @@
 | DeepSeek-R1-Zero              | **4990** |  32 |   14 |   0 |  357 |    60 |   16 |
 | Perplexity-R1-1776            | **4442** |  29 |   16 |   1 |  400 |    98 |   28 |
 | DeepSeek-R1-Distill-Qwen-7B   | **4160** |  30 |   15 |   1 |  353 |    90 |   29 |
+| QwenQwQ-32B                   | **3960** |  27 |   19 |   0 |  377 |   110 |   25 |
 | DeepSeek-R1-Distill-Qwen-1.5B | **2957** |  25 |   18 |   3 |  350 |   103 |   27 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
@@ -36,6 +37,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-Zero              |   18.9 |   29.8 |   11.8 |    9.2 |    6.2 | 15.9 | 1.4 |    1.6 |    1.4 |    3.7 |
 | Perplexity-R1-1776            |   18.4 |   31   |   11   |    8.9 |    6.5 | 14.8 | 2.5 |    1.3 |    2.1 |    3.4 |
 | DeepSeek-R1-Distill-Qwen-7B   |   15.7 |   25.6 |    8.3 |    5.7 |   10.4 | 18.2 | 4.2 |    3   |    2.5 |    6.4 |
+| QwenQwQ-32B                   |   17.4 |   26.4 |   10.2 |    8.8 |    7.6 | 16.8 | 3.7 |    1.8 |    2.9 |    4.5 |
 | DeepSeek-R1-Distill-Qwen-1.5B |   20.6 |   25.8 |   14.6 |    8.5 |    5   | 13.8 | 3.1 |    1   |    2.3 |    5.2 |
 
 Dictionary of activities:
@@ -66,4 +68,5 @@ Dictionary of activities:
 | DeepSeek-R1-Zero              |   91.5 |   90.7 |   80.4 |   72.5 |   55.6 | 79.7 | 83.3 |   85.7 |   50   |   68.8 |
 | Perplexity-R1-1776            |   84.5 |   82.2 |   82.8 |   55.3 |   55.9 | 79.5 | 30.8 |   71.4 |   54.5 |   77.8 |
 | DeepSeek-R1-Distill-Qwen-7B   |   90.5 |   83.5 |   69.2 |   66.7 |   53.1 | 83.7 | 50   |   42.9 |   33.3 |   73.3 |
+| QwenQwQ-32B                   |   80.9 |   84.4 |   71.2 |   48.9 |   61.5 | 82.6 | 36.8 |   55.6 |   60   |   69.6 |
 | DeepSeek-R1-Distill-Qwen-1.5B |   81.8 |   82.3 |   75.7 |   65.9 |   50   | 62.1 | 46.7 |   80   |   63.6 |   64   |
