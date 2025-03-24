@@ -17,6 +17,7 @@
 | DeepSeek-R1-Distill-Qwen-7B   | **4160** |  30 |   15 |   1 |  353 |    90 |   29 |
 | QwenQwQ-32B                   | **3960** |  27 |   19 |   0 |  377 |   110 |   25 |
 | DeepSeek-R1-Distill-Qwen-1.5B | **2957** |  25 |   18 |   3 |  350 |   103 |   27 |
+| exaone-deep2.4b-fp16          | **2719** |  26 |   18 |   2 |  300 |   101 |   29 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
 
@@ -39,6 +40,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-Distill-Qwen-7B   |   15.7 |   25.6 |    8.3 |    5.7 |   10.4 | 18.2 | 4.2 |    3   |    2.5 |    6.4 |
 | QwenQwQ-32B                   |   17.4 |   26.4 |   10.2 |    8.8 |    7.6 | 16.8 | 3.7 |    1.8 |    2.9 |    4.5 |
 | DeepSeek-R1-Distill-Qwen-1.5B |   20.6 |   25.8 |   14.6 |    8.5 |    5   | 13.8 | 3.1 |    1   |    2.3 |    5.2 |
+| exaone-deep2.4b-fp16          |   21.9 |   22.8 |    7.9 |    9.1 |    7   | 16   | 5.1 |    2.3 |    2.6 |    5.3 |
 
 Dictionary of activities:
 * **P.R.** -> Pattern Recognition
@@ -70,3 +72,4 @@ Dictionary of activities:
 | DeepSeek-R1-Distill-Qwen-7B   |   90.5 |   83.5 |   69.2 |   66.7 |   53.1 | 83.7 | 50   |   42.9 |   33.3 |   73.3 |
 | QwenQwQ-32B                   |   80.9 |   84.4 |   71.2 |   48.9 |   61.5 | 82.6 | 36.8 |   55.6 |   60   |   69.6 |
 | DeepSeek-R1-Distill-Qwen-1.5B |   81.8 |   82.3 |   75.7 |   65.9 |   50   | 62.1 | 46.7 |   80   |   63.6 |   64   |
+| exaone-deep2.4b-fp16          |   79.8 |   81.6 |   61.8 |   64.1 |   60   | 78.3 | 27.3 |   60   |    9.1 |   60.9 |
