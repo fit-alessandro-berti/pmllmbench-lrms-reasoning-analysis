@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First I ll need to parse the raw system log into events with timestamps actions and other attributes Each line seems to represent an event with a timestamp an action type like FOCUS TYPING SWITCH etc and application details"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Case Identification The next challenge is figuring out how to group related events into cases The user might have multiple concurrent tasks like working on a document replying to emails updating budgets and revising reports Each case should represent a logical unit of work"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Looking at the log one possible approach is to identify when a user starts working on a particular document or task For example opening a document in Microsoft Word and all subsequent actions related to that window could form a case until its closed The SWITCH event between applications might indicate moving between tasks but not necessarily a new case However when the same app is re focused on a different window maybe a new case for that window starts"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively when the user is in Chrome handling emails maybe thats another case The emails case might involve opening scrolling replying etc But the problem states cases should be logical units like editing a document handling an email etc The Chrome actions Email Inbox handling an email could be part of one case So perhaps each email interaction is a case But theres a specific action like Reply to Email which might trigger a case"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively perhaps each application window is a case Since Word document windows like QuarterlyReport and Document1 are clearly separate The Excel window is Budget2024xlsx Adobe PDF etc So a straightforward approach is to have each open window as per its Window title as a case The Case ID could be the Window title"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "That might make sense For example Document1docx is opened in Word so cases are Microsoft WordDocument1docx Wait but thats two fields App and Window So maybe the Case ID is a combination of App and Window Alternatively the Window name alone is unique enough like Document1docx is unique so it could be a Case The App might be redundant as the Window name is unique per document Looking at the logs each document in Word has a unique window name so the window name itself can uniquely identify the document Hence each new window opening creates a case The events related to that window until its closed would be part of that Case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Thus grouping events by Window title would form separate cases This seems logical as each document edit is its own case"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "But what about the Google Chrome Email The first Chrome event is SWITCH to Email Inbox But the first action there is at 90200 OPEN Email about Annual Meeting The case might be the Email Inbox Handling But since theres no specific window title per email perhaps the Email window itself is a case The Window is always Email Inbox so maybe all email handling are part of the same case But thats not helpful Wait maybe the Action field has more info like Email about Annual Meeting Perhaps using the email subject as part of the case The Open Email action includes about Annual Meeting which could be part of the case ID So Case ID Handling Email Annual Meeting"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The SWITCH events are transitions between applications The SWITCH FROM App and Window indicates moving away from the current case so the previous appwindows case would end at the moment of the SWITCH Wait switching from Excel to Word last SWITCH at 090600 would mean the Excel cases last event is the SWITCH but the SWITCH is of type SWITCH which could be considered part of the Excel case Because the SWITCH is initiated from Excel Hmm The SWITCH event attributes include FromApp and ToApp The SWITCH is an action inside the FromApp So the SWITCH event is part of the current case FromApps window The ToApp is where theyll go next Therefore the SWITCH is part of the originating case not the destination Therefore the SWITCH events can remain part of the originating case"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now Activity Naming Need to map the actions to higher level activities For example TYPING could be Content Entry or Text Editing The FOCUS might be Switch to Application Window or Start Task But maybe in the process mining log we can group similar actions"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Wait maybe adding app specific activities For example In Word Typing Edit Document In Excel Typing Update Spreadsheet In Chrome Typing Compose Email This way the context the App helps define the activity name more precisely The user is editing a document in Word updating Excel tables composing emails in Chrome That could lead to better activity names Lets try this approach"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First the Activity Name depends on the Action Type like TYPING CLICK etc and the App they are using Example mappings App Microsoft Word TYPING Edit Document SAVE Save Document Changes FOCUS Focus on Document but maybe not needed better to exclude FOCUS as an activity CLOSE Close Document Window App Google Chrome Email actions FOCUS Open Email Client CLICK where Action is Open Email Open Email SCROLL Review Email CLICK where Action is Reply Reply to Email TYPING Compose Email Response CLICK Send Email Send Email App Adobe Acrobat SCROLL Review PDF HIGHLIGHT Annotate PDF FOCUS Open PDF Viewer App Microsoft Excel TYPING Update Spreadsheet SAVE Save Spreadsheet Changes"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "But maybe Focus on Document but perhaps better to standardize as Open Document for FOCUS in Word Alternatively Activity Name could be OpenActivate Document for FOCUS Proceeding with these mappings"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Alternatively maybe all Focus of same document are considered as part of the same process and the Activity for Focus could be omitted unless needed Alternatively for simplicity Ill classify each FOCUS where a document is brought to front as part of the case but the activity is Focus Event though probably better to name as Resume Work on Document or similar"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now compiling all this into an event log table Let me list them step by step Ill go event by event Case 1 QuarterlyReportdocx CaseID QuarterlyReportdocx Wait wait The initial event is its first focus at 085950Z but the next event at 090000 is focusing on Document1 so Quarterly becomes its own case with only one event the focus until maybe later However there is an event at 090715 FOCUS again then typing at 090745 and close at 090815 So this case will have three events at 0859 then the 0907 and 0908 But maybe the first event at 0859 is the start but later as he shifts to another doc but the Quarterly case is still ongoing but not active So the case includes all events related to that window even if interrupted by other tasks Because the case is the document so every event involving that window is part of the case regardless of when the events are logged elsewhere Thus the Quarterly cases events are FOCUS Open Document at 085950 FOCUS again at 090715 perhaps revisit TYPING Edit Document at 090745 starts again CLOSE Close Document at 90815"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now compiling the rows Let me make a table now Process Mining Event Log Case ID Activity Name Timestamp App WindowACTION QuarterlyReportdocx Open Document 2024 12 11T085950000ZMicrosoft Word QuarterlyReportdocx Document1docx Open Document 2024 12 11T090000000Z Microsoft Word Document1docx Document1docx Edit Document 090030 Microsoft Word Document1docx TypingDraft intro Document1docx Edit Document 090100 Microsoft Word Document1docx TypingAdd details Document1docx Save Document Changes 090115 Microsoft Word Document1docx Document1docx Switch to Email Client 090145 Microsoft Word Switch to Google Chrome Handling Annual Meeting Open Email 090200 Google Chrome Open Annual Meeting Email Handling Annual Meeting Review Email Content 090230 Google Chrome Email Inbox Scroll Down Handling Annual Meeting Reply to Email 090245 Google Chrome Reply to Annual Meeting Handling Annual Meeting Compose Email Response 090300 Google Chrome Typing Meeting details Handling Annual Meeting Send Email 090320 Google Chrome Sent Handling Annual Meeting Switch to PDF Review 090400 Google Chrome To Acrobat ReportDraftpdf Review PDF Content 090430 Adobe Acrobat Scroll Down ReportDraftpdf Annotate PDF Report 090445 Adobe Acrobat Highlight Key Findings Budget2024xlsx Open Spreadsheet 090500 Microsoft Excel Budget2024xlsx Budget2024xlsx Update Spreadsheet 090515 Microsoft Excel TypingUpdate Q1 figures Budget2024xlsx Update Spreadsheet 090530 Microsoft Excel TypingInsert new row Budget2024xlsx Save Spreadsheet Changes 090545 Microsoft Excel Save Budget2024xlsx Switch to Document Editing 090600 Microsoft Excel Return to Word Document1docx Edit Document 090615 Microsoft Word Typing reference to budget Document1docx Save Document Changes 090630 Microsoft Word Save Document1docx Close Document 090700 Microsoft Word Close QuarterlyReportdocx Reopen Document 090715 Microsoft Word Focus again QuarterlyReportdocx Edit Document 090745 Microsoft Word Typing Executive Summary QuarterlyReportdocx Save Document Changes 090800 Microsoft Word Save QuarterlyReportdocx Close Document 090815 Microsoft Word Close"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final remarks Case identification is based on the Window title in the system log Each document spreadsheet or file being worked on constitutes a case which allows tracking of activities over their editingwritesaving lifecycle Email handling is a separate case identified via the emails subject from the action PDF review and annotations form another case Activity translations consider the action TYPING CLICK etc and the application context to assign meaningful steps eg Edit Document for typing in Word Compose Email Response for typing in Chrome email This approach ensures analysts can analyze work processes like document editing email handling spreadsheet updates and file review as discrete cases each with their own workflows"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
