@@ -19,7 +19,7 @@ def read_file_contents(input_path):
         content = f.read()
         f.close()
     # Read input file content
-    content = content.split("<think>")[-1].split("</think>")[0]
+    content = content.split("<think>")[-1].split("</think>")[0].split("<thought>")[-1].split("</thought>")[0]
     return content
 
 
