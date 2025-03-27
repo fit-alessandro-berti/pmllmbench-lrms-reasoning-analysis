@@ -1,0 +1,145 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Based on the provided event log examples let us analyze the process flow for each case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1 Order Received OR This is always the first activity in any case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2 Material Sourcing MS Follows after the Order Received activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "3 Quality Screening QS Follows after the Material Sourcing activity"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "4 Assembly AS Follows after the Quality Screening activity Based on the logs it seems that after the AS activity there is usually a step called In line Quality Check IQC which might lead to a redo of the Assembly AS until the IQC is passed Thus AS and IQC seem to form a loop where if IQC fails AS is repeated until IQC passes ie until there is no need to repeat AS"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "5 Testing TST After the IQC passes ie AS is completed and no more IQC needs to be done the Testing TST activity is performed If the test fails there is a Re Testing RT activity which seems to loop back to TST until the test passes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "6 Packaging PK Follows after the Testing activity once TST passes ie no need for Re Testing"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "7 Labeling LB Seems to be an optional activity that follows after Packaging PK but it can sometimes be skipped as seen in case 2 where there is no Labeling activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "8 Distribution Planning DP Follows after Labeling if it happens or directly after Packaging if Labeling is skipped"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "9 Dispatch D Follows after Distribution Planning"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Based on the above we need to define a POWL model that captures 1 A strict sequence from OR to MS to QS 2 After QS there seems to be a loop where AS happens first followed by IQC until IQC passes ie the loop ends when IQC passes once and does not need to be repeated 3 After the AS IQC loop Testing TST happens If the test fails there seems to be a loop where Re Testing RT leads back to Testing TST until the test passes 4 After TST is completed Packaging PK follows 5 Labeling LB is optional after PK ie a choice between labeling or skipping 6 Distribution Planning DP follows after LB if it happens or directly after PK if LB is skipped 7 Finally Dispatch D follows after DP"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Let us outline the POWL model step by step"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First define transitions for each activity and a silent transition skip for the optional Labeling activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Define the part where there seems to be a loop between AS and IQC until IQC passes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The event logs indicate that AS should be done first and then IQC should be executed If IQC fails the process seems to go back to AS until IQC passes Thus a loop might be defined such that you first execute AS then IQC and if IQC fails you need to go back to AS until IQC passes However this seems more like a loop where the body is AS IQC until IQC passes However a loop structure in the given POWL syntax is defined as A B which means A B A so the loop should be defined such that A is executed first and then either you exit the loop or execute B and then A again until you exit"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "However what we need here looks like a sequence AS IQC which can be repeated until IQC passes ie AS IQC However the loop operator needs two arguments where the first part is executed first and then either you exit the loop or go to the second part and repeat the first part again Thus A B means A B A Thus in order to make a loop out of AS IQC AS IQC skip seems a bit confusing here because AS IQC should be treated as a single block until IQC passes"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "However a more intuitive way might be to first define a sequence order for AS and IQC such that AS should be done first followed by IQC until AS needs to be done again until IQC passes However what if IQC itself is repeated until it passes Another part seems to be that once AS is done IQC should be done until AS is not repeated again So a loop could be interpreted as First do AS which makes AS the first part of the loop Then if IQC fails do AS again which makes IQC the exit decision part where if IQC passes the loop exits if it fails AS is repeated"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "However another part of the process that seems to have a similar loop until pass structure is 1 TST should be done first 2 If TST fails RT should be done until TST passes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the TST and RT part similarly TST should be done first and if TST fails RT should be done until TST passes again"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Let us now build the POWL model part by part"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First define the AS IQC loop such that AS is executed first followed by IQC If IQC requires another round go back to AS AS IQC loop OperatorPOWL operatorOperatorLOOP childrenAS IQC"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Second define the TST RT loop such that TST is executed first and if TST fails RT should be executed until TST passes TST RT loop OperatorPOWL operatorOperatorLOOP childrenTST RT"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Third define the choice between LB labeling or skipping silent transition labeling choice OperatorPOWL operatorOperatorXOR childrenLB skip"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For the main part the overall structure could be defined in a strict partial order where 1 OR MS QS AS IQC loop TST RT loop PK labeling choice DP D should be the order of activities"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However the StrictPartialOrder can be used to define a partial order where OR should be first followed by MS then QS and so on until D Another potential part of the process is that once AS IQC loop is completed TST RT loop should follow until PK is done After PK there is a choice labeling choice that should be resolved and after that DP should follow until D is the last step"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let us make a sequence order for OR MS QS AS IQC loop TST RT loop PK labeling choice DP and D root StrictPartialOrder nodesOR MS QS AS IQC loop TST RT loop PK labeling choice DP D rootorderadd edgeOR MS rootorderadd edgeMS QS rootorderadd edgeQS AS IQC loop rootorderadd edgeAS IQC loop TST RT loop rootorderadd edgeTST RT loop PK rootorderadd edgePK labeling choice rootorderadd edgelabeling choice DP rootorderadd edgeDP D"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However it seems that AS IQC loop should make sure that AS is executed first and IQC is checked If IQC fails it should go back to AS until IQC passes so that TST can follow Similarly TST RT loop should make sure TST is executed first and if it fails RT should be executed until TST passes so that PK can follow"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Based on the reasoning the POWL model should be structured such that OR MS QS should be strictly ordered AS should be followed by IQC which could make AS IQC loop a part of the process until IQC passes TST should be followed by RT if necessary until TST passes PK should be followed by an optional LB choice between LB or a silent transition DP should follow once PK and possibly LB is completed D should be the last step after DP"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Thus the main part should be a StrictPartialOrder where all these steps are ordered sequentially as described"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Thus a structured POWL model should be import pm4py from pm4pyobjectspowlobj import StrictPartialOrder OperatorPOWL Transition SilentTransition from pm4pyobjectsprocesstreeobj import Operator OR TransitionlabelOR MS TransitionlabelMS QS TransitionlabelQS AS TransitionlabelAS IQC TransitionlabelIQC TST TransitionlabelTST RT TransitionlabelRT PK TransitionlabelPK LB TransitionlabelLB DP TransitionlabelDP D TransitionlabelD skip SilentTransition AS IQC loop OperatorPOWL operatorOperatorLOOP childrenAS IQC TST RT loop OperatorPOWL operatorOperatorLOOP childrenTST RT labeling choice OperatorPOWL operatorOperatorXOR childrenLB skip root StrictPartialOrder nodesOR MS QS AS IQC loop TST RT loop PK labeling choice DP D rootorderadd edgeOR MS rootorderadd edgeMS QS rootorderadd edgeQS AS IQC loop rootorderadd edgeAS IQC loop TST RT loop rootorderadd edgeTST RT loop PK rootorderadd edgePK labeling choice rootorderadd edgelabeling choice DP rootorderadd edgeDP D"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "However another alternative might be to make a sequence where some parts are strictly ordered"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "First part should be a sequence until the AS IQC loop initial sequence StrictPartialOrder nodesOR MS QS initial sequenceorderadd edgeOR MS initial sequenceorderadd edgeMS QS Last part should be a sequence after the PK choice part final sequence StrictPartialOrder nodesDP D final sequenceorderadd edgeDP D Main part should have all these parts in a strict partial order main sequence StrictPartialOrder nodesinitial sequence AS IQC loop TST RT loop PK labeling choice final sequence main sequenceorderadd edgeinitial sequence AS IQC loop main sequenceorderadd edgeAS IQC loop TST RT loop main sequenceorderadd edgeTST RT loop PK main sequenceorderadd edgePK labeling choice main sequenceorderadd edgelabeling choice final sequence"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "However a more intuitive description might be"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "import pm4py from pm4pyobjectspowlobj import StrictPartialOrder OperatorPOWL Transition SilentTransition from pm4pyobjectsprocesstreeobj import Operator First define all the transitions for the activities OR TransitionlabelOR MS TransitionlabelMS QS TransitionlabelQS AS TransitionlabelAS IQC TransitionlabelIQC TST TransitionlabelTST RT TransitionlabelRT PK TransitionlabelPK LB TransitionlabelLB DP TransitionlabelDP D TransitionlabelD skip SilentTransition Define the AS IQC until IQC passes part as a loop AS IQC loop OperatorPOWL operatorOperatorLOOP childrenAS IQC Define the TST RT TST until test passes part as a loop TST RT loop OperatorPOWL operatorOperatorLOOP childrenTST RT Define the choice between LB and a skip labeling choice OperatorPOWL operatorOperatorXOR childrenLB skip Define a partial order for the entire main flow root StrictPartialOrder nodesOR MS QS AS IQC loop TST RT loop PK labeling choice DP D rootorderadd edgeOR MS rootorderadd edgeMS QS rootorderadd edgeQS AS IQC loop rootorderadd edgeAS IQC loop TST RT loop rootorderadd edgeTST RT loop PK rootorderadd edgePK labeling choice rootorderadd edgelabeling choice DP rootorderadd edgeDP D"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This reasoning process makes us understand that the POWL model should be structured as a strict partial order where activities are ordered such that OR MS QS AS until IQC passes TST until TST passes PK LB optional DP D"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
