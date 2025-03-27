@@ -152,7 +152,7 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                         reasoning_trace
                     ])
 
-                    if True:
+                    if False:
                         # Copy to clipboard
                         pyperclip.copy(clipboard_content)
 
@@ -165,9 +165,10 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                         print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
                         subprocess.call(["notepad", prel_path])
                     else:
-                        import pm4py
+                        import pm4py, time
 
-                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../openai_api.txt", "r").read(), openai_model="gpt-4o-2024-11-20")
+                        print("req")
+                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../google_api.txt", "r").read(), openai_model="gemini-2.5-pro-exp-03-25", api_url="https://generativelanguage.googleapis.com/v1beta")
                         F = open(prel_path, "w", encoding="utf-8")
                         F.write(resp)
                         F.close()
@@ -222,7 +223,11 @@ if __name__ == "__main__":
 
     questions_folder = r"C:\Users\berti\pm-llm-benchmark\questions"
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
-    pattern = "DeepSeek-R1-Distill-Llama-8B"
     prel_folder = r"prel\final_abstract_steps"
 
-    main(input_folder, pattern, prel_folder, questions_folder)
+    patterns = ["Grok-3-beta-thinking-20250221", "DeepSeek-R1-671B-HB", "DeepSeek-R1-Zero", "Perplexity-R1-1776"]
+    patterns = patterns + ["QwenQwQ-32B", "exaone-deep32b-fp16", "exaone-deep7.8b-fp16", "exaone-deep2.4b-fp16", "DeepSeek-R1-Dynamic-Quant"]
+    patterns = patterns + ["DeepSeek-R1-Distill-Llama-70B", "DeepSeek-R1-Distill-Qwen-32B", "DeepSeek-R1-Distill-Qwen-14B", "DeepSeek-R1-Distill-Llama-8B", "DeepSeek-R1-Distill-Qwen-7B", "DeepSeek-R1-Distill-Qwen-1.5B"]
+
+    for pattern in patterns:
+        main(input_folder, pattern, prel_folder, questions_folder)
