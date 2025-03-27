@@ -10,8 +10,9 @@
 | DeepSeek-R1-671B-HB           | **12303** |  45 |    1 |   0 |  830 |    97 |   15 |
 | Perplexity-R1-1776            | **12095** |  45 |    1 |   0 |  779 |    75 |    1 |
 | exaone-deep32b-fp16           | **11187** |  43 |    3 |   0 |  779 |   103 |   25 |
+| DeepSeek-R1-Dynamic-Quant     | **10658** |  35 |    3 |   0 |  830 |   162 |   34 |
+| exaone-deep2.4b-fp16          | **10481** |  40 |    3 |   3 |  806 |   139 |   27 |
 | DeepSeek-R1-Zero              | **9765**  |  46 |    0 |   0 |  523 |    45 |    1 |
-| exaone-deep2.4b-fp16          | **4850**  |  19 |    0 |   2 |  368 |    50 |   14 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
 
@@ -27,8 +28,9 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-671B-HB           |   13   |   32   |    2.2 |    4.5 |   16.9 | 19.2 | 2.1 |    1   |    1.1 |    8.2 |
 | Perplexity-R1-1776            |   16.5 |   28.2 |    2.9 |    2.7 |   20.4 | 16.6 | 3.6 |    1.3 |    1.5 |    6.3 |
 | exaone-deep32b-fp16           |   12.8 |   32.1 |    2.5 |    2.6 |   17.3 | 17.9 | 5.6 |    1.4 |    0.8 |    6.9 |
+| DeepSeek-R1-Dynamic-Quant     |   13.1 |   32.5 |    2.9 |    2   |   22.1 | 17.1 | 4.2 |    0   |    1   |    5.2 |
+| exaone-deep2.4b-fp16          |   15.5 |   30.8 |    1.6 |    2.2 |   20.1 | 15.4 | 6.5 |    1.2 |    1.2 |    5.5 |
 | DeepSeek-R1-Zero              |   18.8 |   40.1 |    3.5 |    3   |   11.6 | 15.1 | 0.5 |    1.2 |    0.7 |    5.4 |
-| exaone-deep2.4b-fp16          |   16.2 |   34.3 |    1.9 |    2.5 |   16   | 17.6 | 7.2 |    0.2 |    0.5 |    3.7 |
 
 Dictionary of activities:
 * **P.R.** -> Pattern Recognition
@@ -53,5 +55,6 @@ Dictionary of activities:
 | DeepSeek-R1-671B-HB           |   95.9 |   97.3 |   85.7 |   90.5 |   69.8 | 95.6 | 70   |   88.9 |   40   |   70.1 |
 | Perplexity-R1-1776            |   96.5 |   97.5 |   96   |   78.3 |   88.5 | 93   | 67.7 |   90.9 |   30.8 |   83.3 |
 | exaone-deep32b-fp16           |   91.4 |   95.5 |   91.3 |   91.7 |   73.9 | 87.7 | 66.7 |   92.3 |   57.1 |   69.8 |
+| DeepSeek-R1-Dynamic-Quant     |   91.8 |   94.6 |   86.7 |   76.2 |   61.7 | 80   | 74.4 |    0   |    0   |   71.7 |
+| exaone-deep2.4b-fp16          |   91.4 |   91.6 |  100   |   76.2 |   68.7 | 88.7 | 69.8 |  100   |   25   |   67.9 |
 | DeepSeek-R1-Zero              |   99.1 |   98.7 |  100   |   88.2 |   78.8 | 83.7 |  0   |  100   |   25   |   80.6 |
-| exaone-deep2.4b-fp16          |   92.9 |   91.9 |  100   |   90.9 |   60.9 | 93.4 | 74.2 |  100   |    0   |   75   |
