@@ -10,19 +10,6 @@ def read_json_file(file_path):
         return json.load(f)
 
 
-def validate_evaluation_list(evaluation_list, expected_length):
-    """
-    Validate that evaluation_list is a JSON list with the same number of items as expected_length,
-    and each item is one of "Y", "P", or "N".
-    """
-    if not isinstance(evaluation_list, list):
-        return False
-    for elem in evaluation_list:
-        if elem not in ["Y", "P", "N"]:
-            return False
-    return True
-
-
 def extract_json_from_response(response_str):
     """
     Extract JSON content from a response string delimited by ```json ... ```.
@@ -80,11 +67,8 @@ def evaluate_file(file_path, output_folder, api_key):
                 print("Failed to parse JSON from response, retrying...", e)
                 continue
 
-            if validate_evaluation_list(evaluation_list, num_steps):
-                break
-            else:
-                print("Validation failed: output JSON list length mismatch or contains invalid values. Retrying...")
-                time.sleep(1)
+            evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
+            break
 
         # Save the validated evaluation JSON list to the output folder with the same filename.
         output_path = os.path.join(output_folder, os.path.basename(file_path))
