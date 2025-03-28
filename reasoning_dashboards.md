@@ -16,7 +16,9 @@
 | DeepSeek-R1-Distill-Llama-70B | **10153** |  40 |    5 |   1 |  717 |    57 |   13 |
 | DeepSeek-R1-Distill-Qwen-32B  | **9970**  |  42 |    4 |   0 |  650 |    50 |   14 |
 | DeepSeek-R1-Zero              | **9765**  |  46 |    0 |   0 |  523 |    45 |    1 |
-| DeepSeek-R1-Distill-Llama-8B  | **4178**  |  20 |   10 |   3 |  540 |   142 |   74 |
+| DeepSeek-R1-Distill-Llama-8B  | **7307**  |  33 |   10 |   3 |  726 |   153 |   75 |
+| DeepSeek-R1-Distill-Qwen-7B   | **3811**  |  26 |   16 |   4 |  578 |   149 |  101 |
+| DeepSeek-R1-Distill-Qwen-1.5B | **-5495** |   3 |    9 |  11 |  240 |    95 |  250 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
 
@@ -38,7 +40,9 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-Distill-Llama-70B |   16.1 |   31.4 |    1.9 |    2.9 |   21.6 | 14.2 | 3.3 |    0.9 |    0.9 |    6.7 |
 | DeepSeek-R1-Distill-Qwen-32B  |   15.5 |   34.2 |    3.5 |    2.4 |   17.8 | 14.8 | 4.5 |    0.6 |    0.4 |    6.3 |
 | DeepSeek-R1-Zero              |   18.8 |   40.1 |    3.5 |    3   |   11.6 | 15.1 | 0.5 |    1.2 |    0.7 |    5.4 |
-| DeepSeek-R1-Distill-Llama-8B  |   14   |   31.3 |    1.3 |    1.2 |   21.6 | 16.3 | 6.5 |    0   |    0.9 |    6.9 |
+| DeepSeek-R1-Distill-Llama-8B  |   14.7 |   28.9 |    2   |    1.2 |   23.9 | 15   | 6   |    1.4 |    0.8 |    6.2 |
+| DeepSeek-R1-Distill-Qwen-7B   |   15.8 |   27.1 |    2.5 |    0.6 |   21.1 | 18.7 | 5.6 |    1.1 |    1   |    6.5 |
+| DeepSeek-R1-Distill-Qwen-1.5B |   15.4 |   32.1 |    0.7 |    1.5 |   22.6 | 10.9 | 8.7 |    0   |    0.9 |    7.2 |
 
 Dictionary of activities:
 * **P.R.** -> Pattern Recognition
@@ -69,4 +73,6 @@ Dictionary of activities:
 | DeepSeek-R1-Distill-Llama-70B |   98.4 |   95.1 |  100   |   82.6 |   84.1 | 92   | 88.5 |  100   |   71.4 |   79.2 |
 | DeepSeek-R1-Distill-Qwen-32B  |   96.4 |   95.9 |   96   |   82.4 |   87.4 | 96.2 | 50   |  100   |   66.7 |   80   |
 | DeepSeek-R1-Zero              |   99.1 |   98.7 |  100   |   88.2 |   78.8 | 83.7 |  0   |  100   |   25   |   80.6 |
-| DeepSeek-R1-Distill-Llama-8B  |   91.5 |   86.9 |  100   |   88.9 |   47.9 | 74.8 | 40.8 |    0   |    0   |   55.8 |
+| DeepSeek-R1-Distill-Llama-8B  |   92.9 |   88.8 |  100   |   81.8 |   61   | 77.6 | 42.1 |  100   |   12.5 |   59.3 |
+| DeepSeek-R1-Distill-Qwen-7B   |   84.7 |   79   |   61.9 |  100   |   56   | 67.7 | 45.7 |  100   |   25   |   68.5 |
+| DeepSeek-R1-Distill-Qwen-1.5B |   73.3 |   43.6 |   50   |   33.3 |   14.4 | 46.9 | 35.3 |    0   |   20   |   45.2 |
