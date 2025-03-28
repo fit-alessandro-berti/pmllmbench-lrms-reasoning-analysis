@@ -58,20 +58,22 @@ def evaluate_file(file_path, output_folder, api_key):
 
         # Continue querying until a valid evaluation JSON is produced.
         while True:
-            print(f"Evaluating file: {os.path.basename(file_path)}")
-            response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="chatgpt-4o-latest")
-            json_str = extract_json_from_response(response)
-            try:
-                evaluation_list = json.loads(json_str)
-            except Exception as e:
-                print("Failed to parse JSON from response, retrying...", e)
-                continue
+            output_path = os.path.join(output_folder, os.path.basename(file_path))
 
-            evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
+            if not os.path.exists(output_path):
+                print(f"Evaluating file: {os.path.basename(file_path)}")
+                response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="chatgpt-4o-latest")
+                json_str = extract_json_from_response(response)
+                try:
+                    evaluation_list = json.loads(json_str)
+                except Exception as e:
+                    print("Failed to parse JSON from response, retrying...", e)
+                    continue
+
+                evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
             break
 
         # Save the validated evaluation JSON list to the output folder with the same filename.
-        output_path = os.path.join(output_folder, os.path.basename(file_path))
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(evaluation_list, f, indent=2, ensure_ascii=False)
         print(f"Processed file {os.path.basename(file_path)} and saved evaluation to {output_path}")
