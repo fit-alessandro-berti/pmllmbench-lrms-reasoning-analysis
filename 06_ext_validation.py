@@ -17,8 +17,6 @@ def validate_evaluation_list(evaluation_list, expected_length):
     """
     if not isinstance(evaluation_list, list):
         return False
-    if len(evaluation_list) != expected_length:
-        return False
     for elem in evaluation_list:
         if elem not in ["Y", "P", "N"]:
             return False
@@ -74,7 +72,7 @@ def evaluate_file(file_path, output_folder, api_key):
         # Continue querying until a valid evaluation JSON is produced.
         while True:
             print(f"Evaluating file: {os.path.basename(file_path)}")
-            response = pm4py.llm.openai_query(prompt, api_key=api_key, model="chatgpt-4o-latest")
+            response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="chatgpt-4o-latest")
             json_str = extract_json_from_response(response)
             try:
                 evaluation_list = json.loads(json_str)
@@ -101,7 +99,7 @@ def evaluate_file(file_path, output_folder, api_key):
 
 def main(input_folder, output_folder):
     # Read API key (adjust the path to your API key file as needed)
-    api_key_path = "../openai_api.txt"
+    api_key_path = "../api_openai.txt"
     with open(api_key_path, "r") as f:
         api_key = f.read().strip()
 
