@@ -125,7 +125,10 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                     - Conclusion - C
                     - Conclusion - PC
                     - Conclusion - W
-                    
+
+                    AVOID reporting any strange characters inside the strings
+                    in the final JSON. Report only alphanumeric characters!
+                                        
                     The JSON should look like:
                     ```json
                     [
