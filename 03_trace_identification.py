@@ -228,9 +228,7 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["Grok-3-beta-thinking-20250221", "DeepSeek-R1-671B-HB", "DeepSeek-R1-Zero", "Perplexity-R1-1776"]
-    patterns = patterns + ["QwenQwQ-32B", "exaone-deep32b-fp16", "exaone-deep7.8b-fp16", "exaone-deep2.4b-fp16", "DeepSeek-R1-Dynamic-Quant"]
-    patterns = patterns + ["DeepSeek-R1-Distill-Llama-70B", "DeepSeek-R1-Distill-Qwen-32B", "DeepSeek-R1-Distill-Qwen-14B", "DeepSeek-R1-Distill-Llama-8B", "DeepSeek-R1-Distill-Qwen-7B", "DeepSeek-R1-Distill-Qwen-1.5B"]
+    patterns = ["QwenQwQ-32B-Preview"]
 
     for pattern in patterns:
         main(input_folder, pattern, prel_folder, questions_folder)

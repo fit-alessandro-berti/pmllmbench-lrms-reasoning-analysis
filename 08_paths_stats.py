@@ -34,8 +34,8 @@ def parse_step(step):
             reasoning_type = name
             tag = ""
     # Define tags for correctness and incorrectness.
-    correct_tags = {"PE", "C"}
-    incorrect_tags = {"NE", "W", "IND", "PC"}
+    correct_tags = {"PE", "C", "IND", "PC"}
+    incorrect_tags = {"NE", "W"}
     is_correct = tag in correct_tags
     is_incorrect = tag in incorrect_tags
     return reasoning_type, tag, is_correct, is_incorrect
