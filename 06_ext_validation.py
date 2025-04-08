@@ -71,12 +71,13 @@ def evaluate_file(file_path, output_folder, api_key):
                     continue
 
                 evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
-            break
 
-        # Save the validated evaluation JSON list to the output folder with the same filename.
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(evaluation_list, f, indent=2, ensure_ascii=False)
-        print(f"Processed file {os.path.basename(file_path)} and saved evaluation to {output_path}")
+                # Save the validated evaluation JSON list to the output folder with the same filename.
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(evaluation_list, f, indent=2, ensure_ascii=False)
+                print(f"Processed file {os.path.basename(file_path)} and saved evaluation to {output_path}")
+
+            break
 
     except Exception as ex:
         traceback.print_exc()
