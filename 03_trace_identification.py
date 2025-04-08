@@ -228,7 +228,7 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["QwenQwQ-32B-Preview"]
+    patterns = ["qwen-qwq-32b"]
 
     for pattern in patterns:
         main(input_folder, pattern, prel_folder, questions_folder)
