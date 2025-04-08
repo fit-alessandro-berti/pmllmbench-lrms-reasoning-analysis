@@ -1,0 +1,117 @@
+[
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Ill start by recalling the standard P2P process flow"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "The typical steps are 1 Create Purchase Requisition 2 Approve Purchase Requisition maybe multiple approvals but generally after creation 3 Issue Purchase Order after requisition is approved 4 Receive Goods 5 Receive Vendor Invoice 6 Match Invoice to PO to ensure it aligns with the order 7 Approve Payment maybe another step here 8 Release Payment 9 Close Case"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Starting with Case 1001  The sequence looks standard After creating and approving requisition they issue the PO Then they receive goods and the invoice They match the invoice to the PO before releasing payment Closing the case at the end is normal Seems okay"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Hmm lets see the order here The steps are  Create Requisition then Issue PO immediately after without approval Wait the Approve Requisition is at 0715 but the PO was issued at 0840 wait looking at the timestamps the Approve Purchase Requisition is on 0715 after the PO was already issued The timestamps are  0830 Create Requisition 0840 Issue PO but the requisition wasnt approved yet until 0715 the next day Wait the approve step is at 20240203 0715 The Issue PO was at 20240201 0840 same day as creation So the PO was issued before the requisition was approved Thats a problem"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Because normally you cant issue a PO before the requisition is approved So thats an anomaly Because the Purchase Order should only be issued after the requisition is approved So in Case 1002 the PO was issued before approval Thats a big issue because its a control pointapprovals are there to ensure that the requisition is valid before committing to a purchase order So thats definitely an anomaly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Another thing in Case 1002 The Vendor Invoice Received is at 0700 on 20240203 then immediately Release Payment at 0715 but before the goods were received The Receive Goods step is on 20240204 0900 So they processed payment before receiving the goods"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Thats another issue because you shouldnt release payment before receiving the goods and matching the invoice The standard process requires that you receive the goods get the invoice match them then pay Paying before goods are received could lead to paying for something not received which is risky"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Looking at the sequence here The steps are  Create approve issue PO then Release Payment on 0208 but before the invoice is received The invoice is received on 0209 and then goods received on 0210 Wait they released payment before even receiving the invoice Thats a problem The Match Invoice comes after So the payment is made before the invoice is received and matched Thats definitely an anomaly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Payment should only be released after matching the invoice with the PO and confirming receipt of goods"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Also the Receive Goods is after the invoice Wait the order here is After issuing the PO they release payment before getting the invoice Then the invoice comes in then receive goods then match Thats a mess The correct order would be receive goods get invoice match then pay Here payment is way too early Also receiving goods after the invoice is possible but the key is that payment should come after matching So this is definitely an anomaly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Looking at the timestamps here  Create and approve requisition then Receive Goods before issuing the Purchase Order Wait the PO was issued at 0900 on 0206 but they received goods at 0900 on 0206 as well Wait checking the table Wait the log shows for 1004  20240205 1000 Create Requisition 1015 Approve Requisition 0900 on 0206 Receive Goods Then 0915 on 0206 Issue PO Wait the timestamps for 1004s activities are  20240205 1000 Create Requisition 1015 Approve Then on 20240206 0900 Receive Goods but the PO wasnt issued yet Wait the Issue PO is at 20240206 0915 Wait so they received goods before issuing the PO Thats impossible"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Because the Purchase Order is the official order sent to the vendor How can goods be received before the PO is even issued Thats a problem The PO is necessary to instruct the vendor to send the goods So receiving goods before the PO is issued is impossible unless theres a prior agreement but generally the PO comes first This is an anomaly Also the PO is issued after goods were received which is backwards Thats a big red flag"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Additionally the invoice was received on 0207 then matched then payment So the payment steps after that are okay but the main issue here is the goods received before the PO is issued"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me check each case again to make sure Case 1001 All steps in order no issues Case 1002 Two issues PO before approval and payment before goods received Case 1003 Payment before invoice and goods Case 1004 Receiving goods before issuing PO and then the PO is issued just after but the goods came in before the PO Thats impossible Also in Case 1003 the payment is released before the invoice is even received So thats another issue"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait let me check the exact sequences again Case 1003s activities Create approve issue PO then on 20240208 1100 Release Payment But the invoice was received on 20240209 So they paid before even receiving the invoice Thats definitely wrong They cant pay without having the invoice to match it So thats a problem"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Case 1004 The sequence is After creating and approving requisition the next step is receiving goods at 0206 0900 The PO was issued at 0206 0915 just 15 minutes later Thats odd How could goods be received before the PO was even issued That suggests the PO was issued after the goods arrived which is backwards The PO should be sent to the vendor to get the goods so receiving goods before the PO is issued is impossible unless there was an error So thats a major anomaly"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now summarizing the anomalies Case 1002 1 Issue PO before approving requisition Thats a key step The requisition needs approval before issuing the PO So the PO issuance is premature without approval Thats a control failure Also releasing payment before receiving goods Case 1003 Payment released before invoice received Thats a problem because you need the invoice to match with the PO and goods received Paying without that is risky Case 1004 Receiving goods before issuing PO Also the PO was issued just after the goods were received which is the reverse of the normal flow Thats a problem"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait also in Case 1002 after releasing payment they then receive goods So the payment was made before the goods were even received which is a big risk They paid before ensuring the goods were received and matched"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Another thing to check is the Match Invoice to PO step In normal P2P you should match the invoice to the PO and goods received note before payment Any case where payment is before matching would be an issue Lets check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1002 Payment was released at 0203 0715 then the Match is on 0205 0800 So they paid before matching which is bad"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1003 Payment was on 0208 then invoice received on 0209 so payment was before invoice so no match at all before payment"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1004 Payment was released on 0207 0900 but the Match was done at 0207 0830 So in this case they did match before payment"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait let me recheck Case 1004s activities After the PO was issued 0206 0915 they get invoice on 0207 0800 then match at 0207 0830 then release payment at 0900 So here the Match is before payment So that part is okay But the main issue is receiving goods before the PO"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the anomalies are Case 1002  PO issued before requisition approval Payment before goods received and without proper approval and before matching Case 1003  Payment before invoice and goods and before matching Case 1004  Receive goods before PO issuance"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Additionally in Case 1002 the Approval comes after the payment was made The Approval is at 20240203 0715 but the payment was at same day 0715 Wait the timestamp for Approve Purchase Requisition in 1002 is at 20240203 0715 and the Release Payment is at 0715 the same day Looking at the log Looking at the table for Case 1002 The activities in order are 1 Create Requisition 20240201 0830 2 Issue PO 0840 3 Vendor Invoice Received 20240203 0700 4 Release Payment 0715 5 Approve Requisition 0715 same day Wait the timestamp for Approve Purchase Requisition is 20240203 0715 which is the same day as the invoice and payment So the approval was done on the 3rd so after the requisition was created on the 1st But the PO was issued on the 1st so the approval was after the PO was issued So the approval is after the PO was issued which is bad because the PO should be issued only after approval"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1003s Match step The match is done on 20240211 after payment was already made on 20240208 So payment before match"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So in summary the anomalies are For each case Case 1002  PO issued before requisition approval  Payment before goods received and without proper approvals  Payment before matching Case 1003  Payment before invoice goods and before matching Case 1004  Goods received before PO"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Now I need to list these anomalies and explain why theyre problematic"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

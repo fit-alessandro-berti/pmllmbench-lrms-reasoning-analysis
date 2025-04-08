@@ -10,6 +10,7 @@
 | qwen-qwq-32b-nostepbystep                       | **13281** |  44 |    2 |   0 |  945 |   109 |   13 |
 | exaone-deep7.8b-fp16                            | **12381** |  44 |    2 |   0 |  851 |   109 |   11 |
 | DeepSeek-R1-Dynamic-Quant                       | **12372** |  43 |    3 |   0 |  922 |   168 |   34 |
+| qwen-qwq-32b-nostepbystep-lessmoral             | **12344** |  44 |    1 |   0 |  832 |    76 |   10 |
 | DeepSeek-R1-671B-HB                             | **12303** |  45 |    1 |   0 |  830 |    97 |   15 |
 | Perplexity-R1-1776                              | **12095** |  45 |    1 |   0 |  779 |    75 |    1 |
 | qwen-qwq-32b-stepbystep                         | **12027** |  44 |    2 |   0 |  848 |   113 |   27 |
@@ -40,6 +41,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | qwen-qwq-32b-nostepbystep                       |   13.5 |   33.5 |    1.5 |    1.6 |   20.1 | 17.5 | 5   |    2.2 |    0.9 |    4.2 |
 | exaone-deep7.8b-fp16                            |   14.8 |   33.2 |    3.6 |    2.9 |   19.4 | 14.4 | 5.3 |    0.8 |    0.9 |    4.7 |
 | DeepSeek-R1-Dynamic-Quant                       |   14   |   31.8 |    3   |    2.1 |   22   | 16.5 | 3.9 |    0.9 |    1   |    4.9 |
+| qwen-qwq-32b-nostepbystep-lessmoral             |   13.5 |   32.6 |    1.2 |    1.6 |   22.4 | 17.8 | 5.6 |    1   |    0.4 |    3.9 |
 | DeepSeek-R1-671B-HB                             |   13   |   32   |    2.2 |    4.5 |   16.9 | 19.2 | 2.1 |    1   |    1.1 |    8.2 |
 | Perplexity-R1-1776                              |   16.5 |   28.2 |    2.9 |    2.7 |   20.4 | 16.6 | 3.6 |    1.3 |    1.5 |    6.3 |
 | qwen-qwq-32b-stepbystep                         |   15.9 |   33.1 |    2.4 |    1   |   20.3 | 16.2 | 4.5 |    1.3 |    0.6 |    4.7 |
@@ -79,6 +81,7 @@ Dictionary of activities:
 | qwen-qwq-32b-nostepbystep                       |   95.1 |   96.9 |  100   |   88.2 |   77.2 | 89.3 | 60.4 |  100   |   60   |   82.2 |
 | exaone-deep7.8b-fp16                            |   93.8 |   96.9 |   85.7 |   82.1 |   74.5 | 95   | 74.5 |  100   |   66.7 |   56.5 |
 | DeepSeek-R1-Dynamic-Quant                       |   93   |   95   |   88.2 |   79.2 |   64   | 80.5 | 72.7 |   90   |    9.1 |   70.9 |
+| qwen-qwq-32b-nostepbystep-lessmoral             |   98.4 |   98   |   90.9 |   73.3 |   80.6 | 98.2 | 62.7 |  100   |   75   |   72.2 |
 | DeepSeek-R1-671B-HB                             |   95.9 |   97.3 |   85.7 |   90.5 |   69.8 | 95.6 | 70   |   88.9 |   40   |   70.1 |
 | Perplexity-R1-1776                              |   96.5 |   97.5 |   96   |   78.3 |   88.5 | 93   | 67.7 |   90.9 |   30.8 |   83.3 |
 | qwen-qwq-32b-stepbystep                         |   93.6 |   93.6 |  100   |   60   |   66.7 | 91.9 | 52.3 |  100   |   83.3 |   93.5 |
