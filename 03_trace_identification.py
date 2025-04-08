@@ -171,7 +171,7 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                         import pm4py, time
 
                         print("req")
-                        resp = pm4py.llm.google_query(clipboard_content, api_key=open("../google_api.txt", "r").read(), model="gemini-2.5-pro-exp-03-25")
+                        resp = pm4py.llm.google_query(clipboard_content, api_key=open("../google_api.txt", "r").read(), model="gemini-2.5-pro-preview-03-25")
                         F = open(prel_path, "w", encoding="utf-8")
                         F.write(resp)
                         F.close()
