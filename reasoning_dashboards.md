@@ -5,6 +5,7 @@
 | Model                                           | Score     |   C |   PC |   W |   PE |   IND |   NE |
 |:------------------------------------------------|:----------|----:|-----:|----:|-----:|------:|-----:|
 | Grok-3-beta-thinking-20250221                   | **14459** |  45 |    1 |   0 | 1039 |   131 |   10 |
+| qwen-qwq-32b-nostepbystep-moremoral             | **14218** |  44 |    2 |   0 | 1067 |   112 |   27 |
 | qwen-qwq-32b-nostepbystep-morehypgen            | **13372** |  44 |    2 |   0 |  980 |   108 |   26 |
 | qwen-qwq-32b-nostepbystep-lessvalidbacktr       | **13310** |  43 |    3 |   0 |  956 |   130 |    6 |
 | qwen-qwq-32b-nostepbystep                       | **13281** |  44 |    2 |   0 |  945 |   109 |   13 |
@@ -24,7 +25,6 @@
 | DeepSeek-R1-Distill-Qwen-32B                    | **9970**  |  42 |    4 |   0 |  650 |    50 |   14 |
 | DeepSeek-R1-Zero                                | **9765**  |  46 |    0 |   0 |  523 |    45 |    1 |
 | DeepSeek-R1-Distill-Llama-8B                    | **7307**  |  33 |   10 |   3 |  726 |   153 |   75 |
-| qwen-qwq-32b-nostepbystep-moremoral             | **4502**  |  14 |    0 |   0 |  314 |    18 |    1 |
 | DeepSeek-R1-Distill-Qwen-7B                     | **3811**  |  26 |   16 |   4 |  578 |   149 |  101 |
 | DeepSeek-R1-Distill-Qwen-1.5B                   | **-7724** |  15 |   12 |  19 |  472 |   184 |  438 |
 
@@ -37,6 +37,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | Model                                           |   P.R. |   D.R. |   I.R. |   A.R. |   H.G. |    V |   B |   E.R. |   C.R. |   H.R. |
 |:------------------------------------------------|-------:|-------:|-------:|-------:|-------:|-----:|----:|-------:|-------:|-------:|
 | Grok-3-beta-thinking-20250221                   |   13.5 |   31.9 |    2.8 |    2.1 |   16.8 | 17.9 | 3.9 |    1.3 |    1.4 |    8.5 |
+| qwen-qwq-32b-nostepbystep-moremoral             |   13.3 |   34   |    1.5 |    1.6 |   18   | 18.2 | 3.9 |    3.2 |    0.4 |    6   |
 | qwen-qwq-32b-nostepbystep-morehypgen            |   14.7 |   32.1 |    1.1 |    1.4 |   23.8 | 15.7 | 5.4 |    1.5 |    0.5 |    3.7 |
 | qwen-qwq-32b-nostepbystep-lessvalidbacktr       |   14.7 |   33.1 |    2.3 |    1.6 |   21.5 | 16.6 | 3.8 |    0.8 |    1.1 |    4.5 |
 | qwen-qwq-32b-nostepbystep                       |   13.5 |   33.5 |    1.5 |    1.6 |   20.1 | 17.5 | 5   |    2.2 |    0.9 |    4.2 |
@@ -56,7 +57,6 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-Distill-Qwen-32B                    |   15.5 |   34.2 |    3.5 |    2.4 |   17.8 | 14.8 | 4.5 |    0.6 |    0.4 |    6.3 |
 | DeepSeek-R1-Zero                                |   18.8 |   40.1 |    3.5 |    3   |   11.6 | 15.1 | 0.5 |    1.2 |    0.7 |    5.4 |
 | DeepSeek-R1-Distill-Llama-8B                    |   14.7 |   28.9 |    2   |    1.2 |   23.9 | 15   | 6   |    1.4 |    0.8 |    6.2 |
-| qwen-qwq-32b-nostepbystep-moremoral             |   17.7 |   38.1 |    1.8 |    2.4 |   14.1 | 18.9 | 3   |    0.9 |    0   |    3   |
 | DeepSeek-R1-Distill-Qwen-7B                     |   15.8 |   27.1 |    2.5 |    0.6 |   21.1 | 18.7 | 5.6 |    1.1 |    1   |    6.5 |
 | DeepSeek-R1-Distill-Qwen-1.5B                   |   14.6 |   25.3 |    0.9 |    1.8 |   29.2 | 10.2 | 9.5 |    0.7 |    0.7 |    6.9 |
 
@@ -78,6 +78,7 @@ Dictionary of activities:
 | Model                                           |   P.R. |   D.R. |   I.R. |   A.R. |   H.G. |    V |    B |   E.R. |   C.R. |   H.R. |
 |:------------------------------------------------|-------:|-------:|-------:|-------:|-------:|-----:|-----:|-------:|-------:|-------:|
 | Grok-3-beta-thinking-20250221                   |   97.5 |   96.3 |   90.9 |   68   |   72.2 | 94.3 | 76.1 |  100   |   47.1 |   75   |
+| qwen-qwq-32b-nostepbystep-moremoral             |   96.3 |   95.6 |  100   |   94.7 |   75.6 | 90   | 68.1 |   92.1 |   80   |   72.2 |
 | qwen-qwq-32b-nostepbystep-morehypgen            |   94.5 |   96.4 |  100   |   75   |   77.4 | 93.7 | 63.3 |  100   |   33.3 |   73.2 |
 | qwen-qwq-32b-nostepbystep-lessvalidbacktr       |   95.6 |   93.4 |   84   |   77.8 |   83   | 94.5 | 50   |  100   |   50   |   59.2 |
 | qwen-qwq-32b-nostepbystep                       |   95.1 |   96.9 |  100   |   88.2 |   77.2 | 89.3 | 60.4 |  100   |   60   |   82.2 |
@@ -97,6 +98,5 @@ Dictionary of activities:
 | DeepSeek-R1-Distill-Qwen-32B                    |   96.4 |   95.9 |   96   |   82.4 |   87.4 | 96.2 | 50   |  100   |   66.7 |   80   |
 | DeepSeek-R1-Zero                                |   99.1 |   98.7 |  100   |   88.2 |   78.8 | 83.7 |  0   |  100   |   25   |   80.6 |
 | DeepSeek-R1-Distill-Llama-8B                    |   92.9 |   88.8 |  100   |   81.8 |   61   | 77.6 | 42.1 |  100   |   12.5 |   59.3 |
-| qwen-qwq-32b-nostepbystep-moremoral             |  100   |   97.6 |  100   |  100   |   78.7 | 95.2 | 80   |  100   |    0   |   90   |
 | DeepSeek-R1-Distill-Qwen-7B                     |   84.7 |   79   |   61.9 |  100   |   56   | 67.7 | 45.7 |  100   |   25   |   68.5 |
 | DeepSeek-R1-Distill-Qwen-1.5B                   |   72.5 |   46.6 |   60   |   65   |   21.6 | 50   | 34.6 |   87.5 |   25   |   50   |
