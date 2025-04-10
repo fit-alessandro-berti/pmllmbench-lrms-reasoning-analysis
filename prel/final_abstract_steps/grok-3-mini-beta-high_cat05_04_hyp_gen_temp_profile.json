@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, the user has provided a scenario with a temporal profile model for an insurance claim handling process. I need to respond as if I'm the target LLM, generating hypotheses and proposing SQL queries based on the anomalies in the temporal profile. Key elements from the prompt: Tasks: 1. Identify anomalies in the temporal profile model. 2. Generate hypotheses on why these anomalies might exist. 3. Propose verification approaches using SQL queries. Do not reference the instructions or explanations above. So, I must make my response self-contained, starting directly with the analysis."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "From the example temporal profile, the anomalies mentioned are: R to P: Average ~25 hours with very low STDEV (1 hour) suspiciously rigid. P to N: Average 7 days with high STDEV (2 days) inconsistent delays. A to C: Quick closure (2 hours) after assign, might skip steps. E to N: Very quick (5 minutes) transition, possibly skipping steps. I need to identify these anomalies in my response."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now, for hypotheses: Reasons could include systemic delays, automated steps, bottlenecks, inconsistent resources, etc."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For verification, use SQL queries on the database tables, primarily claim_events, but can join with claims and adjusters if needed. SQL queries should: Find claims where time differences are outside expected ranges. Correlate with adjusters, claim types, resources, etc. Database is PostgreSQL, so I can use PostgreSQL-specific functions if needed, like EXTRACT or AGE for time differences."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Structure my response: 1. Identify anomalies: List out the pairs with unusual avg times or STDEVs, based on the provided model. 2. Generate hypotheses: For each anomaly or grouped, suggest possible reasons. 3. Propose verification SQL queries: Suggest queries to check these hypotheses. Make it independent, so start with something like: \"Based on the temporal profile model provided, I have identified several anomalies...\""
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Recall the table structures: claim_events... claims... adjusters... In claim_events, 'resource' is VARCHAR... I need to assume how it's linked... For time differences, I need to calculate the difference between timestamps for specific activity pairs per claim. In SQL, I can use window functions or self-joins... Simplest way is to join the table to itself for the same claim_id with different activities. SELECT ce1.claim_id, EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp))... Then I can filter where this time_diff is outside the expected range... But ZETA isn't specified, so I might assume a value or just use the avg and stdev from the model."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses: For R to P low STDEV: Maybe automated approval system or fixed schedule. For P to N long delay: Backlog in notification department, or manual process delays. For A to C quick: Perhaps some claims are simple and fast-tracked, or error in recording events. For E to N quick: Maybe notification is automated right after evaluation, skipping approval in some cases."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Verification queries: For each anomaly, suggest a query to find claims where the time difference is anomalous. Then, queries to correlate with claim_type, resource, etc. For example: Query to find claims where time between R and P is outside... Actually, low stdev means most are close... query to find the distribution or count how many have time_diff close to avg. Similarly for others. For A to C quick... find claims where time between A and C is less than... Also, check if intermediate activities are missing. For example, for A to C quick, perhaps E, P, N are not present... In PostgreSQL, I can use array_agg or string_agg... For E to N quick, check if P is missing between E and N... Better to first find the sequence. Perhaps use a query to find the time between start and end of certain activities is short, and check the events in between."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Also, for correlation, add joins to claims and adjusters. For example, in queries, include c.claim_type, a.region if joined. To join with adjusters, need to know how resource links. Assume resource in claim_events is the adjuster name or ID. For now, I'll use resource directly, or suggest joining if possible. In the query, I can use the resource column to group or filter."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Finally, make sure the response is comprehensive but not too long. Cover all mentioned anomalies. I'll make it coherent."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
