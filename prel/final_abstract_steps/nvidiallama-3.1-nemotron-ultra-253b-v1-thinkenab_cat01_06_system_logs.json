@@ -1,0 +1,89 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, the raw log has events with timestamps, actions like FOCUS, TYPING, SWITCH, etc., and attributes like App and Window. My goal is to convert these into events with Case ID, Activity Name, Timestamp, and maybe other attributes."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Starting with Case Identification. The main challenge here is grouping events into coherent cases. A case should represent a logical unit of work. Looking at the log, the user interacts with different documents and applications. For example, they work on Document1.docx, then switch to email, then to a PDF, Excel, and back. So, each document they work on could be a separate case. Like, editing Document1.docx would be one case, handling an email another, working on the PDF another, and so on."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively, maybe the case is determined by the document or email they're working on. Each time they focus on a new window (like a specific document), that could start a new case, and all actions related to that window are part of that case until they switch away."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Looking at the log entries:\n\n- The first event is FOCUS on Quarterly_Report.docx. Then immediately FOCUS on Document1.docx. That might be a quick switch, maybe the user opened Document1 after briefly looking at Quarterly_Report. But since they start working on Document1 (typing and saving), that could be a separate case. Then they switch to Chrome for email, which would be another case. Then to Adobe Acrobat for the PDF, then Excel, then back to Document1, then back to Quarterly_Report."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So maybe the Case ID is derived from the window title or the specific document/email being handled. For example:\n\n- Document1.docx: Case ID could be DOC1\n- Email about Annual Meeting: Case ID could be EMAIL1\n- Report_Draft.pdf: PDF1\n- Budget_2024.xlsx: EXCEL1\n- Quarterly_Report.docx: DOC2"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "But the user might revisit the same document after switching away. Like, after working on EXCEL1, they switch back to Document1.docx. So those events should be part of the DOC1 case again. So, the Case ID would be the same when they return to the same window."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Wait, looking at the log entry: when they switch to Chrome, the Window is \"Email - Inbox\". Then there's a CLICK action with \"Open Email about Annual Meeting\". So maybe each email opened is a separate case, but the window title remains \"Email - Inbox\". This complicates things because the window title isn't unique. So perhaps in this case, the Case ID is determined not just by the window title but also by the specific action (like opening a particular email)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So perhaps the Case ID is determined by the main entity being worked on: Document1.docx is one case, the email about Annual Meeting is another, the PDF is another, the Excel budget is another, and Quarterly_Report.docx is another."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This approach groups events into cases based on the specific document or task (like handling an email) the user is working on. Each time the user switches to a different document or starts a new task (like handling an email), a new case is created. When they return to a previous document, that case is resumed."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So, for the events:\n\n1. FOCUS on Quarterly_Report.docx  Case DOC2 starts, but immediately switches to Document1.docx (next event) before any activity. So maybe the first FOCUS is just a quick switch, and the actual work starts with the second FOCUS on Document1.docx. So DOC1 case starts here.\n\nThen, the user works on Document1.docx (TYPING, SAVE), then SWITCHes to Chrome (Email - Inbox), opens an email (CLICK, Action=Open Email...), which would start a new case (EMAIL1). Then, after sending the email, they SWITCH to Adobe Acrobat (Report_Draft.pdf)  case PDF1. Then SWITCH to Excel (Budget_2024.xlsx)  case EXCEL1. Then SWITCH back to Word (Document1.docx)  DOC1 resumes. Then CLOSE Document1, FOCUS on Quarterly_Report.docx  DOC2 resumes."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "So the mapping of Case IDs would be:\n\n- Document1.docx  DOC1\n- Email about Annual Meeting  EMAIL1\n- Report_Draft.pdf  PDF1\n- Budget_2024.xlsx  EXCEL1\n- Quarterly_Report.docx  DOC2"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now, Activity Naming. The raw actions are FOCUS, TYPING, SAVE, SWITCH, CLICK, SCROLL, HIGHLIGHT, CLOSE. Need to translate these into higher-level activities."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "SWITCH FromApp=Word to Chrome  \"Switch to Email Application\" (but SWITCH might be part of the case transition, so maybe not included in the activity log. Wait, SWITCH is a system event indicating a context switch. But in process mining, these transitions might not be part of the case's activities. So perhaps SWITCH events are used to determine case boundaries but are not themselves activities in the process. Or maybe they are included as \"Switch to [App]\" but that might not be meaningful. Alternatively, since the user is moving from one case to another, the SWITCH is the end of one case and the start of another. But in the event log, each event belongs to a case. So SWITCH events might not be part of any case, or they could be part of the previous or next case. This is a bit tricky."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Therefore, perhaps SWITCH events are not included in the final event log. The focus is on the meaningful activities within each application/window."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So, the activity names should focus on what the user is doing within the application. For example:\n\n- FOCUS: If it's the first action in a case, \"Start Working On Document\". If it's a return, \"Resume Working On Document\".\n- TYPING: \"Edit Document Section\" with the Keys as a detail.\n- SAVE: \"Save Document\"\n- CLICK in Chrome: If opening an email, \"Open Email\", replying \"Compose Reply\", sending \"Send Email\".\n- SCROLL: Could be \"Review Email Content\" or \"Navigate Through Email\".\n- HIGHLIGHT in Acrobat: \"Highlight Key Findings\".\n- CLOSE: \"Close Document\"."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Now, putting this all together, let's process each event:\n\n1. 2024-12-11T08:59:50.000Z,FOCUS,App=Microsoft Word,Window=Quarterly_Report.docx\n   - This is a FOCUS on Quarterly_Report. But the next event is another FOCUS on Document1. Maybe this is a quick switch, and the actual work starts with Document1. So perhaps the first FOCUS is not part of any case, or part of DOC2 but without any activity. Since there's no activity after the first FOCUS (no TYPING, SAVE, etc.), maybe this is ignored. So the DOC2 case starts later when they FOCUS again at 09:07:15.\n\n2. 2024-12-11T09:00:00.000Z,FOCUS,App=Microsoft Word,Window=Document1.docx\n   - Start of DOC1 case: \"Start Working On Document\"\n\n3. 09:00:30 TYPING: \"Edit Document Section - Draft Intro\"\n4. 09:01:00 TYPING: \"Edit Document Section - Additional Details\"\n5. 09:01:15 SAVE: \"Save Document\"\n6. 09:01:45 SWITCH to Chrome: End of DOC1 for now.\n\n7. 09:02:00 CLICK Open Email: Start of EMAIL1 case: \"Open Email\"\n8. 09:02:30 SCROLL: \"Review Email Content\"\n9. 09:02:45 CLICK Reply: \"Compose Reply\"\n10. 09:03:00 TYPING: \"Draft Reply - Meeting Details\"\n11. 09:03:20 CLICK Send: \"Send Email\"  End of EMAIL1.\n\n12. 09:04:00 SWITCH to Acrobat: Start of PDF1 case, FOCUS? The next event is SCROLL in Acrobat. So the FOCUS is implied when they start interacting. So the first event for PDF1 is SCROLL: \"Review PDF Content\"\n13. 09:04:30 SCROLL: \"Review PDF Content\"\n14. 09:04:45 HIGHLIGHT: \"Highlight Key Findings\"\n\n15. 09:05:00 FOCUS on Excel: Start of EXCEL1 case: \"Start Working On Budget\"\n16. 09:05:15 TYPING: \"Update Q1 Figures\"\n17. 09:05:30 TYPING: \"Insert New Row for Q2\"\n18. 09:05:45 SAVE: \"Save Budget\"\n\n19. 09:06:00 SWITCH back to Word (Document1.docx): Resume DOC1.\n\n20. 09:06:15 TYPING: \"Insert Reference to Budget\"\n21. 09:06:30 SAVE: \"Save Document\"\n22. 09:07:00 CLOSE: \"Close Document\"  End of DOC1.\n\n23. 09:07:15 FOCUS on Quarterly_Report.docx: Resume DOC2.\n24. 09:07:45 TYPING: \"Draft Executive Summary\"\n25. 09:08:00 SAVE: \"Save Document\"\n26. 09:08:15 CLOSE: \"Close Document\"  End of DOC2."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, let's assign Case IDs and activity names accordingly. Each Case ID corresponds to the document or task:\n\n- DOC1: Document1.docx\n- EMAIL1: Email about Annual Meeting\n- PDF1: Report_Draft.pdf\n- EXCEL1: Budget_2024.xlsx\n- DOC2: Quarterly_Report.docx"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait, but the initial FOCUS on Quarterly_Report.docx at 08:59:50 is not included. Since there's no activity (like TYPING or SAVE) after that FOCUS before switching to Document1, perhaps that event is not part of any case. So we ignore it."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Also, the SWITCH events are not included in the activity log, as they indicate context changes between cases rather than activities within a case."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another thing to note: the CLICK events in Chrome for opening the email and replying are converted into \"Open Email\" and \"Compose Reply\". The TYPING in Chrome is part of drafting the reply.\n\nThe SCROLL in Chrome after opening the email is \"Review Email Content\", and in Acrobat it's \"Review PDF Content\".\n\nThe HIGHLIGHT in Acrobat is a specific activity.\n\nFor the EXCEL case, the TYPING events are specific to updating the budget."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now, verifying the Case IDs:\n\n- DOC1: All events related to Document1.docx, including when the user returns to it after Excel.\n- EMAIL1: From opening the email to sending it.\n- PDF1: The interactions with the PDF.\n- EXCEL1: The Excel work.\n- DOC2: The Quarterly_Report.docx work at the end.\n\nEach of these represents distinct cases that the user worked on during the session."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Okay lets start by understanding the problem We need to identify anomalies in the order_event_log table based on the assumed normal process flow The normal flow is a sequence of activities from Register Order to Receive Payment Any deviation from this sequence or missing steps could be an anomaly Also activities might be missing or there might be unexpected behavior like an activity happening before a prerequisite step"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Looking at the example data For case_id 1002 after Register Order the next activity is Confirm Shipment But according to the normal flow Perform Credit Check and Validate Stock should happen before Confirm Shipment So thats a possible anomaly Also Perform Credit Check for case 1002 happens after Ship Goods Wait looking at the timestamps case 1002s Perform Credit Check is at 0910 while Ship Goods is at 0840 So Ship Goods happened before Perform Credit Check Thats definitely out of order Thats a problem because you shouldnt ship goods before checking credit and validating stock"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1003 After Perform Credit Check the next activity is Ship Goods But according to the normal flow Validate Stock should come before Confirm Shipment and Ship Goods In case 1003 Validate Stock is missing So they skipped Validate Stock and went straight to Ship Goods Thats another anomaly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1004 After Register Order they immediately Receive Payment But normally payment comes after issuing the invoice Here Receive Payment happens before Issue Invoice which is out of sequence Also in the normal flow Perform Credit Check Validate Stock etc are required Case 1004 doesnt have Perform Credit Check or Validate Stock So thats a big problem They received payment without completing necessary checks"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "So the anomalies are 1 Activities out of order eg Ship Goods before Perform Credit Check in 1002 2 Missing activities eg case 1003 skipped Validate Stock case 1004 skipped multiple steps 3 Receive Payment occurring before Issue Invoice case 1004"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now to hypothesize why these anomalies occur Possible reasons could be System errors allowing steps to be skipped or reordered Users bypassing protocols eg manually entering events out of sequence Training issues where staff dont follow procedures Integration issues between departments eg Logistics shipping before Finance checks credit"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Next propose SQL queries to investigate these hypotheses For example 1 Find all cases where Ship Goods occurred before Perform Credit Check SELECT oel1case_id FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1case_id  oel2case_id WHERE oel1activity  Ship Goods AND oel2activity  Perform Credit Check AND oel1timestamp  oel2timestamp This query checks if for the same case Ship Goods timestamp is before Perform Credit Check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "2 Find cases where Validate Stock was not performed SELECT case_id FROM order_event_log GROUP BY case_id HAVING COUNTCASE WHEN activity  Validate Stock THEN 1 END  0"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "3 Find cases where Receive Payment happened before Issue Invoice SELECT oel1case_id FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1case_id  oel2case_id WHERE oel1activity  Receive Payment AND oel2activity  Issue Invoice AND oel1timestamp  oel2timestamp"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Also check for missing steps by comparing the sequence of activities against the expected flow For example ensuring each step follows the previous one Another approach is to model the correct sequence using window functions and check for deviations"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Additionally joining with the orders table to see if order type priority vs standard correlates with anomalies Maybe priority orders are rushed leading to skipped steps"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Check if certain resources are involved in anomalies For example maybe LogisticsMgr_2 from case 1002 and 1003 is associated with out of order activities"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query to see which resources are involved in Ship Goods without prior Validate Stock SELECT oelresource FROM order_event_log oel WHERE oelactivity  Ship Goods AND NOT EXISTS SELECT 1 FROM order_event_log oel2 WHERE oel2case_id  oelcase_id AND oel2activity  Validate Stock AND oel2timestamp  oeltimestamp This would help identify if specific resources are bypassing steps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So overall the SQL queries should check for out of order events missing events and unexpected sequences possibly correlating with resources or order types"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
