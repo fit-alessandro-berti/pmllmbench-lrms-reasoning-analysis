@@ -74,8 +74,18 @@ def main(input_folder, pattern, prel_folder, questions_folder):
         if f.startswith(pattern) and f.endswith(".txt")
     ]
 
+    allowed = ["cat01", "cat02", "cat03", "cat04", "cat05", "cat06"]
     # Process each matching file
     for filename in txt_files:
+        found_allowed = False
+        for p in allowed:
+            if p in filename.lower():
+                found_allowed = True
+                break
+
+        if not found_allowed:
+            continue
+
         # Build path to corresponding prel file
         prel_path = os.path.join(prel_folder, filename)
 
