@@ -16,6 +16,7 @@
 | DeepSeek-R1-671B-HB                              | **12303** |  45 |    1 |   0 |  830 |    97 |   15 |
 | Perplexity-R1-1776                               | **12095** |  45 |    1 |   0 |  779 |    75 |    1 |
 | qwen-qwq-32b-stepbystep                          | **12027** |  44 |    2 |   0 |  848 |   113 |   27 |
+| QwenQwen3-32B                                    | **11906** |  46 |    0 |   0 |  743 |    44 |    4 |
 | qwen-qwq-32b-nostepbystep-lesshypgen             | **11856** |  39 |    6 |   0 |  913 |    94 |   24 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **11856** |  46 |    0 |   0 |  747 |    74 |    7 |
 | QwenQwQ-32B-Preview                              | **11725** |  44 |    1 |   1 |  783 |    65 |    7 |
@@ -59,6 +60,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-671B-HB                              |   13   |   32   |    2.2 |    4.5 |   16.9 | 19.2 | 2.1 |    1   |    1.1 |    8.2 |
 | Perplexity-R1-1776                               |   16.5 |   28.2 |    2.9 |    2.7 |   20.4 | 16.6 | 3.6 |    1.3 |    1.5 |    6.3 |
 | qwen-qwq-32b-stepbystep                          |   15.9 |   33.1 |    2.4 |    1   |   20.3 | 16.2 | 4.5 |    1.3 |    0.6 |    4.7 |
+| QwenQwen3-32B                                    |   13.8 |   35.4 |    1.1 |    1.6 |   17.8 | 20.4 | 2.8 |    1   |    0.5 |    5.6 |
 | qwen-qwq-32b-nostepbystep-lesshypgen             |   14   |   34.7 |    1.6 |    1.6 |   17   | 19.7 | 4.8 |    1.2 |    0.9 |    4.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   16.2 |   35.4 |    1   |    1.9 |   17.4 | 18.1 | 2.9 |    1   |    0.7 |    5.4 |
 | QwenQwQ-32B-Preview                              |   14.6 |   34.6 |    3.3 |    2.9 |   15.3 | 17.5 | 1.9 |    1.6 |    1.8 |    6.4 |
@@ -111,6 +113,7 @@ Dictionary of activities:
 | DeepSeek-R1-671B-HB                              |   95.9 |   97.3 |   85.7 |   90.5 |   69.8 | 95.6 |  70   |   88.9 |   40   |   70.1 |
 | Perplexity-R1-1776                               |   96.5 |   97.5 |   96   |   78.3 |   88.5 | 93   |  67.7 |   90.9 |   30.8 |   83.3 |
 | qwen-qwq-32b-stepbystep                          |   93.6 |   93.6 |  100   |   60   |   66.7 | 91.9 |  52.3 |  100   |   83.3 |   93.5 |
+| QwenQwen3-32B                                    |   96.3 |   97.1 |   88.9 |  100   |   87.2 | 95   |  81.8 |   87.5 |   75   |   93.2 |
 | qwen-qwq-32b-nostepbystep-lesshypgen             |   95.1 |   97.2 |   93.8 |   81.2 |   77.1 | 86.7 |  78   |   91.7 |   44.4 |   72.9 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   97   |   96.2 |   87.5 |   62.5 |   79.2 | 92   |  75   |  100   |   83.3 |   77.8 |
 | QwenQwQ-32B-Preview                              |   97.6 |   97.6 |  100   |   76   |   85.5 | 90.7 |  87.5 |   92.9 |   40   |   80   |
