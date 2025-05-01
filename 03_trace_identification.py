@@ -3,6 +3,7 @@ import os
 import traceback
 import pyperclip
 import subprocess
+import time
 
 # You need to install jsonschema if you haven't already:
 # pip install jsonschema
@@ -238,7 +239,10 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["grok-3-mini-beta", "nvidiallama-3.1-nemotron-ultra", "cogito"]
+    patterns = ["phi4-reasoning"]
 
-    for pattern in patterns:
-        main(input_folder, pattern, prel_folder, questions_folder)
+    while True:
+        for pattern in patterns:
+            main(input_folder, pattern, prel_folder, questions_folder)
+        #break
+        time.sleep(60)

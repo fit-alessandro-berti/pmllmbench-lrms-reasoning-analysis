@@ -104,4 +104,8 @@ if __name__ == "__main__":
     output_folder = r"valid_ext"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    main(input_folder, output_folder)
+
+    while True:
+        main(input_folder, output_folder)
+        #break
+        time.sleep(60)
