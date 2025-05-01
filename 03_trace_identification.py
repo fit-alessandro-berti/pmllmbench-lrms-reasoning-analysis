@@ -139,7 +139,10 @@ def main(input_folder, pattern, prel_folder, questions_folder):
 
                     AVOID reporting any strange characters inside the strings
                     in the final JSON. Report only alphanumeric characters!
-                                        
+                    
+                    AVOID any escaping, so no quotation characters at all inside the strings of the final JSON!
+                    Try to make sure that every string is properly terminated!
+                                
                     The JSON should look like:
                     ```json
                     [
