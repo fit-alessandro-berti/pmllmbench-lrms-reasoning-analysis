@@ -242,7 +242,7 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["phi4-reasoning", "phi4-mini-reasoning"]
+    patterns = ["qwen-plus-2025", "qwen-turbo-2025"]
 
     while True:
         for pattern in patterns:
