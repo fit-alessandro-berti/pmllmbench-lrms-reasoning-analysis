@@ -2,6 +2,8 @@
 
 This project provides a way to extract and analyze reasoning steps from textual answers (referred to as "reasoning traces") by creating a standardized JSON event log and, in addition, a **process mining event log in the XES format**. Each XES log entry corresponds to an individual reasoning activity, and each file is treated as a distinct "trace." This allows further process-mining analysis on how different activities unfold over time.
 
+[**Pre-print** Configuring Large Reasoning Models using Process Mining: A Benchmark and a Case Study](https://www.alessandroberti.it/new_papers/2025_Berti_Configuring_LRMs.pdf) describing the benchmark available.
+
 ---
 
 ### 1. Naming of the Activities in the Event Log
