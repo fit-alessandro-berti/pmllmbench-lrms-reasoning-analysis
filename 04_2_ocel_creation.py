@@ -64,4 +64,4 @@ relations = pd.DataFrame(relations)
 ocel = OCEL(events=events, objects=objects, relations=relations)
 print(ocel)
 
-pm4py.write_ocel2(ocel, "prova.jsonocel")
+pm4py.write_ocel2(ocel, "ocel/reasoning_benchmark.jsonocel")
