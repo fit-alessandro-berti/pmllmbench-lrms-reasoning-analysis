@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a system log of user activities. We need to transform this into an event log for process mining."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Identify cases: A case should represent a logical unit of work. Looking at the log, we see the user interacts with different documents and applications. We can consider each document (or email thread) as a separate case. However, note that the user switches between tasks. Alternatively, we can group by the document/window that is being actively worked on."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Let s break down: The first part: 2024-12-11T08:59:50.000Z: FOCUS on Quarterly_Report.docx -> but then switches to Document1.docx without any other action? So maybe the Quarterly_Report was just in the background? 2024-12-11T09:00:00.000Z: FOCUS on Document1.docx -> then typing and save. This is a clear case: editing Document1. Then the user switches to Chrome and works on an email. The email actions: Open Email, Scroll, Reply, Type, Send. This is a case: handling the email about Annual Meeting. Then the user switches to Adobe Acrobat (Report_Draft.pdf) and highlights. This is a case: reviewing the PDF. Then the user switches to Excel (Budget_2024.xlsx) and updates, saves. This is a case: updating the Excel budget. Then the user returns to Document1.docx and types again and saves. This is the same case as the first Document1 case? But note: the user had closed the email and PDF and Excel? Actually, the user doesn t close them until later? But the case for Document1 is interrupted and then resumed. Finally, the user goes back to Quarterly_Report.docx and types and saves. This is a case: editing Quarterly_Report."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Proposed case grouping: Case ID 1: Document1.docx (Word) -> from first focus until the close? ... Case ID 2: The email thread? ... We can use the subject Email about Annual Meeting, so we can call the case Annual Meeting Email. Case ID 3: Report_Draft.pdf (PDF) -> the highlighting activity. Case ID 4: Budget_2024.xlsx (Excel) -> updating the budget. Case ID 5: Quarterly_Report.docx (Word) -> the initial focus and then the later focus with typing and save. ... Proposed solution for case ID: For Word, Excel, Acrobat: use the window title (the document name) as the case ID because it uniquely identifies the document. For the email: we don t have a document name. We can create a case ID based on the action: Annual Meeting Email."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Now, what about the SWITCH event? The SWITCH events are transitions between applications. They don t belong to a case? Or do they? In process mining, we usually don t include system-level transitions as activities. We are interested in the user s work on a task. So we can ignore the SWITCH events? ... Similarly, FOCUS events: when the user focuses on a window, that might be the start of a case? But note: the user might focus without doing anything? Then we don t have any activity? So we can use the first meaningful event? ... So we can skip. ... We ll skip the SWITCH events and FOCUS events? Because they are not user activities? They are system events? And we are interested in the user s work. So we ll only include events that are not FOCUS or SWITCH?"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Proposed activity mapping: TYPING -> Edit Document (for Word/Excel) or Compose Email (for email)? But note: in the email, typing is part of replying? So we need to map differently per context? We can map: For Word/Excel: TYPING: Edit Document SAVE: Save Document CLOSE: Close Document For Chrome (email): CLICK with Action=Open Email -> Open Email SCROLL: Read Email CLICK with Action=Reply to Email -> Start Reply TYPING: Compose Reply CLICK with Action=Send Email -> Send Email For Acrobat: SCROLL: Review Document HIGHLIGHT: Highlight Text"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let s list the events we will include and map: Original log: 2024-12-11T08:59:50.000Z,FOCUS,App=Microsoft Word,Window=Quarterly_Report.docx -> skip 2024-12-11T09:00:00.000Z,FOCUS,App=Microsoft Word,Window=Document1.docx -> skip 2024-12-11T09:00:30.000Z,TYPING,App=Microsoft Word,Window=Document1.docx,Keys=Draft intro paragraph -> Case: Document1.docx, Activity: Edit Document"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Now, the event log table: Case ID, Activity Name, Timestamp, ... (additional attributes?) We can also include the original action and the keys? But the instructions say at least Case ID, Activity Name, Timestamp. We can include additional attributes? We can include: Application: App Window: Window Additional: For typing, we have Keys? But that might be too detailed? We can skip? Or include? For process mining, the activity name is the main thing. We can include the raw action type? But the instructions say to transform to higher-level activity names. We ll include: Case ID Activity Name Timestamp Application Window Original Action Additional Details (like Keys, Action, Direction, Text, etc.)"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now, let s build the event log: Case 1: Document1.docx Events: 1. 2024-12-11T09:00:30.000Z: Activity: Edit Document, App: Word, Window: Document1.docx, Original: TYPING, Details: Draft intro paragraph 2. 2024-12-11T09:01:00.000Z: Activity: Edit Document, ... Details: Additional details here 3. 2024-12-11T09:01:15.000Z: Activity: Save Document, ... Original: SAVE, Details: null? 4. ... later ... 5. 2024-12-11T09:06:15.000Z: Activity: Edit Document, ... Details: Inserting reference to budget 6. 2024-12-11T09:06:30.000Z: Activity: Save Document 7. 2024-12-11T09:07:00.000Z: Activity: Close Document, Original: CLOSE Case 2: Annual Meeting Email Events: 1. 2024-12-11T09:02:00.000Z: Activity: Open Email, App: Chrome, Window: Email - Inbox, Original: CLICK, Details: Open Email about Annual Meeting 2. 2024-12-11T09:02:30.000Z: Activity: Read Email, Original: SCROLL, Details: Direction=Down 3. 2024-12-11T09:02:45.000Z: Activity: Start Reply, Original: CLICK, Details: Reply to Email 4. 2024-12-11T09:03:00.000Z: Activity: Compose Reply, Original: TYPING, Details: Meeting details confirmed 5. 2024-12-11T09:03:20.000Z: Activity: Send Email, Original: CLICK, Details: Send Email Case 3: Report_Draft.pdf Events: 1. 2024-12-11T09:04:30.000Z: Activity: Review Document, Original: SCROLL, Details: Direction=Down 2. 2024-12-11T09:04:45.000Z: Activity: Highlight Text, Original: HIGHLIGHT, Details: Text=Key Findings Case 4: Budget_2024.xlsx Events: 1. 2024-12-11T09:05:15.000Z: Activity: Edit Document, ... Details: Update Q1 figures 2. 2024-12-11T09:05:30.000Z: Activity: Edit Document, ... Details: Insert new row for Q2 3. 2024-12-11T09:05:45.000Z: Activity: Save Document Case 5: Quarterly_Report.docx Events: 1. 2024-12-11T09:07:45.000Z: Activity: Edit Document, ... Details: Executive Summary draft 2. 2024-12-11T09:08:00.000Z: Activity: Save Document 3. 2024-12-11T09:08:15.000Z: Activity: Close Document"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Explanation: We grouped events into cases based on the document or email thread being worked on. For documents, we used the window title (which contains the document name) as the case ID. For the email thread, we used the subject of the email (extracted from the action string) to form a unique case ID. We skipped FOCUS and SWITCH events because they are system-level events and do not represent user work activities. Activity names were mapped to higher-level, standardized names that reflect the user s intent: - In Word/Excel: TYPING -> Edit Document SAVE -> Save Document CLOSE -> Close Document - In Chrome (for email handling): CLICK with action Open Email ... -> Open Email SCROLL -> Read Email CLICK with action Reply to Email -> Start Reply TYPING -> Compose Reply CLICK with action Send Email -> Send Email - In Acrobat: SCROLL -> Review Document HIGHLIGHT -> Highlight Text The event log tells the story of the user working on five distinct tasks: - Editing a Word document (Document1.docx) in two sessions (with interruptions for other tasks) - Handling an email about an annual meeting - Reviewing a PDF report - Updating an Excel budget - Editing and closing the Quarterly Report"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

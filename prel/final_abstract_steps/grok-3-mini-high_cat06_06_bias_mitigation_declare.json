@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, I'm given a DECLARE model in Python dictionary format. I need to add new constraints to mitigate bias based on sensitive attributes like ApplicantAge, ApplicantGender, ApplicantRace. The process is a loan application review with activities like StartApplication, FinalDecision, RequestAdditionalInfo, etc."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "To mitigate bias, I need to add constraints that ensure fairness. For example:\n\n- Ensure that decisions aren't made directly based on sensitive attributes without checks.\n\n- Add activities like ManualReview or BiasMitigationCheck to enforce checks."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "In the given model, there's RequestAdditionalInfo and FinalDecision. I need to add new constraints involving possible new activities or existing ones."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Perhaps I should add new activities to the model, like `CheckApplicantRace`, `ManualReview`, `BiasMitigationCheck`, etc., but the DECLARE model is about constraints between activities, so I can add constraints assuming these activities exist."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Let's define some new activities based on the prompt:\n\n- `ManualReview`: an activity that performs additional checks.\n\n- `CheckSensitiveAttributes`: an activity that discloses or checks sensitive attributes.\n\n- `BiasMitigationCheck`: an activity that ensures fairness."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For simplicity, let's introduce two new activities: `CheckSensitiveAttributes` and `ManualReview`.\n\nThen add constraints:\n\n1. `existence`: add `ManualReview` to ensure it's always possible or required.\n\nBetter to add binary constraints.\n\nFrom the prompt suggestions:\n\n- Coexistence: ensure `ManualReview` coexists with `FinalDecision`.\n\n- Response or Succession: ensure that decision steps cannot immediately follow sensitive attribute events without mitigation.\n\nSo, add:\n\n- `nonchainsuccession` or `nonsuccession` from `CheckSensitiveAttributes` to `FinalDecision`, to prevent direct immediate succession.\n\n- Add `response`: from `CheckSensitiveAttributes` to `ManualReview`.\n\n- Add `precedence`: `ManualReview` must precede `FinalDecision`."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In DECLARE, activities are defined by being keys in the constraints. So, I can add new activities by adding them to the dictionaries."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Let me list some new constraints to add:\n\n- Add `existence` for `ManualReview`.\n\n- Add `coexistence` between `ManualReview` and `FinalDecision`, meaning if one occurs, the other must occur in the trace.\n\n- Add `precedence`: `ManualReview` must precede `FinalDecision`.\n\n- Add `non-succession` constraint: prevent direct succession from `CheckSensitiveAttributes` to `FinalDecision`."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "For coexistence, add to \"coexistence\": both ways.\n\nIn the given model, \"coexistence\" has \"StartApplication\": {\"FinalDecision\": {...}}, so I'll add `ManualReview`: {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}}, and to make symmetric, add under \"FinalDecision\" key if not present."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, for rationales:\n\n- Added existence of ManualReview to ensure bias mitigation is always considered.\n\n- Added coexistence between ManualReview and FinalDecision to ensure that a manual review is performed whenever a final decision is made.\n\n- Added response from CheckSensitiveAttributes to ManualReview to ensure that after checking sensitive attributes, a manual review is performed.\n\n- Added precedence of ManualReview before FinalDecision to ensure review happens before decision.\n\n- Added nonsuccession from CheckSensitiveAttributes to FinalDecision to prevent immediate decision after checking sensitive attributes without intervention."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "updated_declare_model = {\n    \"existence\": {\n        \"StartApplication\": {\"support\": 1.0, \"confidence\": 1.0},\n        \"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0},\n        \"ManualReview\": {\"support\": 1.0, \"confidence\": 1.0},  # Added\n        \"CheckSensitiveAttributes\": {\"support\": 1.0, \"confidence\": 1.0}  # Added\n    },\n    \"absence\": {},\n    \"exactly_one\": {},\n    \"init\": {\n        \"StartApplication\": {\"support\": 1.0, \"confidence\": 1.0}\n    },\n    \"responded_existence\": {},\n    \"coexistence\": {\n        \"StartApplication\": {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}},\n        \"ManualReview\": {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}},  # Added, for coexistence\n        \"FinalDecision\": {\"ManualReview\": {\"support\": 1.0, \"confidence\": 1.0}}  # Added for symmetry\n    },\n    \"response\": {\n        \"StartApplication\": {\"RequestAdditionalInfo\": {\"support\": 1.0, \"confidence\": 1.0}},\n        \"CheckSensitiveAttributes\": {\"ManualReview\": {\"support\": 1.0, \"confidence\": 1.0}}  # Added\n    },\n    \"precedence\": {\n        # Added\n        \"ManualReview\": {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}}\n    },\n    \"succession\": {\n        \"RequestAdditionalInfo\": {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}}\n    },\n    \"altresponse\": {},\n    \"altprecedence\": {},\n    \"altsuccession\": {},\n    \"chainresponse\": {},\n    \"chainprecedence\": {},\n    \"chainsuccession\": {},\n    \"noncoexistence\": {},\n    \"nonsuccession\": {\n        # Added\n        \"CheckSensitiveAttributes\": {\"FinalDecision\": {\"support\": 1.0, \"confidence\": 1.0}}  // prevent direct succession\n    },\n    \"nonchainsuccession\": {}\n}"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
