@@ -38,6 +38,7 @@
 | DeepSeek-R1-Distill-Llama-70B                    | **10153** |  40 |    5 |   1 |  717 |    57 |   13 |
 | DeepSeek-R1-Distill-Qwen-32B                     | **9970**  |  42 |    4 |   0 |  650 |    50 |   14 |
 | DeepSeek-R1-Zero                                 | **9765**  |  46 |    0 |   0 |  523 |    45 |    1 |
+| Qwen3-235B-A22B-Thinking-2507                    | **9370**  |  46 |    0 |   0 |  481 |    20 |    1 |
 | grok-3-mini-beta-low                             | **9305**  |  45 |    1 |   0 |  515 |    25 |   11 |
 | phi4-mini-reasoning                              | **9126**  |  35 |   10 |   1 |  834 |   194 |   66 |
 | DeepSeek-R1-Distill-Llama-8B                     | **7307**  |  33 |   10 |   3 |  726 |   153 |   75 |
@@ -90,6 +91,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | DeepSeek-R1-Distill-Llama-70B                    |   16.1 |   31.4 |    1.9 |    2.9 |   21.6 | 14.2 | 3.3 |    0.9 |    0.9 |    6.7 |
 | DeepSeek-R1-Distill-Qwen-32B                     |   15.5 |   34.2 |    3.5 |    2.4 |   17.8 | 14.8 | 4.5 |    0.6 |    0.4 |    6.3 |
 | DeepSeek-R1-Zero                                 |   18.8 |   40.1 |    3.5 |    3   |   11.6 | 15.1 | 0.5 |    1.2 |    0.7 |    5.4 |
+| Qwen3-235B-A22B-Thinking-2507                    |   14.5 |   30.1 |    4   |    5.2 |   13.5 | 17.9 | 1.6 |    1.8 |    1   |   10.4 |
 | grok-3-mini-beta-low                             |   18.5 |   35   |    4.4 |    1.8 |   13.8 | 16.5 | 1.3 |    0.9 |    0.2 |    7.6 |
 | phi4-mini-reasoning                              |   16.3 |   27.7 |    1.8 |    2.9 |   21.9 | 13.9 | 7.2 |    0.8 |    1   |    6.4 |
 | DeepSeek-R1-Distill-Llama-8B                     |   14.7 |   28.9 |    2   |    1.2 |   23.9 | 15   | 6   |    1.4 |    0.8 |    6.2 |
@@ -151,6 +153,7 @@ Dictionary of activities:
 | DeepSeek-R1-Distill-Llama-70B                    |   98.4 |   95.1 |  100   |   82.6 |   84.1 | 92   |  88.5 |  100   |   71.4 |   79.2 |
 | DeepSeek-R1-Distill-Qwen-32B                     |   96.4 |   95.9 |   96   |   82.4 |   87.4 | 96.2 |  50   |  100   |   66.7 |   80   |
 | DeepSeek-R1-Zero                                 |   99.1 |   98.7 |  100   |   88.2 |   78.8 | 83.7 |   0   |  100   |   25   |   80.6 |
+| Qwen3-235B-A22B-Thinking-2507                    |   95.9 |   99.3 |  100   |   92.3 |   95.6 | 96.7 | 100   |  100   |   80   |   84.6 |
 | grok-3-mini-beta-low                             |   99   |   97.4 |  100   |  100   |   85.5 | 84.6 |  85.7 |  100   |  100   |   90.5 |
 | phi4-mini-reasoning                              |   88.8 |   89.4 |   95   |   71.9 |   50.8 | 84.2 |  64.6 |   77.8 |   36.4 |   72.9 |
 | DeepSeek-R1-Distill-Llama-8B                     |   92.9 |   88.8 |  100   |   81.8 |   61   | 77.6 |  42.1 |  100   |   12.5 |   59.3 |

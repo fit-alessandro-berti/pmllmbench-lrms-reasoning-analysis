@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model with the following constraints: init: Activity R (Receive) must be the first activity in the trace (with support and confidence 1.0). existence: Activity C (Close) must occur at least once (with support and confidence 1.0). responded_existence: If E (Evaluate) occurs, then A (Assign) must occur. precedence: For C (Close) to occur, R (Receive) must have occurred before it. noncoexistence: Activities E (Evaluate) and C (Close) cannot both occur in the same trace. However, note that the intended process flow is: R -> A -> E -> P -> N -> C."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Contradiction between existence of C and noncoexistence of E and C: The existence constraint requires that C must occur in every trace (support and confidence 1.0). The noncoexistence constraint states that E and C cannot coexist. So if C must occur (by existence), then E must never occur? But the intended process requires E (Evaluate) to happen before P (Approve) and then N (Notify) and then C (Close). So without E, we cannot have the intended process. Therefore, the noncoexistence constraint directly contradicts the intended process."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The responded_existence constraint says: if E occurs then A must occur. But note that the noncoexistence constraint (if we take it as valid) would prevent E from occurring at all (because C must occur and E and C cannot coexist). So in reality, E never occurs? Then the responded_existence constraint for E would be vacuously true? However, the intended process requires E to occur."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Summary of anomalies: 1. Noncoexistence between E and C contradicts the existence of C and the intended process flow. 2. The responded_existence constraint for E (requiring A if E occurs) is inconsistent with the noncoexistence constraint. 3. Missing constraints for the entire intended sequence."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for why the model includes such anomalies: 1. Misinterpretation of business requirements: The modeler might have confused noncoexistence with another constraint. 2. Incremental changes in policies: Previously, the process might have been that claims are closed without evaluation. 3. Technical issues or incomplete data: The data used to mine the DECLARE model might have been from a period when a new process was being rolled out but not fully adopted. 4. Pressure to handle claims quickly: There might be a business incentive to close claims quickly, leading to cases where evaluation is skipped."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Proposed verification approaches (SQL queries): We need to check if the anomalies occur in practice. Specifically: 1. Check for claims that were closed without evaluation (violating the intended process, but consistent with the noncoexistence constraint in the model). 2. Check for claims that have both evaluation and closing (which is required by the intended process but forbidden by the noncoexistence constraint in the model). 3. Check if evaluation steps always correspond with assigned adjusters (to verify the responded_existence constraint for E requiring A)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We want to find claims that have activity C (Close) but do not have activity E (Evaluate). Query: SELECT claim_id FROM ( SELECT claim_id, MAX(CASE WHEN activity = 'C' THEN 1 ELSE 0 END) AS has_close, MAX(CASE WHEN activity = 'E' THEN 1 ELSE 0 END) AS has_evaluate FROM claim_events GROUP BY claim_id ) AS sub WHERE has_close = 1 AND has_evaluate = 0;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We want to find claims that have both E and C. This would violate the noncoexistence constraint in the model, but is required by the intended process. Query: SELECT claim_id FROM ( SELECT claim_id, MAX(CASE WHEN activity = 'E' THEN 1 ELSE 0 END) AS has_evaluate, MAX(CASE WHEN activity = 'C' THEN 1 ELSE 0 END) AS has_close FROM claim_events GROUP BY claim_id ) AS sub WHERE has_evaluate = 1 AND has_close = 1;"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
