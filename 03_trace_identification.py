@@ -242,7 +242,7 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["grok-3-mini"]
+    patterns = ["Qwen3-235B-A22B-Thinking-2507"]
 
     while True:
         for pattern in patterns:
