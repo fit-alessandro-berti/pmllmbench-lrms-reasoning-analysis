@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a database schema and example data for an order process. The goal is to identify anomalies in the event log and then propose SQL queries to investigate them. First, let's recall the assumed normal process flow: 1. Register Order (Sales) 2. Perform Credit Check (Finance) 3. Validate Stock (Warehouse) 4. Confirm Shipment (Logistics) 5. Ship Goods (Logistics) 6. Issue Invoice (Finance) 7. Receive Payment (Finance) We'll look for deviations from this flow in the example data."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let's analyze each case: Case 1001: This is the normal flow. Case 1002: Anomalies: 1. Confirm Shipment (event 9) occurs before Perform Credit Check (event 11) and Validate Stock (event 12). This is a problem because Credit Check and Stock Validation should happen before shipment. 2. Also, Validate Stock (event 12) occurs after Ship Goods (event 10). This is backward. Case 1003: Anomalies: 1. Ship Goods (event 17) occurs before Validate Stock (which is missing) and before Confirm Shipment (event 19). ... So Validate Stock (which should be step 3) is missing. Also, Confirm Shipment (step 4) is after Ship Goods (step 5) and Issue Invoice (step 6). This is a major deviation. Case 1004: Anomalies: 1. Receive Payment (event 22) occurs before Issue Invoice (event 23) and before Confirm Shipment (event 24). This is impossible because you cannot receive payment before issuing an invoice. 2. Also, the normal flow requires Credit Check and Validate Stock, but they are missing."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for these anomalies: Case 1002: The system might have a bug that allows the shipment to be confirmed before credit check and stock validation. Alternatively, the process might have been manually overridden... Case 1003: The Validate Stock step might have been skipped due to a system error or a process error... Case 1004: The finance team might have mistakenly recorded the payment before the invoice was issued (a data entry error). The system might have a bug..."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, we need to propose SQL queries to investigate these anomalies. We can break down the investigation into: 1. Find all cases where the event sequence deviates from the normal flow (i.e., an event that should come after another appears before it). We can do this by ordering the events by timestamp per case_id and then checking the sequence of activities. ... Alternatively, we can check for specific violations: For example, we can check if 'Confirm Shipment' occurs before 'Perform Credit Check' or 'Validate Stock'."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So, let's propose queries for the specific anomalies we found. Query 1: Find cases where Confirm Shipment occurs before Perform Credit Check. SELECT ol1.case_id FROM order_event_log ol1 JOIN order_event_log ol2 ON ol1.case_id = ol2.case_id WHERE ol1.activity = 'Confirm Shipment' AND ol2.activity = 'Perform Credit Check' AND ol1.timestamp < ol2.timestamp; Similarly, we can check for Confirm Shipment before Validate Stock. Query 2: Find cases where Confirm Shipment occurs before Validate Stock. ... Query 3: ... Query 4: ... Query 5: Find cases where Receive Payment occurs before Issue Invoice."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Additionally, we might want to find cases that are missing a required step. ... However, the problem doesn't specify how to detect missing steps, but we can do: ... But the prompt says: without any hints, so we are to propose queries that would help investigate the anomalies we identified. Since we have identified specific sequence issues, we'll propose the sequence queries."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let's write the queries as proposed: ... We can also combine these into one query that returns all the cases and the specific violation, but the problem doesn't require that. We are to propose relevant queries. Note: We are using DISTINCT to avoid duplicate case_ids. Additionally, we might want to see the actual events to verify, but the problem says investigate further, so these queries will return the case_ids that have the anomaly, and then we can look at the full log for that case."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
