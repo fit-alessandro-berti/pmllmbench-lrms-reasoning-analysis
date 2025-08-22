@@ -1,0 +1,53 @@
+[
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We are going to build the process tree step by step from the description."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. The patient begins with a sequence: Arrival (A), then Registration (RG), then Intake Assessment (IA). Let's call this sequence S1: ->(A, ->(RG, IA))"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Then, a sequence of Triage Interview (TI) and Triage Classification (TC): ->(TI, TC) 3. Then, an exclusive choice between two initial diagnostic tests: X(CE, FBP)"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4. Then, a loop that starts after the initial test and continues until the results are normal. The loop body is: - Specialist Consultation (SC) - Then an exclusive choice between two treatments: X(TM, SPT) - Then a Re-Diagnostic Test (RDT) which is an exclusive choice between FCE and FBA (so X(FCE, FBA)) But note: the loop operator * (A, B) means: do A, then either exit or do B and then A again (this can happen several times until the loop is exited)."
+  },
+  {
+    "Name": "Hypothesis Generation - NE",
+    "Text": "Alternatively, we can model the loop as: * ( [the body until the treatment] , [the RDT] )"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note that the redo part is RDT, which is not what we want: we want to do the entire body again (SC, treatment, RDT) if abnormal. This doesn't match."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Let me re-read the loop description: after the re-diagnostic test, if the results are still abnormal, the patient returns to the Specialist Consultation So the entire body (SC, treatment, RDT) is repeated."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can model the loop as: * ( [the entire body: ->(SC, ->( X(TM, SPT), X(FCE, FBA) ) )] , [tau] )"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, note that the initial test is not part of the loop. The loop starts only if the initial test is abnormal. So we have to have an exclusive choice after the initial test: if normal, then skip the loop, if abnormal, then do the loop. So the structure after the initial test is: ->( initial_test, X( tau,   # if normal, just proceed (silent step) * ( ->( SC, ->( X(TM, SPT), X(FCE, FBA) ) ), tau ) ) )"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "5. After the loop (or if normal initially), we have two activities in true concurrency: Advanced Imaging (AI) and Nutritional Counseling (NC). So we use the parallel operator: +(AI, NC) 6. Then, a sequence of Follow-up Appointment Scheduling (FAS) and Detailed Discharge Instructions (DDI): ->(FAS, DDI) 7. Finally, a parallel block of Billing (BL), Insurance Claims Processing (ICP), and Medical Records Finalization (MRF): +(BL, ICP, MRF)"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "8. Now, let's put it all together: ... Due to the complexity, we might break the tree into subtrees. Let's define: S1 = ->( A, ->( RG, IA ) ) S2 = ->( TI, TC ) InitialTest = X( CE, FBP ) LoopBody = ->( SC, ->( X(TM, SPT), X(FCE, FBA) ) ) Loop = * ( LoopBody, tau ) AfterTest = X( tau, Loop ) Advanced1 = +( AI, NC ) Advanced2 = ->( FAS, DDI ) Advanced3 = +( BL, ICP, MRF ) Then the entire tree is: ->( ->( ->( S1, S2 ), InitialTest ), ->( AfterTest, ->( Advanced1, ->( Advanced2, Advanced3 ) ) ) )"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, note that the parallel operators for three activities (BL, ICP, MRF) are not directly supported by the binary operators. We have to break them into binary parallel operators. We can do: +(BL, +(ICP, MRF))"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
