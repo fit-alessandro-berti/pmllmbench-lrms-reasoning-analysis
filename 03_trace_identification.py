@@ -242,7 +242,7 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["qwen34b-thinking"]
+    patterns = ["DeepSeek-V3.1-Reasoner"]
 
     while True:
         for pattern in patterns:

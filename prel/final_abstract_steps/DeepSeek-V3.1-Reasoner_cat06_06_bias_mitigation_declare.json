@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model for a loan application process. We are to add constraints to mitigate bias based on sensitive attributes."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "1. We assume that the process has activities that involve sensitive attributes (like CheckApplicantRace, CheckApplicantAge, etc.) and decision activities (Approve, Reject, RequestAdditionalInfo, FinalDecision). 2. We want to ensure that decisions are not made based solely on sensitive attributes without proper checks. 3. We introduce new activities that might be needed for fairness, such as: 'BiasMitigationCheck': an activity that checks for potential bias. 'ManualReview': an activity that involves a human review for sensitive cases."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We will add constraints that enforce: a. If a sensitive attribute is checked (e.g., 'CheckApplicantRace'), then we must have a 'BiasMitigationCheck' before any decision. b. For decisions (like 'Reject' or 'Approve') that occur after a sensitive attribute check, we require a 'ManualReview' to coexist in the trace. c. We might also prevent direct succession from a sensitive attribute check to a decision."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Actually, we want: if S occurs, then eventually BiasMitigationCheck must occur after S. This is response(S, BiasMitigationCheck). And we want: if D occurs, then BiasMitigationCheck must occur before D. This is precedence(BiasMitigationCheck, D). But note: these two constraints together do not force that the BiasMitigationCheck that occurs after S is the same one that occurs before D. However, if we have a trace that has both S and D, then we know that there must be at least one BiasMitigationCheck after S and before D. This is because the BiasMitigationCheck must occur after S (by response) and before D (by precedence). So if S and D both occur, then there is a BiasMitigationCheck in between."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Alternatively, we might require that the bias check coexists with the sensitive check (meaning if one occurs the other must occur, and vice versa). But note: if there's a sensitive check, we want a bias check, but if there's a bias check, must there be a sensitive check? Not necessarily - maybe we do bias checks for other reasons. So coexistence is too strong."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Additionally, we might want to prevent direct succession from a sensitive check to a decision. We can use: For each S and each D: nonchainsuccession(S, D) This would forbid that D immediately follows S."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can do: For each S: response(S, ManualReview) precedence(ManualReview, FinalDecision) This would require that if any sensitive activity occurs, then ManualReview occurs, and if FinalDecision occurs, then ManualReview occurs before. So if both occur, then ManualReview is in between. But if a sensitive activity occurs and no FinalDecision, then ManualReview must occur (which is okay). And if FinalDecision occurs and no sensitive activity, then ManualReview must occur (which we don't want)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively, we might use a more complex constraint: We require that if both a sensitive activity and the FinalDecision occur, then ManualReview must occur. We cannot express this directly, so we might rely on the BiasMitigationCheck to trigger the ManualReview. We can then require that BiasMitigationCheck and ManualReview coexist? This seems reasonable."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We assume the following new activities might be in the log: sensitive_activities = ['CheckApplicantRace', 'CheckApplicantAge', 'CheckApplicantGender'] decision_activities = ['FinalDecision'] fairness_activities = ['BiasMitigationCheck', 'ManualReview']. We'll update: response: for each S in sensitive_activities, add S -> BiasMitigationCheck. precedence: for each D in decision_activities, add BiasMitigationCheck -> D. nonchainsuccession: for each S in sensitive_activities and each D in decision_activities, add S -|> D (meaning D cannot immediately follow S). coexistence: add BiasMitigationCheck <-> ManualReview (by adding one direction)."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
