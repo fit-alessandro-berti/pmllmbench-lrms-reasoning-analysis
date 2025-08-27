@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log of three cases. Let's analyze the traces: Case 1: - RA -> VF -> AE -> RMI -> VF -> AD -> SC -> AC. Case 2: - RA -> VF -> AE -> AD -> SC -> AC. Case 3: - RA -> VF -> AE -> RMI (twice) -> VF -> AD -> SC -> AC"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Notice that after AE, sometimes we have RMI (which may be repeated) followed by VF (re-validation). Then we have AD, SC, AC. The main flow is: RA -> (AE -> (RMI+ loop?) -> VF) -> AD -> SC -> AC. But note that after AE, in case 1 and 3 we have RMI then VF. Also note that RMI can be repeated (case 3: two RMI events in a row)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So the pattern is: RA -> VF -> AE -> [ ( RMI ... ) -> VF ] -> AD -> SC -> AC. But note: the ... part is not always present (case 2 doesn't have it) and when present, the RMI part may occur one or more times (case 1: once, case 3: twice). So we can model the part after AE as: AE -> ( RMI repeated ... )? But note that after the RMI events we must have a VF. How to capture that?"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Actually, the loop operator in the process tree is defined as: * ( A, B ) meaning: A, then either exit the loop, or do B and then A again. This means: Do A. Then choose: exit or do (B and then A again)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can set A to RMI and B to tau? Then: * ( RMI, tau): First: RMI. Then: exit or do tau and then RMI again. This would allow: One RMI: exit after the first RMI. Two RMI: do first RMI, then do tau and then RMI again (so two RMI). So we get two RMI and one tau. But the tau is silent and not recorded. So in the event log we see two consecutive RMI events. That matches."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Actually, we are putting the entire loop in an exclusive choice? Because the entire block (RMI repetition and then VF) is optional. So the structure after AE is: XOR ( nothing (i.e., tau? because if we don't do the loop then we skip this part) , [ (RMI repeition) -> VF ] ). So we can do: After AE: XOR ( tau, -> ( [RMI repetition], VF ) ). But the RMI repetition is the loop: * ( RMI, tau )"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But wait, we have to do AD after the XOR, then SC, then AC. So we break the sequence at AD? Actually, after the XOR we have AD, and then we have the last two events: SC and AC. But note: the above expression: the root is a sequence of two things: first: RA second: a sequence that has two children: first: a sequence: [VF, AE, ...] second: a sequence: [SC, AC]. But the second sequence (SC and AC) should happen after the entire middle part (including AD). So that is not correct."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So the final process tree structure is described by the following operator expression: ->( 'RA', ->( 'VF', ->( 'AE', ->( X( 'tau', ->( *( 'RMI', 'tau' ), 'VF' ) ), ->( 'AD', ->( 'SC', 'AC' ) ) ) ) ) )"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me validate with the traces: Case 1: RA, VF, AE, RMI, VF, AD, SC, AC -> matches. Case2: RA, VF, AE, then XOR chooses the first branch (tau) -> so we skip the block. Then AD, SC, AC. Case3: RA, VF, AE, then the XOR chooses the second branch: loop: RMI (1st occurrence) then we choose tau and then A again -> so we do RMI again (2nd occurrence) then we exit the loop. then VF. Then AD, SC, AC. The trace we see: two RMI in a row. Then VF. So the model works."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
