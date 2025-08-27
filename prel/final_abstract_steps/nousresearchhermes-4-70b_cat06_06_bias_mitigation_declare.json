@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a base DECLARE model for a loan application review process. We need to add constraints to mitigate bias based on sensitive attributes (ApplicantAge, ApplicantGender, ApplicantRace)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Proposed constraints: 1. Coexistence: If a decision (e.g., Approve, Reject) is made for an applicant belonging to a sensitive demographic (e.g., Minority), then there must be a ManualReview in the trace."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However, note: The existing model does not have separate activities for decisions on minority applicants. We might need to introduce new activities? But the problem says to add constraints to the model, not necessarily to introduce new activities arbitrarily."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Since the example model does not have any activities for sensitive attributes, we must extend the model with new activities? ... We will assume that the following activities are present (or we add them for the constraints to work): - CheckApplicantRace: an activity that checks the race of the applicant. - CheckApplicantGender: an activity that checks the gender. - CheckApplicantAge: an activity that checks the age. - ManualReview: a manual review to ensure fairness. - BiasMitigationCheck: a specific check to mitigate bias."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can enforce that CheckApplicantRace must be followed by BiasMitigationCheck (using a succession constraint). ... Alternatively, we can use nonsuccession to say that CheckApplicantRace cannot be immediately followed by FinalDecision:Reject."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note: The coexistence constraint does not require the manual review to be related to the decision. We might have the manual review at any time. It just requires that both occur. So it is possible that the manual review occurs after the decision? That would be bad."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "We can instead use a chainprecedence (precedence with chain) to require that if a sensitive check occurs and then a decision occurs, then there must be a manual review in between? But that is complex. Alternatively, we can use the response constraint: the sensitive check must be responded by the manual review. ... So we change: Instead of coexistence, we use response for the manual review requirement."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Summary of new constraints: - Coexistence: For each sensitive attribute check (race, gender, age), we require that if it occurs, then ManualReview must occur. - Non-succession: For each sensitive attribute check, we require that it is not immediately followed by FinalDecision. - Succession: For each sensitive attribute check, we require that it is followed (eventually) by a BiasMitigationCheck."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We do not add existence for the new activities because they are only required when the sensitive check occurs. They dont have to occur in every trace."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We added three new constraints: 1. Response constraints: For each sensitive attribute check (race, gender, age), we require that a ManualReview must occur after it. 2. Succession constraints: For each sensitive attribute check, we require that a BiasMitigationCheck must eventually follow. 3. Non-succession constraints: For each sensitive attribute check, we prevent it from being immediately followed by the FinalDecision."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

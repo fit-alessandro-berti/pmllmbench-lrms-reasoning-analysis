@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given two logs: Log A and Log B, both for Order#1234."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Steps: 1. We will align events by order_id and event timing (with a tolerance of 2 seconds). 2. We will map event types between the two logs: - Log A: Order Received -> Log B: OrderReceived - Log A: Order Validated -> Log B: OrderValidation - Log A: Payment Processed -> Log B: PaymentCheck (note: Log B has PaymentCheck which might be equivalent, but Log A has Payment Processed) - Log A: Item Shipped -> Log B: Shipping - Log B has an extra event: Quality Check which is not in Log A."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We will create a merged event log that includes: A common timestamp (we can choose the primary as Log A's timestamp, or average, but since Log A is primary we can use Log A's timestamp for the record, and note Log B's if needed? However, the requirement says to include both if they differ, but the output format should be a single event per occurrence. We'll choose Log A's timestamp as the primary for ordering and display, but store Log B's in a separate attribute? ... So we can use the Log A timestamp as primary and then also store the Log B timestamp as an additional attribute. ... For merged events, we will combine all attributes. ... The requirement is to leave them separate if not matched. So we will have one event for Quality Check that only comes from Log B. ... We will create a merged log with the following columns ... The requirement says include all attributes from both logs. So we can have: event_type_A: the event type from Log A (if exists) event_type_B: the event type from Log B (if exists) ... We will also note the source of the event: e.g., if it was only in Log A, then source = A, if only Log B, then B, if both, then A and B. ... We can do: System A, System B, or Both."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach for matching: We will group by order_id. We'll create a list of events from both logs, each event as a dictionary. Then we will try to match events from Log A and Log B for the same order_id and within 2 seconds in timestamp. ... For each event in Log A: find the event in Log B that is closest in time (within 2 seconds) and same order_id. If found, then merge. ... However, we must avoid matching the same Log B event to two Log A events? So we need to mark events as matched."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "the requirement says if timestamps differ by less than 2 seconds, consider them the same event. So we do strictly less. However, let's see: the next event in Log A is at 10:01:30 and the next in Log B is at 10:01:29 (only 1 second apart) -> that would match. For the first event, they are 2 seconds apart -> we do not match? That seems counterintuitive? We might want to allow <= 2? The requirement says e.g. meaning example, so we can use <= 2? Or we can use a tolerance of 2 seconds (inclusive)? ... We'll set tolerance to 2 seconds (inclusive). So we do: if abs(timeA - timeB) <= timedelta(seconds=2)"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let's do that. Event A1: Compare with B1: |10:00:00 - 09:59:58| = 2 seconds -> matches. Event A2: Order Validated at 10:01:30 Compare with B2: 10:01:29 -> |10:01:30 - 10:01:29| = 1 second -> matches. Event A3: Payment Processed at 10:02:00 Look at remaining events in B: B3, B4, B5. B3: 10:02:05 -> |10:02:00 - 10:02:05| = 5 seconds -> does not match? (5>2) -> so we check: 5 seconds is more than 2, so no match? Then we add as separate. Event A4: Item Shipped at 10:05:00 Compare with B5: 10:05:02 -> |10:05:00 - 10:05:02| = 2 seconds -> matches? (we use <=2, so 2 seconds is included) -> matches. Event A5: Item Delivered at 10:20:00 ... no match. Then we process unmatched in B: B3: PaymentCheck at 10:02:05 -> not matched -> add as separate. B4: Quality Check at 10:03:00 -> not matched -> add as separate."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We must sort by the primary timestamp (which is Log A's timestamp if available, else Log B). So we sort the entire list by: key = event's timestamp. The sorted list: Event1: A1 and B1 -> sorting timestamp: 10:00:00 (from A) Event2: A2 and B2 -> 10:01:30 (from A) Event3: A3 -> 10:02:00 (from A) Event4: B3 -> 10:02:05 (from B) Event5: B4 -> 10:03:00 (from B) Event6: A4 and B5 -> 10:05:00 (from A) Event7: A5 -> 10:20:00 (from A)"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We are going to create two POWL models as described."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Model 1: With potential unfairness. Steps: 1. Start with ReceiveApplication and then DataCompletenessCheck. If incomplete, we loop back to request more info until complete. We note that the loop process: First, we have a transition for ReceiveApplication Then, we have a loop that consists of: a. DataCompletenessCheck (which may trigger a need for more info) b. If incomplete, then we do RequestMoreInfo, then back to DataCompletenessCheck (which now includes the new info). Otherwise, we exit the loop. Alternatively, we can model the loop as: ReceiveApplication -> DataCompletenessCheck and then if the data is not complete, we do RequestMoreInfo and then again DataCompletenessCheck. We can model this with a loop operator that has two children: DataCompletenessCheck and RequestMoreInfo but note: the loop must be structured as: DataCompletenessCheck (if not complete) -> RequestMoreInfo -> DataCompletenessCheck (again) So the loop is over a sequence: (DataCompletenessCheck -> RequestMoreInfo) and then back to the beginning of the loop. 2. After the data is complete, we have SkillAssessment. 3. Then, we have an XOR branch (the biased one) that branches to either: a. CulturalFitCheck (standard path) b. CommunityAffiliationCheck (which gives an advantage) 4. After the cultural fit/community check, we have ManagerialReview. 5. Finally, FinalDecision. So the model is sequential with a loop at the beginning and an XOR in the middle."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Model 2: Without unfairness. Same steps, but without the XOR branch. So after the skill assessment, we only have the CulturalFitCheck and then proceed to managerial review and final decision."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the loop in the beginning, we can model it as: The loop will have two children: first_child: a sequence of DataCompletenessCheck and if incomplete, then RequestMoreInfo, but note that the loop condition is that we have to keep looping until the data is complete. Alternatively, we can model the loop as: The main flow is: ReceiveApplication -> [Loop] -> SkillAssessment -> ... -> FinalDecision The loop is: Start with DataCompletenessCheck. If the data is complete, then exit the loop. If not, then we do RequestMoreInfo and then go back to DataCompletenessCheck. So the loop operator will have two children: child1: a sequence: [DataCompletenessCheck] (which may set a condition) child2: [RequestMoreInfo] But note: in the description, the loop is: Any missing information triggers a loop process where the applicant is asked to provide additional details before proceeding. We can model the loop as: DataCompletenessCheck (if not complete) -> RequestMoreInfo -> DataCompletenessCheck (again) So the loop is: Loop( [DataCompletenessCheck], [RequestMoreInfo] ) but note: the loop operator in pm4py is defined as: Operator.LOOP: meaning you do the first child (A) then you decide to do the second child (B) and then A again, until you decide to stop."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So we can do: loop = OperatorPOWL(operator=Operator.LOOP, children=[ StrictPartialOrder(nodes=[DataCompletenessCheck]), This is the part that must be done in every iteration StrictPartialOrder(nodes=[RequestMoreInfo]) This is the optional part (only if we dont complete) ]) However, note that the condition to break the loop is when the data is complete. We dont have a gate condition in the transition. But in the description, the loop breaks when the data is complete."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively, we can model the entire initial part as: ReceiveApplication -> (loop: [DataCompletenessCheck] -> if not complete then [RequestMoreInfo] -> [DataCompletenessCheck] again) until complete. We can break the loop when DataCompletenessCheck sets a condition that the data is complete. But in the POWL model, we dont have conditions, we have the structure. Actually, the description says: If the resume is complete and structured correctly, the process continues. So we can model the loop as: loop = OperatorPOWL(operator=Operator.LOOP, children=[ DataCompletenessCheck, This node will be executed in each iteration Then, if the data is complete, we exit the loop. Otherwise, we do RequestMoreInfo and then the loop continues. But note: the loop operator structure: we do the first child, then we decide to do the second child and then the first again, until we skip the second child. ])"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "After consideration, we'll model the initial data completeness with a loop operator. We'll use: initial_loop = OperatorPOWL(operator=Operator.LOOP, children=[ DataCompletenessCheck, RequestMoreInfo ]) And then after the loop, we have the SkillAssessment. But note: the loop operator will always execute the first child at least once. Then, if we choose to loop, we do the second child and then the first child again. How do we break? We break when we no longer do the second child. We assume that when the data is complete, we break the loop (so we dont do the second child). So the model for the initial part is: [ReceiveApplication] -> [initial_loop] -> [SkillAssessment]"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, lets design the two models: Model 1 (with potential unfairness): Steps: - ReceiveApplication - Then a loop: [DataCompletenessCheck] (and if not complete, then [RequestMoreInfo] and then repeat DataCompletenessCheck) - Then SkillAssessment - Then an XOR: [CulturalFitCheck] OR [CommunityAffiliationCheck] (which gives an advantage) - Then ManagerialReview - Then FinalDecision Model 2 (without unfairness): Same steps, except after SkillAssessment, we only have [CulturalFitCheck] and then ManagerialReview and FinalDecision."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
