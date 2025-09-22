@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "A process variant is defined as the ordered sequence of activities that occur in a single case, determined by sorting events within that case by their timestamp."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to produce a DuckDB SQL query that does all steps. Likely one query using CTEs."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Use array_agg(activity ORDER BY timestamp) as variant_array; then convert to string via array_to_string(variant_array, ','). Then count distinct case_id per variant string. Then rank variants by count desc limit K."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "DuckDB supports array_agg and array_to_string functions indeed. array_agg(expression ORDER BY ...) works."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Better use array_agg with order_by then convert via array_to_string which preserves order of elements in array as aggregated earlier."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Alternatively could use group_concat(activity, ',') but ordering may not be guaranteed unless using order_by inside group_concat? Better use array_agg."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Filter original events where case_id in (select case_id from ... join ...). Compute variant per case in CTE and join back."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This returns all events belonging only to cases whose variants are among top K."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_variants AS (SELECT case_id, array_to_string(array_agg(activity ORDER BY timestamp), ',') AS variant FROM event_log GROUP BY case_id), variant_counts AS (SELECT variant, COUNT() AS num_cases, ROW_NUMBER() OVER (ORDER BY COUNT() DESC) AS rn FROM case_variants GROUP BY variant), top_k_variants AS (SELECT * FROM variant_counts WHERE rn <= :K)"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Edge: duplicates if same count ties at boundary; but fine."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "SELECT e.* FROM event_log e JOIN case_variants cv ON e.case_id = cv.case_id JOIN top_k_variants tk ON cv.variant = tk.variant; Alternatively, WHERE CASE_ID IN (SELECT CASE_ID FROM ...); But our approach works too."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH cte_case_variant as (SELECT CASE_ID, ARRAY_TO_STRING(ARRAY_AGG(ACTIVITY ORDER BY TIMESTAMP), ',') as VARIANT_STR FROM EVENT_LOG GROUP BY CASE_ID), cte_variant_counts as (SELECT VARIANT_STR, COUNT(*) as NUM_CASES, ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) as RN FROM cte_case_variant GROUP BY VARIANT_STR), cte_topk_cases as (SELECT CV.CASE_ID FROM cte_case_variant CV JOIN cte_variant_counts VC ON CV.VARIANT_STR = VC.VARIANT_STR WHERE VC.RN <= :K) SELECT EL.* FROM EVENT_LOG EL WHERE EL.CASE_ID IN (SELECT CASE_ID FROM cte_topk_cases);"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Yes thats clear and uses proper alias names consistent across CTEs referencing earlier ones correctly."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Provide placeholders for K variable or mention using parameter binding or literal value like 5 if example needed."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, the problem says to identify cases that have the exact sequence of three activities: 'Approve Purchase Requisition', followed by 'Create Order', then 'Confirm Order'. And these must be consecutive with no other events in between."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Using lead() function perhaps. Like, for each row, check if current activity is 'Approve...', lead(activity,1) is 'Create...', lead(activity,2) is 'Confirm...'."
+  },
+  {
+    "Name": "Backtracking - NE",
+    "Text": "WITH cte AS ( SELECT ... FROM event_log WHERE activity IN ('Approve Purchase Requisition', 'Create Order', 'Confirm Order') -- Wait, but this WHERE clause would filter out other activities, but we need to check the consecutive sequence in the entire log. So if there are other activities in between, but we just ignore them, but in this approach, the LEADs would skip them. Wait, no. Ah, right. So the CTE should look at all events, and then in the WHERE clause, filter to find the rows where the current activity is Approve, next1 is Create, next2 is Confirm."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The inner subquery gets each event, and its next two events (activity and timestamp). Then, filter where the current activity is Approve, next1 is Create, next2 is Confirm. Then, for each such row, we have the case_id, create_time, confirm_time. Then, compute the difference between confirm_time and create_time."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If a case has the three events in order, but not consecutive. Like: Approve, Other Activity, Create, Confirm. Then the inner query would not find a row where Approve's next1 is Create and next2 is Confirm. So that case would not be in FilteredCases. Thus, the query correctly captures only consecutive sequences."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "But note that a case can have multiple instances of the sequence. For example, two separate sequences of Approve, Create, Confirm. Each of these sequences would be considered. If any of them have the time difference >5 days, then the case should be excluded."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

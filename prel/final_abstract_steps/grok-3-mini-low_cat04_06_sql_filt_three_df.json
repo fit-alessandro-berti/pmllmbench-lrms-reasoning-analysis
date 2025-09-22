@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First the prompt requires identifying cases that have the sequence Approve Purchase Requisition followed directly by Create Order followed directly by Confirm Order No other events from the same case should be in between these three"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then among those cases I need to find ones where the time between Create Order and Confirm Order in that sequence is more than 5 days Finally I have to exclude those cases from the final result So the query should return all events from cases that do NOT have this sequence with the time condition"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "To structure this in SQL I need to 1 Find the cases that have the exact sequence 2 For those cases check the time difference 3 Exclude those cases entirely from the event log I should start by identifying the cases with the sequence Since the sequence must be in direct succession I need to look at the ordered events per case I can use window functions or self-joins to check for consecutive events One way is to use ROW_NUMBER or LEAD LAG to check the next activities"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For each case order the events by timestamp Then for each event check if it is Approve Purchase Requisition and the next one is Create Order and the one after that is Confirm Order More precisely I need to find triples where activity1 Approve Purchase Requisition activity2 Create Order activity3 Confirm Order and they are consecutive in the ordered list for that case After identifying such sequences measure the time between activity2 and activity3 If that time > 5 days then exclude the whole case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First create a CTE or subquery that adds a row number per case Something like WITH ordered_events AS SELECT case_id activity timestamp ROW_NUMBER OVER PARTITION BY case_id ORDER BY timestamp AS rn FROM event_log From this I can join to get the next and next-next rows To check for three consecutive I might need to self-join or use LEAD I can use LEAD to get the next activity and the one after LEAD can get the next one and LEAD twice for the one after but I have to be careful"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "In ordered_events for each row I can add LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD timestamp 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_timestamp LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_timestamp For a row where activity Approve Purchase Requisition and next_activity Create Order and next_next_activity Confirm Order then for that row the time between Create Order and Confirm Order is the difference between next_timestamp and next_next_timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "WITH ordered_events AS above sequences AS SELECT DISTINCT case_id FROM ordered_events WHERE activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 days To get the final result select all from event_log where case_id NOT IN select case_id from sequences One potential issue what if for a case there are multiple possible sequences but only one meets the time condition The case will still be excluded if at least one does That seems to match the prompt"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We assume that the events are properly ordered by timestamp and there are no ties or issues In DuckDB subtracting timestamps gives an interval and we can compare to INTERVAL 5 days Yes Finally the query should return all columns from event_log for the cases not excluded So something like SELECT FROM event_log WHERE case_id NOT IN SELECT case_id FROM sequences And perhaps order by case_id and timestamp but the prompt does not specify so maybe just as is"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

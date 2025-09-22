@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, I need to understand the normal process flow. The steps are Register Order (Sales), Perform Credit Check (Finance), Validate Stock (Warehouse), Confirm Shipment (Logistics), Ship Goods (Logistics), Issue Invoice (Finance), Receive Payment (Finance). These steps should occur in order for each case_id."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Looking at the example data, I should check each case to see if any steps are missing, out of order, or duplicated. Also, check if resources are from the correct departments. Case 1001: All steps seem to be present and in order. The timestamps are sequential. Resources are from the correct departments. No obvious issues here."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1002: The order is Register Order, then Confirm Shipment, Ship Goods, then Perform Credit Check. Wait, the Credit Check comes after Ship Goods. Thats out of order. The normal flow is Credit Check after Register Order. So this is a process deviation. Also, Validate Stock comes after Ship Goods, which is incorrect because Validate Stock should be before Confirm Shipment."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1003: After Register Order and Credit Check, the next step should be Validate Stock, but instead its Ship Goods. Then Issue Invoice, then Confirm Shipment. So again, steps are out of order. Ship Goods should come after Confirm Shipment, which is after Validate Stock. Also, Confirm Shipment is late, as per the additional_info."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1004: After Register Order, the next event is Receive Payment, which is way out of order. Then Issue Invoice, Confirm Shipment (with scheduled=N), then Ship Goods. So Receive Payment comes before Invoice, which is wrong. Also, Confirm Shipment comes after Ship Goods here. Also, Validate Stock is missing entirely."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So anomalies include missing steps, incorrect order of activities, and possible duplicates. Also, looking at resources, maybe check if someone is doing tasks outside their role."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for anomalies: 1. Process deviations due to skipping steps or incorrect order (like in cases 1002, 1003, 1004). 2. Missing steps (e.g., Validate Stock missing in 1004). 3. Early or late execution of steps (like Confirm Shipment attempted early in 1002, late in 1003). 4. Possible errors in data entry (e.g., Receive Payment before Invoice in 1004). 5. Training issues or policy violations where employees bypass steps. 6. System errors causing events to be logged incorrectly."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Now, to propose SQL queries. Need to find cases where: - The sequence of activities is not followed. For example, after Register Order, the next should be Credit Check. So for each case_id, check the order of activities. - Missing activities. For example, Validate Stock is missing in some cases. - Events performed by incorrect departments. For example, a Sales rep doing a Credit Check. - Duplicate activities. Maybe some steps are repeated."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Let me think about how to structure the SQL queries. First, to check the order of activities per case_id. Maybe use window functions to get the order of events and compare with expected order. But how to represent the expected order? Maybe create a CTE with the expected sequence and join."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively, for each case, check that each activity occurs in the correct order, regardless of missing steps. Another approach: For each case, list all activities in timestamp order and compare against the expected sequence. But how to do that in SQL. Maybe find the earliest timestamp for each activity per case, then check the order."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another idea: For each case, check that Perform Credit Check occurs before Validate Stock, which occurs before Confirm Shipment, etc. So for each case, get the timestamps of each activity and validate the order. But how to do that in SQL. Another query could look for cases where Ship Goods occurs before Confirm Shipment."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Similarly, check for Perform Credit Check after Register Order: SELECT case_id FROM ( SELECT case_id, MAX(CASE WHEN activity = Register Order THEN timestamp END) AS register_time, MAX(CASE WHEN activity = Perform Credit Check THEN timestamp END) AS credit_time FROM order_event_log GROUP BY case_id ) sub WHERE credit_time IS NOT NULL AND (register_time IS NULL OR credit_time < register_time);"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another anomaly is missing steps. For example, Validate Stock missing in case 1004. To find cases missing a specific step: SELECT case_id FROM order_event_log GROUP BY case_id HAVING NOT BOOL_OR(activity = Validate Stock); Or: SELECT o1.case_id FROM orders o1 WHERE NOT EXISTS ( SELECT 1 FROM order_event_log oel WHERE oel.case_id = o1.case_id AND oel.activity = Validate Stock );"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another check: Receive Payment before Issue Invoice. For example, case 1004 has Receive Payment before Invoice. SELECT case_id FROM ( SELECT case_id, MAX(CASE WHEN activity = Issue Invoice THEN timestamp END) AS invoice_time, MAX(CASE WHEN activity = Receive Payment THEN timestamp END) AS payment_time FROM order_event_log GROUP BY case_id ) sub WHERE payment_time < invoice_time;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Also, check if any case has multiple instances of the same activity. Like two Credit Checks. For example: SELECT case_id, activity, COUNT(*) as cnt FROM order_event_log GROUP BY case_id, activity HAVING COUNT(*) > 1;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another check: resources from the wrong department. For example, a Sales resource performing Credit Check. Join order_event_log with resources, then check if activitys expected department matches. For example: SELECT oel.case_id, oel.activity, oel.resource, r.role, r.department FROM order_event_log oel JOIN resources r ON oel.resource = r.resource_id WHERE (oel.activity = Register Order AND r.department != Sales) OR (oel.activity = Perform Credit Check AND r.department != Finance) OR (oel.activity IN (Validate Stock, Confirm Shipment, Ship Goods) AND r.department != Logistics) OR (oel.activity = Issue Invoice AND r.department != Finance) OR (oel.activity = Receive Payment AND r.department != Finance);"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses: - Case 1002: Bypassing Credit Check and Validate Stock early. Maybe rushed order, leading to policy violation. - Case 1003: Skipping Validate Stock, leading to possible stock issues. - Case 1004: Missing Validate Stock and Confirm Shipment, early payment. Could be fraud or data entry error. - Steps being performed by wrong departments could indicate training issues."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

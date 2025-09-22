@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Key elements from the event log: Every case starts with OR. Then typically MS, QS, AS. IQC appears multiple times in some cases, often after AS, and AS might be repeated. TST follows, and if it fails, RT leads back to TST, indicating a loop. After successful testing, PK, and optionally LB, which is sometimes skipped. Then DP and D. From the examples: In Case 1: OR MS QS AS IQC AS TST RT TST PK LB DP D. Case 2: Similar but skips LB. Case 3: More IQC and AS repetitions. Case 4: Skips IQC and goes straight to TST after AS. Case 5: Multiple RT and TST loops."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "The main structure: Sequential parts: OR must come first, then MS, QS, etc., up to D at the end. Loops: IQC and AS seem to be in a loop; in some cases, AS is repeated after IQC. TST and RT: If testing fails, RT leads back to TST, so thats a loop. Choices: LB is sometimes skipped, so theres a choice: do LB or not. In Case 4, IQC is skipped, so perhaps after QS, theres a choice to do IQC or go directly to AS or TST."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Model this with POWL components: Activities: OR, MS, QS, AS, IQC, TST, RT, PK, LB, DP, D. Loops: For the testing part, * (TST, RT) means execute TST, then either exit or execute RT and then TST again. For IQC and AS, it might be a loop where AS is repeated after IQC. Choices: For LB, its a choice between doing LB or skipping it, so X(LB, skip). The overall process has a partial order: some activities must follow others, but from the log, it seems mostly sequential. Sketch a high-level structure: Start with OR. Then MS. Then QS. After QS, perhaps a sequence leading to AS, with possible loops for IQC and AS. A block for assembly and IQC: This involves AS and IQC in a loop. A block for testing: TST with possible RT loop. Then PK. Choice for LB. DP. D."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "In Case 4, it goes from QS to AS to TST directly, skipping IQC. So, after QS, there might be a choice: do the IQC-AS loop or go directly to TST. After QS, have a choice: enter the IQC-AS loop or skip it and go to TST. For skipping, use choice with a silent transition. So, after QS, have a XOR choice between IQC-AS loop and a silent transition to TST."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Define sub-models: IQC_AS_loop = OperatorPOWL(operator=Operator.LOOP, children=[AS, IQC])  Execute AS, then either exit or execute IQC and AS again. TST_loop = OperatorPOWL(operator=Operator.LOOP, children=[TST, RT])  Execute TST, then either exit or execute RT and TST again. LB_choice = OperatorPOWL(operator=Operator.XOR, children=[LB, skip])  Choose to do LB or skip. The root could be a StrictPartialOrder with nodes like: OR, MS, QS, IQC_AS_loop, TST_loop, PK, LB_choice, DP, D. Then add edges: root.order.add_edge(OR, MS) root.order.add_edge(MS, QS) root.order.add_edge(QS, IQC_AS_loop) But in Case 4, it skips IQC_AS_loop, so is this correct? After QS, have XOR_QS_next = OperatorPOWL(operator=Operator.XOR, children=[IQC_AS_loop, skip_to_TST]) Then, in the partial order, QS XOR_QS_next TST_loop etc. And silent_to_TST would be a silent transition that leads to TST_loop. XOR_QS_next = OperatorPOWL(operator=Operator.XOR, children=[IQC_AS_loop, skip_to_TST]) In the partial order, add an edge from XOR_QS_next to TST_loop. For LB, after PK, have LB_choice, and then from LB_choice to DP. LB_choice = OperatorPOWL(operator=Operator.XOR, children=[LB, skip_to_DP]) Where skip_to_DP = SilentTransition() Then, add edge from PK to LB_choice, and from LB_choice to DP."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Final structure: Create the individual activities: OR = Transition(label=OR) MS = Transition(label=MS) QS = Transition(label=QS) AS = Transition(label=AS) IQC = Transition(label=IQC) TST = Transition(label=TST) RT = Transition(label=RT) PK = Transition(label=PK) LB = Transition(label=LB) DP = Transition(label=DP) D = Transition(label=D) skip_to_TST = SilentTransition() skip_to_DP = SilentTransition() Sub-models: IQC_AS_loop = OperatorPOWL(operator=Operator.LOOP, children=[AS, IQC]) TST_loop = OperatorPOWL(operator=Operator.LOOP, children=[TST, RT]) XOR_after_QS = OperatorPOWL(operator=Operator.XOR, children=[IQC_AS_loop, skip_to_TST]) XOR_for_LB = OperatorPOWL(operator=Operator.XOR, children=[LB, skip_to_DP]) root = StrictPartialOrder(nodes=[OR, MS, QS, XOR_after_QS, TST_loop, PK, XOR_for_LB, DP, D]) Add edges: root.order.add_edge(OR, MS) root.order.add_edge(MS, QS) root.order.add_edge(QS, XOR_after_QS) root.order.add_edge(XOR_after_QS, TST_loop) root.order.add_edge(TST_loop, PK) root.order.add_edge(PK, XOR_for_LB) root.order.add_edge(XOR_for_LB, DP) root.order.add_edge(DP, D)"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "That should cover it. One potential issue: In the loop for IQC_AS, when it executes, it will do AS, and possibly repeat, but in the partial order, after XOR_after_QS completes, it goes to TST_loop, which is correct. Similarly for the others."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
