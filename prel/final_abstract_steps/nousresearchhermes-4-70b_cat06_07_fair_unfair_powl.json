@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are going to create two POWL models as described. Model 1: With potential unfairness. Steps: 1. Start with ReceiveApplication and then DataCompletenessCheck. If incomplete, we loop back to request more info until complete."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "After the data is complete, we have SkillAssessment. Then, we have an XOR branch (the biased one) that branches to either: a. CulturalFitCheck (standard path) b. CommunityAffiliationCheck (which gives an advantage) After the cultural fit/community check, we have ManagerialReview. Finally, FinalDecision."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Model 2: Without unfairness. Same steps, but without the XOR branch. So after the skill assessment, we only have the CulturalFitCheck and then proceed to managerial review and final decision."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "For the loop in the beginning, we can model it as: The loop will have two children: first_child: a sequence of DataCompletenessCheck and if incomplete, then RequestMoreInfo, but note that the loop condition is that we have to keep looping until the data is complete. Alternatively, we can model the loop as: [ReceiveApplication] -> [DataCompletenessCheck] and then if the data is not complete, we do [RequestMoreInfo] and then again [DataCompletenessCheck]. We can model this with a loop operator that has two children: [DataCompletenessCheck] and [RequestMoreInfo] but note: the loop must be structured as: [DataCompletenessCheck] (if not complete) -> [RequestMoreInfo] -> [DataCompletenessCheck] (again)"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "We can model the loop as: Loop( [DataCompletenessCheck], [RequestMoreInfo] ) but note: the loop operator in pm4py is defined as: Operator.LOOP: meaning you do the first child (A) then you decide to do the second child (B) and then A again, until you decide to stop. Alternatively, we can model the initial part as: [ReceiveApplication] -> [DataCompletenessCheck] -> then we have an XOR: if complete: then we go to the next step (skill assessment) if not complete: then we do [RequestMoreInfo] and then back to [DataCompletenessCheck]"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "[ReceiveApplication] -> [DataCompletenessCheck] -> X ( [Silent], # meaning we are complete and exit [RequestMoreInfo] -> [DataCompletenessCheck] # and then we repeat the same XOR again ) But that would be an infinite loop? We need to break when complete. So we can model: [ReceiveApplication] -> [DataCompletenessCheck] -> X ( [Silent] -> [NextStep], # when complete, we go to skill assessment [RequestMoreInfo] -> [DataCompletenessCheck] # and then we re-evaluate the condition )"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "After consideration, well model the initial data completeness with a loop operator. Well use: initial_loop = OperatorPOWL(operator=Operator.LOOP, children=[ # The first child: the part that is always done (the DataCompletenessCheck) DataCompletenessCheck, # The second child: the part that is done when we loop again (RequestMoreInfo) RequestMoreInfo ]) And then after the loop, we have the SkillAssessment. But note: the loop operator will always execute the first child at least once. Then, if we choose to loop, we do the second child and then the first child again. And we break when we dont do RequestMoreInfo. We assume that when the data is complete, we break the loop (so we dont do the second child)."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Model 1 (with potential unfairness): Steps: - ReceiveApplication - Then a loop: [DataCompletenessCheck] (and if not complete, then [RequestMoreInfo] and then repeat DataCompletenessCheck) - Then SkillAssessment - Then an XOR: [CulturalFitCheck] OR [CommunityAffiliationCheck] (which gives an advantage) - Then ManagerialReview - Then FinalDecision Model 2 (without unfairness): Same steps, except after SkillAssessment, we only have [CulturalFitCheck] and then ManagerialReview and FinalDecision."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Well model the entire model as: nodes = [ ReceiveApplication, initial_loop, # which is an OperatorPOWL for the loop SkillAssessment, # Then for model1: the xor_branch, for model2: CulturalFitCheck # Then the next steps: ManagerialReview, FinalDecision ] And we connect them with a strict partial order: each step is after the previous. But note: the loop is composed of two activities, but we are treating it as a single node in the top-level partial order? Actually, we can model the entire process as a strict partial order that connects: ReceiveApplication -> initial_loop -> SkillAssessment -> ... -> FinalDecision And the internal structure of the initial_loop and the xor_branch are defined by their operators."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

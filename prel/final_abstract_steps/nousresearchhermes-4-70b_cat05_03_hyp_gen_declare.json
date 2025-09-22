@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model with the following constraints: init: Activity R must be the first activity. It has 100% support and confidence. existence: Activity C must eventually occur. 100% support and confidence. responded_existence: Activity E must eventually occur after activity A. 100% support and confidence. precedence: Activity C must occur after activity R. 100% support and confidence. noncoexistence: Activities E and C cannot occur together. 100% support and confidence. However, note the intended process flow is: 1. R (Receive Claim) 2. A (Assign Adjuster) 3. E (Evaluate Claim) 4. P (Approve Claim) 5. N (Notify Customer) 6. C (Close Claim)"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies and contradictions: 1. Contradiction between responded_existence and noncoexistence: The model requires that E must occur after A (responded_existence), meaning every trace that has A must eventually have E. But the noncoexistence rule says that E and C cannot both occur. However, the intended flow requires both: after evaluation (E), the claim is approved (P), then notified (N), and then closed (C). So in a normal trace, we have E and then later C. This leads to a direct contradiction: The model requires that if A occurs, then E must occur (so we have E). Then, the model says that E and C cannot coexist (so C cannot occur because E has occurred). But the existence rule for C requires that C must occur. Therefore, the constraints are mutually exclusive and no trace can satisfy all of them."
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "2. Missing constraints for other activities: The model does not include constraints for activities P and N. This is not a contradiction per se, but it leaves the process underspecified and may allow deviations from the intended flow. 3. Precedence of C after R is too weak: The precedence rule only requires that C occurs after R. However, the intended flow requires a sequence: R, A, E, P, N, and then C. The model does not enforce the order of the intermediate steps."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for why the model includes such anomalies: 1. Misinterpretation of business requirements: The business rule that evaluation (E) must occur before closure (C) might have been misinterpreted as a strict exclusion (noncoexistence) instead of a precedence constraint. 2. Incremental changes: The process might have been changed (e.g., skipping evaluation in some cases) but the constraints were not updated consistently. The noncoexistence rule might have been added to allow for a fast-track process without evaluation, but without removing the responded_existence rule that requires evaluation after assignment. 3. Technical issues: The constraints might have been mined from data that contained errors (e.g., missing events) leading to the discovery of a false noncoexistence pattern. 4. Pressure to close claims quickly: The organization might be trying to close claims without proper evaluation, leading to a contradictory model: they want to enforce evaluation (hence responded_existence) but also allow closure without evaluation (which conflicts)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Proposed verification approaches with SQL: 1. Check for the contradiction (noncoexistence of E and C): ... Query to find claims that have both E and C (which the model says should not happen) and claims that are missing E (which the model requires) or missing C (which must occur). ... a. Claims that have both E and C (violating the noncoexistence constraint): SELECT claim_id FROM claim_events WHERE activity IN (E, C) GROUP BY claim_id HAVING COUNT(DISTINCT activity) = 2; b. Claims that have A but do not have E: SELECT DISTINCT ce1.claim_id FROM claim_events ce1 WHERE ce1.activity = A AND NOT EXISTS ( SELECT 1 FROM claim_events ce2 WHERE ce2.claim_id = ce1.claim_id AND ce2.activity = E ); c. Claims that do not have activity C (violating the existence constraint for C): SELECT claim_id FROM claims WHERE claim_id NOT IN ( SELECT DISTINCT claim_id FROM claim_events WHERE activity = C );"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "2. Check if evaluation (E) is always performed by an adjuster (resource from adjusters table): ... Query to find E events without a valid adjuster resource ... SELECT ce. FROM claim_events ce LEFT JOIN adjusters a1 ON ce.resource::integer = a1.adjuster_id LEFT JOIN adjusters a2 ON ce.resource = a2.name WHERE ce.activity = E AND a1.adjuster_id IS NULL AND a2.adjuster_id IS NULL; This will return E events that do not have a matching adjuster in the adjusters table by either id or name."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "3. Check if the assignment (A) is always followed by evaluation (E) in the same claim and by the same adjuster: ... WITH claim_assign AS ( SELECT claim_id, timestamp as assign_time, resource as assigner_resource FROM claim_events WHERE activity = A ), claim_evaluate AS ( SELECT claim_id, timestamp as evaluate_time, resource as evaluator_resource FROM claim_events WHERE activity = E ) SELECT ca.claim_id FROM claim_assign ca LEFT JOIN claim_evaluate ce ON ca.claim_id = ce.claim_id AND ca.assign_time < ce.evaluate_time AND ca.assigner_resource = ce.evaluator_resource WHERE ce.claim_id IS NULL;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "4. Check for claims that skip evaluation (E) but still have approval (P): ... SELECT DISTINCT ce1.claim_id FROM claim_events ce1 WHERE ce1.activity = P AND NOT EXISTS ( SELECT 1 FROM claim_events ce2 WHERE ce2.claim_id = ce1.claim_id AND ce2.activity = E ); ... Given the above, we have several SQL queries to verify the anomalies and the process. ... So the plan: 1. Check for claims that have A but not E (violating the model). 2. Check for claims that are missing C (violating the model). 3. Check for claims that have both E and C (violating the noncoexistence constraint) - this is the main contradiction. ... -- Part 1: Claims with A but without E SELECT DISTINCT ce1.claim_id FROM claim_events ce1 WHERE ce1.activity = A AND NOT EXISTS ( SELECT 1 FROM claim_events ce2 WHERE ce2.claim_id = ce1.claim_id AND ce2.activity = E ); -- Part 2: Claims without C SELECT c.claim_id FROM claims c WHERE NOT EXISTS ( SELECT 1 FROM claim_events ce WHERE ce.claim_id = c.claim_id AND ce.activity = C ); -- Part 3: Claims that have both E and C (which the model says should not happen) SELECT ce.claim_id FROM claim_events ce WHERE ce.activity IN (E, C) GROUP BY ce.claim_id HAVING COUNT(DISTINCT ce.activity) = 2;"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
