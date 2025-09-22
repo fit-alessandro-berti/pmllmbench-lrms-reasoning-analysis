@@ -62,7 +62,7 @@ def evaluate_file(file_path, output_folder, api_key):
 
             if not os.path.exists(output_path):
                 print(f"Evaluating file: {os.path.basename(file_path)}")
-                response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="chatgpt-4o-latest")
+                response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="gpt-5-nano")
                 json_str = extract_json_from_response(response)
                 try:
                     evaluation_list = json.loads(json_str)
