@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are going to break down the scenario step by step and build the POWL model accordingly. Steps: 1. Start with Service Request (SR) verification. Since it's the first step, we can model it as a transition. 2. Then Contract Setup (CS) must be done after SR. So we have an order: SR -> CS. 3. After CS, we have two tasks that can be done in parallel: DA and ACI. We can model this as a partial order with two nodes and no order between them, but both must be after CS."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4. After both DA and ACI, we have a loop between Base Network Configuration (BNC) and Debug & Reconfigure (D&R). The loop is defined as * (BNC, D&R). Note: In POWL, the loop operator has two children: the first is the body (which is executed at least once) and the second is the redo part. So we have: loop = OperatorPOWL(Operator.LOOP, [BNC, D&R])"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "5. After the loop, we have an exclusive choice between Containerized Deployment (CD) and Monolithic Deployment (MD). We model this as an XOR operator. However, note that after the deployment, we have two tasks (QA and SA) that must both be done. But also note that the scenario says: Once the deployment method has been chosen and completed, .... So the XOR choice leads to either CD or MD. We must also note that after the deployment, we have QA and SA which are concurrent? Actually, the scenario says: Both QA and SA must be completed before final sign-off, but they can be done in any order or even concurrently. So we can model QA and SA as a partial order with no order constraints between them."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "However, note that the entire process is sequential from SR to CS, then the parallel DA and ACI, then the loop, then the XOR, then the concurrent QA and SA, then GLA. But we have to build the model step by step. Lets define the nodes: Step 1: SR and CS are transitions. Well create: SR = Transition(label=Service Request) CS = Transition(label=Contract Setup) Step 2: DA and ACI are transitions: DA = Transition(label=Datacenter Allocation) ACI = Transition(label=Access Control Initialization)"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Instead, we can break the process into blocks: Block1: SR Block2: CS Block3: A partial order for DA and ACI (with no order between them) but both must come after CS? Block4: The loop (BNC and DR) Block5: The XOR (CD or MD) Block6: The partial order for QA and SA (with no order between them) Block7: GLA And then we set a sequence: Block1 -> Block2 -> Block3 -> Block4 -> Block5 -> Block6 -> Block7. How? We can create a StrictPartialOrder that has these blocks and then set edges: SR -> CS CS -> po_DA_ACI [but note: po_DA_ACI is a node that contains DA and ACI?] po_DA_ACI -> loop loop -> xor xor -> qa_sa qa_sa -> GLA But note: the partial order node po_DA_ACI must be defined as: po_DA_ACI = StrictPartialOrder(nodes=[DA, ACI]) # no edges added -> concurrent"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Build the loop for BNC and DR: loop = OperatorPOWL(Operator.LOOP, [BNC, DR]) Build the XOR for CD and MD: xor = OperatorPOWL(Operator.XOR, [CD, MD]) Build the partial order for QA and SA (concurrent): qa_sa = StrictPartialOrder(nodes=[QA, SA]) # no edges -> concurrent Now, the top-level partial order will have the sequence: SR, CS, po_DA_ACI, loop, xor, qa_sa, GLA. Create the top-level partial order: root = StrictPartialOrder(nodes=[SR, CS, po_DA_ACI, loop, xor, qa_sa, GLA]) Add the edges to enforce the sequence: root.order.add_edge(SR, CS) root.order.add_edge(CS, po_DA_ACI) root.order.add_edge(po_DA_ACI, loop) root.order.add_edge(loop, xor) root.order.add_edge(xor, qa_sa) root.order.add_edge(qa_sa, GLA) Now, the root is the entire model. However, note: the scenario says that the process starts by verifying the initial Service Request (SR). Then Contract Setup (CS) must be done. Then the two tasks DA and ACI in parallel. Then the loop. Then the XOR. Then QA and SA in parallel. Then GLA. This model should capture that. But wait: what about the dependencies within the loop? The loop node is an operator that internally orders BNC and then optionally DR. And the XOR node internally will choose one of CD or MD. The qa_sa node internally runs QA and SA concurrently. And the top-level partial order sets the sequence: SR -> CS -> po_DA_ACI -> loop -> xor -> qa_sa -> GLA. This matches the scenario."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "User message is: Draft Prompt for Benchmark: followed by a prompt with code block? Actually, it is just a benchmark question that instructs: Assume you have an event log stored in a DuckDB table named event_log, with each row representing a single event. The table has at least the following columns: case_id, activity, and timestamp. Each case_id groups events that belong to a single process instance (or case)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Your task: Please craft a DuckDB SQL query that filters out any cases containing more than six events, and returns only the events from cases that have six or fewer events in total. In other words, the query should identify the number of events per case_id, exclude any case_id where this count is greater than six, and then return the full set of events for the remaining cases. Be sure to consider the correct grouping and filtering to achieve this result. Thus our answer would be: We want a query that selects rows from event_log table where case_id satisfies having number of events <=6."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can solve using a subquery or common table expression (CTE) to first compute counts per case_id, then join with original table for rows with count <= 6."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "SQL solution: SELECT el.* FROM event_log el JOIN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) AS valid_cases ON el.case_id = valid_cases.case_id;"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "That is the query. Additionally, we can also use window functions if needed, but group by is simpler."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We check: Query SELECT * FROM event_log WHERE case_id IN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) is another possibility."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "I will produce a SQL answer that says: WITH valid_cases AS ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) SELECT e.* FROM event_log e JOIN valid_cases vc ON e.case_id = vc.case_id;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "I will check if it is valid SQL for DuckDB: Yes, DuckDB supports window functions and CTEs in standard SQL. Therefore the query is correct."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

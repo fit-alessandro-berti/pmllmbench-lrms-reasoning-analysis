@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "First, the task is to find cases where theres a sequence of three activities in order: Approve Purchase Requisition, Create Order, Confirm Order. And these three must be consecutive in the cases event log. Also, the time between Create Order and Confirm Order in that sequence must be more than 5 days. Then, exclude those cases from the final result."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So the query needs to first identify the cases that have the sequence and the timing condition, and then exclude those events from the final result. But how to structure the query? First, I need to find the case_id that have the three activities in order, consecutive. So, for each case, check if the three activities appear in order, with no other events in between. Then, for those cases, check the time between the Create Order and Confirm Order events."
+  },
+  {
+    "Name": "Hypothesis Generation - NE",
+    "Text": "So, for example, in the case, the first event is Approve Purchase Requisition, the next is Create Order, then the next is Confirm Order, and there are no other events between them. So, for a case, the three events must be consecutive in the order of occurrence. One approach is to use a window function to find the positions of the events. For example, for each case, we can order the events by timestamp, and then check if the three activities are consecutive in the sequence."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "So, the query would be: SELECT case_id, activity, timestamp FROM ( SELECT case_id, activity, timestamp FROM event_log ORDER BY case_id, timestamp ROW_NUMBER() OVER (PARTITION BY case_id ORDER BY timestamp) AS rn ) AS ordered_events WHERE (rn = 1 AND activity = Approve Purchase Requisition) AND (rn = 2 AND activity = Create Order) AND (rn = 3 AND activity = Confirm Order)"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "But this would only return the three events if they are in order and consecutive. However, this would not account for cases where the three events are in positions 1,2,3, but not necessarily in the correct order. Wait, no. Because the rn is ordered by timestamp, so if the three events are in positions 1,2,3, then the activities are in order. But the query as written would only return the three events if they are in positions 1,2,3."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Once we have that, we need to check if the time between Create Order and Confirm Order is more than 5 days. So, for those cases where the three events are in positions 1,2,3, we need to check if the timestamp difference between the second and third event is more than 5 days."
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "So, the final query should exclude any events that are part of a case that has the sequence and the timing condition. So, the query would be: SELECT * FROM event_log WHERE case_id NOT IN ( SELECT case_id FROM ( SELECT case_id FROM ( SELECT case_id, activity, timestamp FROM event_log ORDER BY case_id, timestamp ROW_NUMBER() OVER (PARTITION BY case_id ORDER BY timestamp) AS rn ) AS ordered_events WHERE (rn = 1 AND activity = Approve Purchase Requisition) AND (rn = 2 AND activity = Create Order) AND (rn = 3 AND activity = Confirm Order) AND (t3 - t2) > interval 5 days ) AS subquery ) AS final_subquery"
+  },
+  {
+    "Name": "Conclusion - W"
+  }
+]
