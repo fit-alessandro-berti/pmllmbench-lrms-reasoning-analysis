@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "To find consecutive sequences, I need to look for events in a case where the next event is the next activity. So for each event in the case, check if the current activity is the first in the sequence, the next is the second, and the one after that is the third. Also, ensure there are no other events in between them."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "But wait, in the log, events are ordered by timestamp. So, for each case, the events are ordered by timestamp. We need to check for three consecutive events in that order with no other events in between. So the row numbers can help here. For each event in the case, assign a row number ordered by timestamp. Then, check if for e1, the next row_number is e2s row_number (i.e., e1.row_num +1 = e2.row_num), and similarly for e2 to e3."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So, the approach would be: 1. For each case, assign row numbers to events ordered by timestamp. Lets call this row_num. 2. Find all triples (e1, e2, e3) where: - e1.activity = Approve Purchase Requisition - e2.activity = Create Order - e3.activity = Confirm Order - e1.row_num +1 = e2.row_num - e2.row_num +1 = e3.row_num 3. Additionally, check that the time difference between e3.timestamp and e2.timestamp is more than 5 days."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "But how to do this efficiently in SQL? Maybe using self-joins. Alternatively, we can use LAG and LEAD functions. Wait, but LAG would look at previous events, LEAD at next. But since the sequence is three events in a row, maybe using multiple window functions. Alternatively, for each event, check if its the first of the sequence, and the next two events form the rest of the sequence. So, for each e1 in the row_numbers CTE where e1.activity is Approve..., check if the next row (e2) is Create Order and the row after that (e3) is Confirm Order, and that e2 and e3 are consecutive. But how to get e2 and e3 for each e1? Perhaps using a subquery that for each e1, checks if there exists an e2 and e3 in the same case with the required activities and row numbers."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So, the subquery to find the problematic case_ids could be: SELECT DISTINCT e1.case_id FROM row_numbers e1 JOIN row_numbers e2 ON e1.case_id = e2.case_id AND e2.rn = e1.rn +1 JOIN row_numbers e3 ON e2.case_id = e3.case_id AND e3.rn = e2.rn +1 WHERE e1.activity = Approve Purchase Requisition  AND e2.activity = Create Order  AND e3.activity = Confirm Order  AND (e3.timestamp - e2.timestamp) > INTERVAL 5 DAY;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This should work. Lets test some cases. Suppose a case has the three events in order, consecutive, and the time between Create and Confirm is 6 days. Then, this case would be in problematic_cases, so its excluded. All events of this case are not in the final result. If a case has the three events but the time between Create and Confirm is 3 days, then its not in problematic_cases, so their events are included. If a case has the three events but theres another event between Approve and Create, then e1.rn +1 would not be e2.rn, so the join would not find it, so its not excluded. If a case has the three events but not consecutive, same as above."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

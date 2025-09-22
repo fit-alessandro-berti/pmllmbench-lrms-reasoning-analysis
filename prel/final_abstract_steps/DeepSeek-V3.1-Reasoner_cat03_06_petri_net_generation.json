@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Activities (transitions): C: Insurance Claim (already filed, so we start with a token in a place representing the claim has been filed and is ready for registration) CR: Claim Registration DV: Document Verification RDS: Re-Document Submission (this might loop back to DV) FC: Fraud Check II: In-depth Investigation (this might loop back to FC) CA: Claim Assessment AP: Approval (only if needed, so well have a bypass for claims that dont need approval) P: Payment N: Notification CL: Closure"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We note that after Payment, we have Notification and then Closure. Also note: The initial marking (im) should have a token in the start place (representing a claim that has been filed and is ready for registration). The final marking (fm) should have a token in the closure place (or the place after closure, but well have a sink place for closed claims). However, note that the example removed the sink place. Well design with a sink place and then remove it if required? But the example also deleted the sink from the final marking. We are not required to remove the sink, so we can keep it. Lets design the net with the following places: start (initial place) after_CR after_DV after_FC after_CA after_AP (if approval is needed) OR after_CA and then bypass to a place before payment? before_P (we can call it ready_for_P) after_P after_N end (final place)"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For the loops: After DV, if documents are incomplete, we go to RDS, which then goes back to a place before DV? But note: the re-submission of documents (RDS) should lead to going through DV again. Similarly, after FC, if doubts are raised, we do II and then we go back to a place before FC? But note: the in-depth investigation (II) is an additional step that then leads to re-doing the fraud check? However, the problem says: if documents are incomplete after Document Verification (DV), a re-submission of documents step occurs (RDS) before the process continues So, after DV, if incomplete, we do RDS and then we go back to DV? Similarly, if the Fraud Check (FC) raises doubts, an additional In-depth Investigation (II) is performed. This can happen multiple times before proceeding to Claim Assessment (CA). So, after FC, if doubts, we do II and then we go back to FC?"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can model the loops with a place after DV that leads to a transition for RDS that goes back to the place before DV? But note: the DV activity might be the same every time. So we can have: ... -> [DV] -> after_DV from after_DV, we have two arcs: one going to the next step (FC) if documents are complete, and one going to RDS if incomplete. Similarly, after FC, we have two arcs: one going to the next step (CA) if no doubts, and one going to II if doubts. However, note that the problem says the re-submission (RDS) occurs and then the process continues (so it goes back to DV). Similarly, the in-depth investigation (II) is performed and then the process continues (so it goes back to FC)."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively, we can model the DV transition as having two output places: one for complete (go to FC) and one for incomplete (go to RDS). Then RDS would lead back to the input of DV (so we have a place between RDS and DV, lets call it docs_resubmitted). Similarly, for FC: FC has two output places: one for no doubts (go to CA) and one for doubts (go to II). Then II would lead back to the input of FC (so we have a place between II and FC, lets call it investigation_done). But note: the problem says the activities are CR, DV, RDS, FC, II, CA, AP, P, N, CL. So we are allowed to have silent transitions? The example didnt use labels for the silent transitions, but we are required to label the activities. We are going to model the decisions (whether documents are complete or not, and whether fraud check raises doubts or not) as silent transitions (with no label) or as transitions with a label? The problem doesnt specify, so we can use silent transitions for the routing."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Let me draw the document part: p2 -> [DV] -> p3 p3 -> [silent_incomplete] -> p_incomplete -> [RDS] -> p2 p3 -> [silent_complete] -> p4 Similarly, for fraud: p4 -> [FC] -> p5 p5 -> [silent_doubts] -> p_doubts p_doubts -> [II] -> p4 p5 -> [silent_no_doubts] -> p6 Well create the silent transitions without labels (so they are invisible in the log). Now, for the approval part: p6 -> [AP] -> p8 p6 -> [skip_approval] -> p8 So we dont need p7, we can use p8 as the place after approval (or skip) and before payment."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Lets list all the places we need: start, end, p1, p2, p3, p4, p5, p6, p8, p9, p10, p_incomplete, p_doubts Transitions (with labels for the activities, and without labels for the silent ones): CR (label=Claim Registration) DV (label=Document Verification) silent_incomplete (no label) silent_complete (no label) RDS (label=Re-Document Submission) FC (label=Fraud Check) silent_doubts (no label) silent_no_doubts (no label) II (label=In-depth Investigation) CA (label=Claim Assessment) AP (label=Approval) skip_approval (no label) P (label=Payment) N (label=Notification) CL (label=Closure) And the arcs: start -> CR -> p1 p1 -> DV -> p3 p3 -> silent_incomplete -> p_incomplete p_incomplete -> RDS -> p2 p3 -> silent_complete -> p4 p2 -> DV (again) ... so we have a loop p4 -> FC -> p5 p5 -> silent_doubts -> p_doubts p_doubts -> II -> p4 p5 -> silent_no_doubts -> p6 p6 -> AP -> p8 p6 -> skip_approval -> p8 p8 -> P -> p9 p9 -> N -> p10 p10 -> CL -> end Also, note that we have the initial marking: a token in start Final marking: a token in end However, note that the example removed the sink place. We are not required to remove the end place, so we keep it. Lets code accordingly. Well use the petri_utils to add arcs. Note: We must also add the places and transitions to the net. Well create the net and then add all the elements. Lets code."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

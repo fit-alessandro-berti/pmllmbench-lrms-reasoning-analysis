@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are going to break down the problem: Steps: 1. We need to identify cases that have the exact sequence: Approve Purchase Requisition -> Create Order -> Confirm Order in direct succession. 2. For each such sequence in a case, we want to check if the time between Create Order and Confirm Order is > 5 days. 3. We want to exclude all events from cases that have at least one such sequence meeting the time condition."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach: We can use window functions to look at the next two events in the same case ordered by timestamp to check for the sequence. However, note: the problem says direct succession, meaning no other event in between. So we can use LEAD to get the next activity and the next next activity."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Steps in the query: a) For each event in a case, we can use: LEAD(activity, 1) OVER PARTITION BY case_id ORDER BY timestamp AS next_activity, LEAD(activity, 2) OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity, Then, we can mark the current row as the start of the sequence if: activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "b) We can do: LEAD(timestamp, 1) OVER PARTITION BY case_id ORDER BY timestamp AS create_order_time, LEAD(timestamp, 2) OVER PARTITION BY case_id ORDER BY timestamp AS confirm_order_time However, note: the event that is the Create Order is the next event, and Confirm Order is the one after that. So for the row where activity = Approve Purchase Requisition, we can get: create_order_time = LEAD(timestamp, 1) ... confirm_order_time = LEAD(timestamp, 2) ... Then the time between Create Order and Confirm Order is: confirm_order_time - create_order_time"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "c) But note: we dont want to mark the Approve Purchase Requisition event as the one that triggers the condition? Actually, we are interested in the case having such a sequence. So if we find at least one row in the case that is the start of the sequence i.e., Approve Purchase Requisition and the next two are as expected, and the time between the second and third is > 5 days, then the entire case should be excluded. d) However, a case might have multiple sequences? The problem says any case that contains the following sequence. So if a case has at least one such sequence that meets the time condition, then we exclude the entire case."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "e) So we can: Step 1: Create a CTE that for each event, we look at the next two events to see if we have the sequence and the time condition. Step 2: In that CTE, we can mark the case_id as to be excluded if in that row we have the sequence and the time condition is met. Step 3: Then, we want to get all case_ids that have at least one row that is marked for exclusion. Step 4: Then, we select all events from event_log where case_id is not in the list of case_ids to exclude."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Implementation: Lets create a CTE that for each row, we get: case_id, activity, timestamp, next_activity = LEAD(activity, 1) OVER w, next_next_activity = LEAD(activity, 2) OVER w, create_order_time = LEAD(timestamp, 1) OVER w, confirm_order_time = LEAD(timestamp, 2) OVER w with window: w AS PARTITION BY case_id ORDER BY timestamp Then, in a second CTE, we can check for rows where: activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND confirm_order_time - create_order_time > INTERVAL 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note: the LEAD functions for the last two events in a case will be NULL. So for the last two rows, we wont have the next two activities. This is safe because we are filtering for a specific sequence that requires two next events. But what if the sequence starts at the second last event? Then next_next_activity would be NULL, so it wont match. Similarly, if the sequence starts at the last event, then next_activity is NULL. So we are safe."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternative: We can use a self-join? But window functions are more straightforward. Another approach: use a MATCH_RECOGNIZE? But DuckDB doesnt support MATCH_RECOGNIZE as of now. So window functions are the way. But note: the problem says direct succession, meaning the three events must be consecutive. The window function approach with LEAD1 and LEAD2 exactly checks for consecutive events."
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "However, note: the time condition is only on the second and third event of the sequence. So if one sequence in the case has the time condition met, we exclude the case. However, what if a case has two sequences, one that meets the time condition and one that doesnt? Then we still exclude the entire case because we found at least one sequence that meets the condition. This is in line with the requirement."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets test with a small example: case_id activity timestamp 1 Approve Purchase Requisition 2023-01-01 00:00:00 1 Create Order 2023-01-02 00:00:00 1 Confirm Order 2023-01-08 00:00:00 time diff = 6 days exclude case 1. 2 Approve Purchase Requisition 2023-01-01 00:00:00 2 Create Order 2023-01-02 00:00:00 2 Confirm Order 2023-01-06 00:00:00 4 days not excluded. 3 Approve Purchase Requisition 2023-01-01 00:00:00 3 Something Else 2023-01-02 00:00:00 3 Create Order 2023-01-03 00:00:00 3 Confirm Order 2023-01-10 00:00:00 no sequence so not excluded. 4 Approve Purchase Requisition 2023-01-01 00:00:00 4 Create Order 2023-01-02 00:00:00 4 Confirm Order 2023-01-08 00:00:00 excluded 4 Another Activity 2023-01-09 00:00:00 Then, the result should include all events from case 2 and case 3, and case 4 is excluded so none of its events are in the result. Also, case 1 is excluded. So the result should have case 2 and case 3. Now, in the sequence_events for case 1: row1: activity = Approve, next_activity = Create Order, next_next_activity = Confirm Order, create_order_time = 2023-01-02, confirm_order_time = 2023-01-08 time_diff = 6 days condition met. So case 1 is in cases_to_exclude. Similarly, for case 4, the first three events form the sequence and the time diff is 6 days excluded. For case 2: row1: activity = Approve, next_activity = Create Order, next_next_activity = Confirm Order, time_diff = 4 days condition not met. So case 2 is not in cases_to_exclude. For case 3: row1: activity = Approve, next_activity = Something Else doesnt match, so skip. row2: activity = Something Else, next_activity = Create Order, next_next_activity = Confirm Order but the sequence we are looking for starts with Approve, so row2 is not the start. So no row in case 3 meets the condition. Therefore, the query should work."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "However, note: what if the sequence appears multiple times in one case? For example, case 5: A, C, Co, A, C, Co And the first sequence has time diff > 5 days, the second has <= 5 days. Then, because we found at least one sequence that meets the condition, we exclude the entire case. So the query is correct. But note: in the sequence_events CTE, for the first row A we get the sequence and the time diff for the first sequence. For the fourth row A again we get the sequence for the second time. If the first sequence meets the condition, then we mark case 5 for exclusion. We dont need to check the second sequence because one is enough. So the DISTINCT in cases_to_exclude is efficient."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "One more optimization: we can avoid computing LEAD for all rows by first filtering for the activity Approve Purchase Requisition? But the window function is computed for all rows anyway. Alternatively, we can do: SELECT case_id FROM event_log WHERE activity = Approve Purchase Requisition but then we need the next two events. So we would still need the window function on the entire table? Or we can self-join. But the window function approach is standard and efficient enough for typical event logs. Well stick with the window function."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

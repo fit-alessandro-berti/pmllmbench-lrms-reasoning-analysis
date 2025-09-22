@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First I need to carefully analyze the temporal_profile dictionary. The suspicious points jump out immediately For RP with 90000 seconds 25 hours average and only 3600 seconds STDEV 1 hour thats way too tight. Real business processes dont have approvals happening within 1 hour of submission that screams automation or fake data. Then PN at 7 days average with 2-day STDEV is wild. Why would notification take 7 days on average Thats longer than most claim processes. And the high STDEV suggests some notifications are happening in hours while others take weeks probably a backlog issue. The AC pair at 2 hours average is worrying because the process should have Evaluate and Approve steps before Close. If claims are closing right after assignment someones skipping steps. And EN at 5 minutes Thats impossible in real life. Even if the system auto-notifies it wouldnt take 5 minutes to send an email. This must be a data error."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now for hypotheses For RP Could be an automated approval system for low-value claims or maybe the timestamps are all set to the same time. But the low STDEV is the red flag. For PN Definitely a backlog maybe the notification team is overwhelmed or the system only sends notifications weekly. The high STDEV suggests inconsistent processing. For AC This screams claim fraud someone closing claims without proper evaluation. Or maybe the system has a bug where Close gets triggered prematurely. For EN 5 minutes is physically impossible for human interaction. Likely either timestamp errors or the activity codes are misassigned."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Time to craft SQL queries that will verify these. For RP Ill need to calculate actual time differences and flag cases where its under 24 hours with low variance. For PN Ill look for cases exceeding 3 days. For AC Ill check if theres no E or P activity between A and C. And for EN Ill filter out anything under 30 minutes. The queries need to be precise using LAG to get sequential timestamps and careful filtering. Ill avoid using the STDEV in SQL since were verifying against actual data not the models stats."
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Hmm should I include examples of the actual anomalies Like for EN showing a claim where Evaluate and Notify happened 5 minutes apart Yes that'll make the verification concrete. Also need to consider claim types maybe home insurance has different patterns than auto. So Ill add WHERE clauses for claim_type in the queries. And for the AC anomaly Ill join with adjusters to see if certain specialists are causing this."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "checks the schema again Right claim_events has activity codes as single letters so I can filter with activity IN E P N etc. And timestamp is TIMESTAMP so I can do EXTRACT EPOCH FROM for seconds."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "double-checks For the RP anomaly the model says 25 hours average with 1h STDEV so actual claims should be between 24-26 hours. But in reality well just look for claims where RP is less than 24 hours since the models STDEV is suspiciously low. For PN the models 7 days average is already too long so Ill look for cases over 3 days to flag the extreme delays."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "mental note Must not mention the models STDEV in the SQL just use the average as reference. The user wants to verify against business reality not the questionable model. Okay structuring the response First list each anomaly with its issue then hypothesis then specific SQL. Keep it clean like the example but with real query logic. No fluff."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

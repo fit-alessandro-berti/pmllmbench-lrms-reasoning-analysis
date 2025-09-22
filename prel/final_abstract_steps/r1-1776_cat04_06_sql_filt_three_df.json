@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First I need to understand the structure of the event log table. It has case id activity and timestamp. Each row represents an event in a process instance case. The first part is to identify cases where the sequence Approve Purchase Requisition Create Order Confirm Order occurs consecutively without any other activities in between."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "How do I check for consecutive activities in order? Maybe using window functions. For each case we can order the events by timestamp and then check if the next two activities after Approve Purchase Requisition are Create Order and Confirm Order."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "For a given case we need to look at each trio of consecutive events. Alternatively for each occurrence of Approve Purchase Requisition check if the next activity is Create Order followed by Confirm Order. But how to handle cases where this sequence occurs multiple times? According to the problem we just need to check if such a sequence exists at least once in the case."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Using LEAD function. For each event in a case look ahead two steps. So for a given event e1 activity Approve Purchase Requisition check if e2 next activity is Create Order and e3 next after that is Confirm Order. If so then record this case as needing further checking."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Once we have those cases we need to check if the time between Create Order event and Confirm Order event of that sequence is more than 5 days. For each such triplet found in a case id compute DATEDIFF day e2 timestamp e3 timestamp greater than 5. If any of these occurrences have a difference more than 5 days then that case should be excluded."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "DATEDIFF here might need proper handling of timestamps. The problem says time elapsed between more than 5 days. So perhaps using an interval comparison would be better confirm order time minus create order time greater than INTERVAL 5 DAYS. Yes so instead of DATEDIFF compute confirm order time minus create order time as interval and check if it exceeds interval 5 days."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing possible edge cases Case where a sequence exists but time between Create and Confirm is exactly five days should not be excluded. Another edge case multiple sequences in same case but only one meets timing condition then entire case is excluded. Another edge sequences but no timing condition so even though sequence exists but time less than or equal to 5d so filtered cases does not include them thus their events are not excluded from final result."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We introduce new activities that might be needed for fairness, such as: - BiasMitigationCheck: an activity that checks for potential bias. - ManualReview: an activity that involves a human review for sensitive cases."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "We want: if S occurs, then eventually BiasMitigationCheck must occur after S. This is response(S, BiasMitigationCheck). And we want: if D occurs, then BiasMitigationCheck must occur before D. This is precedence(BiasMitigationCheck, D)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each sensitive activity S in sensitive_activities: declare_model[response][S] = { BiasMitigationCheck: {support: 1.0, confidence: 1.0} } For each decision activity D in decision_activities: declare_model[precedence].setdefault(BiasMitigationCheck, {})[D] = {support: 1.0, confidence: 1.0}"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "This ensures that if S occurs, then ManualReview occurs after S, and if D occurs, then ManualReview occurs before D. So if both S and D occur, then ManualReview occurs between S and D. However, this might be too strong because it requires that every decision is preceded by a ManualReview, which might not be the case for non-sensitive applications."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "So we avoid this for now. Alternatively, we might use a more complex constraint: We require that if both a sensitive activity and the FinalDecision occur, then ManualReview must occur. We cannot express this directly, so we might rely on the BiasMitigationCheck to trigger the ManualReview."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "coexistence(BiasMitigationCheck, ManualReview) This means that if BiasMitigationCheck occurs, then ManualReview must occur, and vice versa. Then, because we already have that every sensitive check leads to BiasMitigationCheck (response) and every decision is preceded by BiasMitigationCheck (precedence), then if a sensitive check and a decision occur, BiasMitigationCheck occurs, and then ManualReview occurs."
+  },
+  {
+    "Name": "Ethical or Moral Reasoning - PE",
+    "Text": "We will add constraints that enforce: a. If a sensitive attribute is checked (e.g., CheckApplicantRace), then we must have a BiasMitigationCheck before any decision. b. For decisions (like Reject or Approve) that occur after a sensitive attribute check, we require a ManualReview to coexist in the trace. c. We might also prevent direct succession from a sensitive attribute check to a decision."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

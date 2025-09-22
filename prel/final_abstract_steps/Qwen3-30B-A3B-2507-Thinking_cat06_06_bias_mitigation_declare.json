@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "We are given a DECLARE model for a loan application process. The goal is to add constraints to prevent bias based on sensitive attributes (like ApplicantAge, ApplicantGender, ApplicantRace). We note that the example model already has some activities (StartApplication, RequestAdditionalInfo, FinalDecision) and we are to introduce new constraints."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Potential bias: We are concerned that decisions (like Reject) might be made too quickly after seeing sensitive attributes (e.g., CheckApplicantRace for a minority applicant) without proper review."
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "We are to add constraints that: 1. Enforce that when a decision (e.g., Reject) is made for an applicant with a sensitive attribute (like Minority), there must be a ManualReview activity that coexists (i.e., occurs in the same trace) with the decision."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, note: the DECLARE constraints do not have a way to condition on the attribute. We are only constraining the sequence of activities. Therefore, we have to assume that the process model is designed such that the sensitive attribute is captured in the activity names? Or we have to introduce new activities? But the problem says we are adding constraints, not activities and that we are allowed to have the activity CheckApplicantRace (or similar) as part of the process."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So we add: coexistence: { CheckApplicantRace: { ManualReview: {support: 1.0, confidence: 1.0 } } }"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Specifically, we want to prevent: CheckApplicantRace -> Reject So we can add a nonsuccession constraint: nonsuccession: { CheckApplicantRace: { FinalDecision: {support: 1.0, confidence: 1.0} } }"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So we might also add a precedence constraint: precedence: { ManualReview: { FinalDecision: {support: 1.0, confidence: 1.0} } }"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "However, the problem says sensitive attributes, so we should cover all. But the problem does not specify which ones are used. Well assume that the process has activities for checking each of these. Therefore, we add: coexistence: { CheckApplicantRace: { ManualReview: ... }, CheckApplicantGender: { ManualReview: ... }, CheckApplicantAge: { ManualReview: ... } } Similarly, for nonsuccession: { CheckApplicantRace: { FinalDecision: ... }, CheckApplicantGender: { FinalDecision: ... }, CheckApplicantAge: { FinalDecision: ... } }"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Now, lets write the updated model. We are going to add to the existing model: In coexistence: add the three sensitive attribute checks with ManualReview. In nonsuccession: add the three sensitive attribute checks with FinalDecision. In precedence: add ManualReview to FinalDecision"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
