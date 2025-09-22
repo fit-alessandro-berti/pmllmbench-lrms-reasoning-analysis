@@ -104,61 +104,61 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                     reasoning_trace = read_file_contents(input_path)
 
                     header_stri = """
-                    Produce a JSON containing the ordered list of abstract reasoning steps followed in the reasoning trace.
-                    The list should include dictionaries having two keys:
-                    - Name: the name of the activity.
-                    - Text: the portion of text from the reasoning trace that is corresponding to the activity.
+Produce a JSON containing the ordered list of abstract reasoning steps followed in the provided text.
+The list should include dictionaries having two keys:
+- Name: the name of the activity.
+- Text: the portion of text that is corresponding to the activity.
 
-                    The name of the activity should start exclusively with one of these patterns:
-                    - Pattern Recognition
-                    - Deductive Reasoning
-                    - Inductive Reasoning
-                    - Abductive Reasoning
-                    - Hypothesis Generation
-                    - Validation
-                    - Backtracking
-                    - Ethical or Moral Reasoning
-                    - Counterfactual Reasoning
-                    - Heuristic Reasoning
+The name of the activity should start exclusively with one of these patterns:
+- Pattern Recognition
+- Deductive Reasoning
+- Inductive Reasoning
+- Abductive Reasoning
+- Hypothesis Generation
+- Validation
+- Backtracking
+- Ethical or Moral Reasoning
+- Counterfactual Reasoning
+- Heuristic Reasoning
 
-                    And end exclusively with one of these patterns:
-                    - PE: positive effect on the final answer and the overall correctness
-                    - IND: neutral effect on the final answer and the overall correctness
-                    - NE: negative effect on the final answer and the overall correctness
+And end exclusively with one of these patterns:
+- PE: positive effect on the final answer and the overall correctness
+- IND: neutral effect on the final answer and the overall correctness
+- NE: negative effect on the final answer and the overall correctness
 
-                    So, for example, "Backtracking - PE" or "Counterfactual Reasoning - IND".
+So, for example, "Backtracking - PE" or "Counterfactual Reasoning - IND".
 
-                    At the end of the trace, introduce an artificial "Conclusion" activity, followed by one of these
-                    suffixes: C (correct), PC (partially correct), W (substantially incorrect, wrong).
-                    The conclusion should evaluate the correctness of the overall reasoning trace,
-                    so don't include any corresponding text.
-                    The name of the activity can be:
-                    - Conclusion - C
-                    - Conclusion - PC
-                    - Conclusion - W
+At the end, introduce an artificial "Conclusion" activity, followed by one of these
+suffixes: C (correct), PC (partially correct), W (substantially incorrect, wrong).
+The conclusion should evaluate the correctness of the overall text,
+so don't include any corresponding text.
+The name of the activity can be:
+- Conclusion - C
+- Conclusion - PC
+- Conclusion - W
 
-                    AVOID reporting any strange characters inside the strings
-                    in the final JSON. Report only alphanumeric characters!
-                    
-                    AVOID any escaping, so no quotation characters at all inside the strings of the final JSON!
-                    Try to make sure that every string is properly terminated!
-                                
-                    The JSON should look like:
-                    ```json
-                    [
-                        {
-                            "Name": "Backtracking - PE",
-                            "Text": "..."
-                        },
-                        {
-                            "Name": "Counterfactual Reasoning - IND",
-                            "Text": "..."
-                        },
-                        {
-                            "Name": "Conclusion - C"
-                        }
-                    ]
-                    ```
+AVOID reporting any strange characters inside the strings in the final JSON. Report only alphanumeric characters!
+
+AVOID any escaping, so no quotation characters at all inside the strings of the final JSON! Try to make sure that every string is properly terminated!
+            
+Be careful to introduce the JSON in the tags ```json and ```
+
+The JSON should look like:
+```json
+[
+    {
+        "Name": "Backtracking - PE",
+        "Text": "..."
+    },
+    {
+        "Name": "Counterfactual Reasoning - IND",
+        "Text": "..."
+    },
+    {
+        "Name": "Conclusion - C"
+    }
+]
+```
                     """
 
                     clipboard_content = "\n".join([
@@ -185,7 +185,7 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                         import pm4py, time
 
                         print("req")
-                        resp = pm4py.llm.google_query(clipboard_content, api_key=open("../google_api.txt", "r").read(), model="gemini-2.5-pro-preview-03-25")
+                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../api_grok.txt", "r").read(), openai_model="grok-4-fast-reasoning", api_url="https://api.x.ai/v1/")
                         F = open(prel_path, "w", encoding="utf-8")
                         F.write(resp)
                         F.close()
@@ -242,7 +242,9 @@ if __name__ == "__main__":
     input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
     prel_folder = r"prel\final_abstract_steps"
 
-    patterns = ["grok-code-fast", "nousresearch"]
+    F = open("lrms_list.txt", "r")
+    patterns = [x.strip() for x in F.readlines()]
+    F.close()
 
     while True:
         for pattern in patterns:
