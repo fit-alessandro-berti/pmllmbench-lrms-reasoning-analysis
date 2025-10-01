@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "We are going to create a DECLARE model for the given scenario. We note that the DECLARE model is a dictionary with specific keys for different types of constraints. We have two types of constraints: 1. Unary constraints: existence, absence, exactly_one, init. These are about a single activity. 2. Binary constraints: the rest, which are about two activities."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We are not given specific support and confidence, so we will set them to 1.0 for the example."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We need to think about the process and what constraints are likely. Lets consider: The process starts with Idea Generation (IG). So we can set init to have IG. We expect that every process instance must have Idea Generation (IG) and Final Launch (FL). So we can have existence for IG and FL. We might have exactly_one for some activities? For example, maybe each product idea should go through exactly one Approval Gate (AG)? But note that in some processes, there might be multiple approval gates. However, for simplicity, lets assume one."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets define: existence: We require that IG, FL, and maybe AG (if we assume every product must be approved) exist. absence: We dont require any activity to be absent. exactly_one: We might require that AG happens exactly once (if we assume no re-approval). Also, maybe FL happens exactly once. init: The process must start with IG."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Now for binary constraints, we can think about the order: After IG, we have DD. So we can have precedence(DD, IG) meaning that DD cannot happen without IG having happened before. But note: actually, we want that DD is preceded by IG, so we can have precedence(DD, IG) or chainprecedence if we want immediate succession. Lets think about some constraints: 1. response(IG, DD): After IG, eventually DD must occur. But note: the process might have multiple ideas? We are assuming one idea per case? Lets assume one product per case. 2. precedence(DD, TFC): TFC must be preceded by DD. 3. precedence(TFC, CE): CE must be preceded by TFC. 4. precedence(CE, PC): PC must be preceded by CE. 5. precedence(PC, LT): LT must be preceded by PC. 6. precedence(LT, UT): UT must be preceded by LT. 7. precedence(UT, AG): AG must be preceded by UT. 8. precedence(AG, MP): MP must be preceded by AG. 9. precedence(MP, FL): FL must be preceded by MP."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We might also have chainresponse for some immediate successions, but lets stick to response and precedence for now. We might also have coexistence for some activities that must occur together? For example, if TFC and CE are always together, but in our process, they are separate. So we might not have that. Note: The structure for unary constraints is a dictionary with activity as key and a tuple (support, confidence) as value. For binary constraints, the structure is a dictionary with a tuple (activity1, activity2) as key and a tuple (support, confidence) as value. However, note the description says for the keys (like response) the value is a dictionary with keys the activities and value the support and confidence. But wait, for binary constraints, the key is a tuple of two activities. Let me clarify: In the pm4py DECLARE model, the binary constraints are stored as dictionaries where the key is a tuple (A, B) and the value is (support, confidence). For example, for response, (A, B) means that if A occurs then B must occur after. But note: response does not require immediate succession, so thats okay. We can also use precedence for the reverse. For example, precedence(DD, IG) is not needed because we already have that the process starts with IG and then DD, but note: precedence(B, A) means B must be preceded by A. So we can have: precedence(DD, IG)  DD must be preceded by IG precedence(TFC, DD) TFC must be preceded by DD ... and so on. But note: the response and precedence are two sides of the same coin? Actually, response(A, B) is equivalent to precedence(B, A)? Not exactly: response(A, B): if A occurs then B must occur after A. precedence(B, A): if B occurs then A must occur before B. So, if we have both, then we are saying that A and B must both occur and A must occur before B. That is actually a succession constraint. We might want to use succession for some of these to enforce that both occur and in order."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We are going to define the following binary constraints: Well use response for the forward direction and precedence for the backward direction to ensure the order. Alternatively, we can use succession which is both response and precedence. Let me define: succession(IG, DD) succession(DD, TFC) succession(TFC, CE) succession(CE, PC) succession(PC, LT) succession(LT, UT) succession(UT, AG) succession(AG, MP) succession(MP, FL) This ensures that if one occurs, the other must occur and in the right order. We might also have coexistence for activities that must occur together? In our process, we dont have such. We are not using noncoexistence, nonsuccession, etc."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are going to create a dictionary for the DECLARE model. We will set support and confidence to 1.0 for all rules. Lets code accordingly. Note: We are not using all the constraint types, only the ones we need. Well have: declare_model = { existence: { ... }, absence: { ... }, exactly_one: { ... }, init: { ... }, responded_existence: { ... }, coexistence: { ... }, response: { ... }, precedence: { ... }, succession: { ... }, ... and so on for the ones we are using. } We are going to fill in the ones we have and leave the rest as empty dictionaries. Lets write the code accordingly."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

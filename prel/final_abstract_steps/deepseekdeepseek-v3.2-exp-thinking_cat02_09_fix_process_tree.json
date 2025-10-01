@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a process tree that is underfitting. The main issue is that the current model allows the activities after approving the requisition (i.e., Create_Purchase_Order, Receive_Goods, Receive_Invoice, Match_Invoice_to_PO, Pay_Invoice) to occur in any order (because they are in a PARALLEL block)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, in a typical Procure-to-Pay process, there are strict dependencies: - The purchase order (PO) must be created before goods can be received (because the PO is used to verify the delivery) and before an invoice can be received (because the invoice references the PO). - The goods must be received and the invoice must be received before the invoice can be matched (because matching involves comparing the invoice with the PO and the goods receipt). - The invoice must be matched before it can be paid. - Only after the payment is made can the case be closed."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Therefore, we need to enforce a more strict ordering. Let's break down the intended order: 1. Create Purchase Requisition (already first) 2. Approve Purchase Requisition (already second) 3. Create Purchase Order (must be done before receiving goods or invoice) 4. Then, we can have two parallel paths? Actually, note that: - We can receive goods and receive invoice in any order? But note: matching requires both, so they can be concurrent. However, the process does not require one to happen before the other. But note: sometimes the invoice might arrive before the goods or vice versa. So we can allow them to be parallel."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "But note: the matching step requires both the goods receipt and the invoice. So we can model: - After creating the PO, we can have two activities in parallel: receiving goods and receiving the invoice. Then, we must have the matching step (which requires both). Then payment, then close."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the structure should be: Sequence of:  - Create_Purchase_Requisition  - Approve_Purchase_Requisition  - Create_Purchase_Order  - A parallel block for:      - Receive_Goods      - Receive_Invoice  - Match_Invoice_to_PO  - Pay_Invoice  - Close_Case This ensures that: - The requisition is created and approved first. - Then the PO is created. - Then we can have the goods and invoice being received in any order (or concurrently). - Then we match the invoice (which can only be done after both goods and invoice are received). - Then we pay the invoice (only after matching). - Then we close the case."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let's write the corrected process tree accordingly. We will replace the current parallel block (which included create_po, receive_goods, receive_invoice, match_invoice, pay_invoice) with a more structured approach. Note: The current model had the parallel block including create_po, which is wrong because create_po must be done before the receiving steps. So we move create_po out of the parallel block and put it in sequence before the parallel block for receiving goods and invoice. We also note that the matching and payment must come after the parallel block. So the fixed tree will be: Sequence:  - Create_Purchase_Requisition  - Approve_Purchase_Requisition  - Create_Purchase_Order  - Parallel (for Receive_Goods and Receive_Invoice)  - Match_Invoice_to_PO  - Pay_Invoice  - Close_Case Now, let's write the code accordingly."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
