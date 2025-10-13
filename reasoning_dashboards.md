@@ -11,6 +11,7 @@
 | QwenQwen3-32B                                    | **7497**  |  43 |    3 |   0 |  366 |    63 |    5 |
 | deepseek-aiDeepSeek-R1                           | **7133**  |  41 |    5 |   0 |  375 |    57 |    8 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
+| nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab | **7052**  |  41 |    5 |   0 |  359 |    58 |    4 |
 | qwenqwen3-next-80b-a3b-thinking                  | **7021**  |  41 |    5 |   0 |  370 |    59 |   11 |
 | grok-3-mini-high                                 | **7020**  |  44 |    2 |   0 |  296 |    60 |    4 |
@@ -40,6 +41,7 @@
 | deepseekdeepseek-r1-distill-llama-8b             | **4594**  |  33 |   11 |   2 |  331 |    76 |   22 |
 | cogito14b-v1-preview-qwen-fp16                   | **4497**  |  34 |   12 |   0 |  242 |    43 |    4 |
 | qwen-qwq-32b-stepbystep                          | **3680**  |  29 |   15 |   2 |  318 |    80 |   21 |
+| baiduernie-4.5-21b-a3b-thinking                  | **2815**  |  26 |   18 |   1 |  276 |    85 |   23 |
 | exaone-deep2.4b-fp16                             | **2678**  |  28 |   14 |   4 |  284 |   102 |   33 |
 | gpt-oss-120b                                     | **2635**  |  29 |   16 |   1 |  162 |    65 |    1 |
 | phi4-mini-reasoning                              | **1539**  |  20 |   24 |   2 |  366 |   141 |   59 |
@@ -64,6 +66,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | QwenQwen3-32B                                    |   17.1 |   16.8 |   14.3 |    6.2 |   20.5 | 12.7 |  4.6 |    2.3 |    1.2 |    4.4 |
 | deepseek-aiDeepSeek-R1                           |   14.5 |   19.5 |   14.1 |    9.1 |   15.9 | 13   |  5.2 |    1.6 |    1.4 |    5.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
+| nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   14.3 |   19.7 |   12.8 |    7.1 |   20   | 12.4 |  3.8 |    2.9 |    1.2 |    5.9 |
 | qwenqwen3-next-80b-a3b-thinking                  |   15   |   14.5 |   11.1 |    7.5 |   18   | 16.4 |  6.8 |    2   |    1.4 |    7.3 |
 | grok-3-mini-high                                 |   20.3 |   18.1 |   10.8 |    8.6 |   14.7 | 11.1 |  3.6 |    2.5 |    0.3 |   10   |
@@ -93,6 +96,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseekdeepseek-r1-distill-llama-8b             |   17.2 |   18.6 |   13.8 |    8.6 |   16.1 | 11.4 |  5.1 |    2.8 |    0.9 |    5.4 |
 | cogito14b-v1-preview-qwen-fp16                   |   22.5 |   25.6 |   14.5 |    6.6 |   14.2 |  6.9 |  0.3 |    2.4 |    0.3 |    6.6 |
 | qwen-qwq-32b-stepbystep                          |   14.6 |   15.8 |   11.9 |   11.5 |   15.5 | 11.5 |  8.6 |    2.9 |    1.7 |    6.2 |
+| baiduernie-4.5-21b-a3b-thinking                  |   15.4 |   16.9 |   11.2 |    9.1 |   18.5 |  9.9 |  9.1 |    2.1 |    1.3 |    6.5 |
 | exaone-deep2.4b-fp16                             |   16.2 |   15.8 |   10.3 |    8.1 |   16   | 13.6 | 11   |    2.9 |    1.2 |    5   |
 | gpt-oss-120b                                     |   16.2 |   21.9 |   12.7 |    4.8 |   14   |  7.5 |  1.3 |    2.2 |    0   |   19.3 |
 | phi4-mini-reasoning                              |   11.7 |   13.8 |    8.7 |    9.5 |   21.7 | 11.5 | 12.9 |    1.4 |    2.1 |    6.7 |
@@ -126,6 +130,7 @@ Dictionary of activities:
 | QwenQwen3-32B                                    |   95.9 |   95.9 |   77.4 |   74.1 |   86.5 | 85.5 | 50   |   70   |   40   |   73.7 |
 | deepseek-aiDeepSeek-R1                           |   93.8 |   96.5 |   98.4 |   77.5 |   80   | 87.7 | 26.1 |   85.7 |   66.7 |   72   |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
+| nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   88.3 |   92.8 |   88.9 |   66.7 |   85.7 | 94.2 | 50   |   91.7 |   40   |   76   |
 | qwenqwen3-next-80b-a3b-thinking                  |   80.3 |   92.2 |   95.9 |   87.9 |   86.1 | 86.1 | 50   |   88.9 |   50   |   81.2 |
 | grok-3-mini-high                                 |   82.2 |   87.7 |   84.6 |   87.1 |   83   | 97.5 | 46.2 |   77.8 |    0   |   63.9 |
@@ -155,6 +160,7 @@ Dictionary of activities:
 | deepseekdeepseek-r1-distill-llama-8b             |   82.4 |   93.8 |   81.4 |   67.6 |   71   | 73.5 | 50   |   91.7 |   50   |   56.5 |
 | cogito14b-v1-preview-qwen-fp16                   |   78.5 |   90.5 |   90.5 |   73.7 |   82.9 | 85   |  0   |  100   |  100   |   68.4 |
 | qwen-qwq-32b-stepbystep                          |   83.6 |   90.9 |   82   |   68.8 |   73.8 | 79.2 | 41.7 |   75   |   71.4 |   69.2 |
+| baiduernie-4.5-21b-a3b-thinking                  |   74.6 |   90.8 |   76.7 |   54.3 |   76.1 | 71.1 | 48.6 |  100   |   20   |   56   |
 | exaone-deep2.4b-fp16                             |   77.9 |   84.8 |   79.1 |   70.6 |   61.2 | 78.9 | 26.1 |   75   |   40   |   38.1 |
 | gpt-oss-120b                                     |   83.8 |   86   |   86.2 |  100   |   81.2 | 58.8 |  0   |  100   |    0   |   25   |
 | phi4-mini-reasoning                              |   69.7 |   83.3 |   81.6 |   59.3 |   78   | 64.6 | 12.3 |   87.5 |   58.3 |   57.9 |
