@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Let me analyze each case: **Case 1001:** - Follows the normal flow perfectly: Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment - All activities in correct order - Timestamps make sense (sequential) - This is the gold standard"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "**Case 1002:** - Activities: Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment - **Anomaly 1**: Confirm Shipment and Ship Goods happen BEFORE Perform Credit Check and Validate Stock - This violates the normal process flow where credit check and stock validation should happen before shipment confirmation - Timestamps show this clearly: 08:25 and 08:40 (shipment activities) happen before 09:10 (credit check)"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "**Hypothesis**: This could be a priority order where they rushed the shipment, or a system error where activities were logged out of sequence, or a policy violation where someone skipped steps"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "**Case 1003:** - Activities: Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment - **Anomaly 1**: Ship Goods happens BEFORE Confirm Shipment (09:10 vs 09:45) - **Anomaly 2**: Confirm Shipment happens AFTER Issue Invoice (09:45 vs 09:30) - The flow is: Register Credit Check Ship Invoice Confirm Shipment Payment"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "**Hypothesis**: Similar to case 1002, this suggests shipping before proper approval. Could be due to urgent order, miscommunication, or system glitch. Also, invoice was issued before shipment was confirmed, which might be a timing issue."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "**Case 1004:** - Activities: Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods - **Anomaly 1**: Receive Payment happens immediately after Register Order (09:05 vs 09:00) - payment before invoice! - **Anomaly 2**: Issue Invoice happens after payment (09:20 vs 09:05) - **Anomaly 3**: Confirm Shipment has shipment_scheduled=N but goods were still shipped - The flow is: Register Payment Invoice Confirm Shipment Ship Goods"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "**Hypothesis**: This could be a pre-paid order (maybe from a trusted customer or specific order type), but the invoice was issued late. Or it could be a data entry error where payment was recorded incorrectly. The N flag on shipment confirmation but still shipping suggests a system override or manual exception."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Now I need to: 1. Identify all anomalies clearly 2. Hypothesize causes for each type of anomaly 3. Write SQL queries to investigate these hypotheses **Types of anomalies:** 1. **Sequence violations**: Activities happening in wrong order (e.g., shipping before credit check) 2. **Missing activities**: Some steps might be missing entirely 3. **Timing issues**: Payment before invoice 4. **Flag contradictions**: shipment_scheduled=N but shipment still occurred"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "**Hypotheses:** 1. **Priority orders**: Some orders might be expedited, bypassing normal checks 2. **System errors**: Activities logged out of sequence due to technical issues 3. **Policy violations**: Staff not following proper procedures 4. **Data quality issues**: Incorrect timestamps or missing data 5. **Special order types**: Pre-paid orders or specific customer agreements 6. **Training issues**: New staff not aware of proper procedures"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "**SQL queries needed:** 1. **Find all cases with sequence violations**: - Identify cases where shipping happens before credit check or stock validation - Identify cases where payment happens before invoice 2. **Check for missing activities**: - Find cases that dont have all expected activities - Or find cases that skip critical steps 3. **Analyze by order type**: - Join with orders table to see if anomalies correlate with order_type (e.g., priority orders) 4. **Analyze by resource**: - Join with resources table to see if anomalies correlate with specific departments, roles, or individuals - Identify which resources are involved in anomalies 5. **Check timing patterns**: - Calculate time deltas between activities to identify unusually fast or slow processes - Find cases where payment is recorded before invoice issuance 6. **Check for flag contradictions**: - Find cases where shipment_scheduled=N but Ship Goods occurred - Or other contradictions in additional_info Let me write specific queries for each hypothesis:"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "**Query 1: Find cases with shipping before credit check** SELECT DISTINCT oel1.case_id FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1.case_id = oel2.case_id WHERE oel1.activity = Ship Goods AND oel2.activity = Perform Credit Check AND oel1.timestamp < oel2.timestamp; **Query 2: Find cases with payment before invoice** SELECT DISTINCT oel1.case_id FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1.case_id = oel2.case_id WHERE oel1.activity = Receive Payment AND oel2.activity = Issue Invoice AND oel1.timestamp < oel2.timestamp;"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "**Query 3: Find missing activities in cases** SELECT case_id, COUNT(DISTINCT activity) as activity_count, STRING_AGG(DISTINCT activity,  ->  ORDER BY timestamp) as actual_flow FROM order_event_log GROUP BY case_id HAVING COUNT(DISTINCT activity) < 7; **Query 4: Correlate anomalies with order type** SELECT o.order_type, COUNT(DISTINCT oel.case_id) as total_orders, COUNT(DISTINCT CASE WHEN oel.activity = Ship Goods AND EXISTS ( SELECT 1 FROM order_event_log oel2 WHERE oel2.case_id = oel.case_id AND oel2.activity = Perform Credit Check AND oel2.timestamp > oel.timestamp ) THEN oel.case_id END) as shipping_before_credit_check FROM orders o JOIN order_event_log oel ON o.case_id = oel.case_id GROUP BY o.order_type;"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "**Query 5: Identify resources involved in sequence violations** SELECT r.role, r.department, r.resource_id, COUNT(*) as violation_count FROM order_event_log oel JOIN resources r ON oel.resource = r.resource_id WHERE oel.activity = Ship Goods AND EXISTS ( SELECT 1 FROM order_event_log oel2 WHERE oel2.case_id = oel.case_id AND oel2.activity = Perform Credit Check AND oel2.timestamp > oel.timestamp ) GROUP BY r.role, r.department, r.resource_id ORDER BY violation_count DESC; **Query 6: Check for shipment confirmation contradictions** SELECT oel1.case_id, oel1.timestamp as ship_timestamp, oel1.resource as ship_resource, oel2.additional_info as confirm_details FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1.case_id = oel2.case_id WHERE oel1.activity = Ship Goods AND oel2.activity = Confirm Shipment AND oel2.additional_info LIKE %shipment_scheduled=N% AND oel1.timestamp > oel2.timestamp;"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "**Query 7: Calculate time between activities to identify rushed orders** SELECT oel1.case_id, o.order_type, EXTRACT(EPOCH FROM (oel2.timestamp - oel1.timestamp))/60 as minutes_between_register_and_ship FROM order_event_log oel1 JOIN order_event_log oel2 ON oel1.case_id = oel2.case_id JOIN orders o ON oel1.case_id = o.case_id WHERE oel1.activity = Register Order AND oel2.activity = Ship Goods ORDER BY minutes_between_register_and_ship ASC; **Query 8: Find all cases with out-of-sequence events** WITH activity_order AS ( SELECT Register Order as activity, 1 as expected_order UNION ALL SELECT Perform Credit Check, 2 UNION ALL SELECT Validate Stock, 3 UNION ALL SELECT Confirm Shipment, 4 UNION ALL SELECT Ship Goods, 5 UNION ALL SELECT Issue Invoice, 6 UNION ALL SELECT Receive Payment, 7 ), case_activities AS ( SELECT case_id, activity, timestamp, ROW_NUMBER() OVER (PARTITION BY case_id ORDER BY timestamp) as actual_order FROM order_event_log ) SELECT DISTINCT ca.case_id, ca.activity, ca.timestamp, ao.expected_order, ca.actual_order FROM case_activities ca JOIN activity_order ao ON ca.activity = ao.activity WHERE EXISTS ( SELECT 1 FROM case_activities ca2 WHERE ca2.case_id = ca.case_id AND ca2.actual_order < ca.actual_order AND ca2.timestamp > ca.timestamp );"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

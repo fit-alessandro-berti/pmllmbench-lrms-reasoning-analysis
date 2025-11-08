@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "The user wants me to act as an LLM and respond to a prompt about a temporal profile model for insurance claims. The prompt asks me to: 1. Identify anomalies in the temporal profile model 2. Generate hypotheses for why these anomalies exist 3. Propose SQL queries to verify these anomalies I need to present this information without referencing the instructions or explanations above. This means I should not mention the prompt says or as explained earlier I should just present the analysis directly."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Let me review the temporal profile model: temporal_profile = { (R, A): (3600, 600),     # 1 hour avg, 10 min stdev - seems reasonable for receive to assign (R, E): (86400, 28800),  # 1 day avg, 8 hour stdev - seems reasonable for receive to evaluate (R, P): (90000, 3600),   # ~25 hours avg, 1 hour stdev - LOW stdev, suspicious (A, C): (7200, 3600),    # 2 hours avg, 1 hour stdev - Quick closure after assign, missing steps? (E, N): (300, 60),       # 5 min avg, 1 min stdev - Very fast, perhaps automated? (E, C): (3600, 3000),    # 1 hour avg, 50 min stdev - Eval to close seems fast (P, N): (604800, 172800),# 7 days avg, 2 days stdev - Very long delay for approval to notify (N, C): (1800, 300)      # 30 min avg, 5 min stdev - Reasonable }"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Key anomalies to address: 1. R to P: Very low standard deviation (1 hour) compared to average (~25 hours) - suggests rigid/artificial scheduling 2. P to N: Very high average (7 days) and high stdev (2 days) - suggests backlog or inconsistent process 3. A to C: Only 2 hours average from assign to close - suggests some claims skip evaluation/approval 4. E to N: Only 5 minutes average - suggests automated notification or skipping steps"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The hypotheses should be: - R to P: Automated approval system with strict timing, or batch processing - P to N: Notification system delays, manual processing backlog, or dependency on external factors - A to C: Fast-tracked claims, possibly fraudulent or simple claims, or process bypass - E to N: Automated notifications, system-triggered without human review"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For SQL queries, I need to: 1. Find specific claims with timing anomalies 2. Correlate with adjusters, claim types, resources 3. Look for patterns like immediate closure after assignment 4. Check approval-to-notification delays I should write practical PostgreSQL queries that use the claim_events table."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Let me structure the response clearly: - First, list the anomalies with brief explanations - Second, provide hypotheses for each anomaly - Third, provide SQL queries with explanations of what they verify I need to make sure Im not referencing the instructions or the explanation above. I should write as if Im directly analyzing the given data."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let me draft the response: Anomalies identification: 1. RP: Average ~25 hours but stdev only 1 hour - unusually tight clustering 2. PN: 7-day average with 2-day stdev - excessive delay and high variability 3. AC: 2-hour average closure after assignment - seems too fast, missing intermediate steps 4. EN: 5-minute average - unrealistically fast for manual process Hypotheses: - RP: Automated approval system, batch processing, or rigid SLAs causing artificial consistency - PN: Manual notification process with backlog, system delays, or external dependencies - AC: Fast-track process for simple claims, potential process bypass, or premature closure - EN: Automated notification triggers without verification, or system-generated messages SQL Queries: Query 1: Find claims where RP time is outside expected range (z-score > 2) SELECT ce1.claim_id, EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) / 3600.0 as hours_rp FROM claim_events ce1 JOIN claim_events ce2 ON ce1.claim_id = ce2.claim_id WHERE ce1.activity = R AND ce2.activity = P     AND ce2.timestamp > ce1.timestamp     AND ce1.timestamp = (        SELECT MIN(timestamp) FROM claim_events WHERE claim_id = ce1.claim_id AND activity = R    )     AND ce2.timestamp = (        SELECT MIN(timestamp) FROM claim_events WHERE claim_id = ce2.claim_id AND activity = P    ) HAVING EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) > 90000 + 2 * 3600     OR EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) < 90000 - 2 * 3600;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait, I need to be more careful. The stdev is 3600 seconds (1 hour), not 3600 hours. Let me recalculate: - AVG = 90000 seconds (25 hours) - STDEV = 3600 seconds (1 hour) - 2-sigma range would be 90000 ± 7200 seconds (25 hours ± 2 hours) Let me rewrite queries properly."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "I should also include queries that check for missing intermediate steps, like claims that go from A to C without E or P. SELECT ce1.claim_id, EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) as seconds_ac FROM claim_events ce1 JOIN claim_events ce2 ON ce1.claim_id = ce2.claim_id WHERE ce1.activity = A AND ce2.activity = C     AND ce2.timestamp > ce1.timestamp     AND NOT EXISTS (        SELECT 1 FROM claim_events ce3        WHERE ce3.claim_id = ce1.claim_id        AND ce3.activity IN (E, P)        AND ce3.timestamp BETWEEN ce1.timestamp AND ce2.timestamp    ); Query for PN delays: SELECT ce1.claim_id, EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) / 86400.0 as days_pn, ce1.resource as approver, ce2.resource as notifier FROM claim_events ce1 JOIN claim_events ce2 ON ce1.claim_id = ce2.claim_id WHERE ce1.activity = P AND ce2.activity = N     AND ce2.timestamp > ce1.timestamp HAVING EXTRACT(EPOCH FROM (ce2.timestamp - ce1.timestamp)) > 604800; I should also add queries that correlate with claim types and adjusters."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Let me structure the final response properly."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
