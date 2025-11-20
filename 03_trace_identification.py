@@ -185,7 +185,7 @@ The JSON should look like:
                         import pm4py, time
 
                         print("req")
-                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../api_grok.txt", "r").read(), openai_model="grok-4-fast-reasoning", api_url="https://api.x.ai/v1/")
+                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../api_grok.txt", "r").read(), openai_model="grok-4-1-fast-reasoning", api_url="https://api.x.ai/v1/")
                         F = open(prel_path, "w", encoding="utf-8")
                         F.write(resp)
                         F.close()
