@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Starting with the POWL model code. The process starts with R followed by A. Then theres a loop between E and P. The loop is set up as a loop operator with E and P as children. The description says execute E then either exit the loop or execute P and then E again repeatedly. That might lead to multiple evaluations and approvals. Thats one anomaly possible multiple approvals and evaluations in a loop."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Next theres an XOR between N and a silent transition skip. The XOR allows choosing between notifying the customer or skipping it. But if the skip is often taken that would mean some customers arent notified which is another anomaly."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Then the partial order structure. The root is a StrictPartialOrder. The edges are RA Aloop loopxor and then theres an edge from AC. So the model allows C to happen before the loop or xor. For example after A you could go directly to C without going through the loop evaluation and approval or the notification. Thats a third anomaly premature closure without necessary steps."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So the three main anomalies are 1. The loop between E and P allowing multiple evaluations and approvals. 2. The XOR that can skip customer notification N. 3. The partial order allowing C to be triggered before E P or even before loop completion leading to premature closure."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now for the hypotheses on why these exist. Lets think of possible reasons. For the loop between E and P Maybe there was a change in process where approvals needed to be done multiple times but the implementation wasnt fully thought through. Alternatively maybe the loop was intended to allow a single iteration but was structured wrong. Another possibility is a misunderstanding in the process design. The XOR skipping notification Maybe the business rule changed to allow skipping in certain scenarios but the model wasnt updated properly. Premature closure via the AC edge This could be because someone thought that after assigning an adjuster the claim can be closed without further steps. Alternatively a mistake in the process design where the edge from A to C was added by accident."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Now for verifying these with the database. For the loop causing multiple evaluations approvals We can look for claim_events where the same claim has multiple E and P events. count the number of E and P events per claim. If a claim has more than one E or P thats an issue. For skipping notifications check if for a claim that went through A and loop E P whether the N event exists. For premature closure Claims that reach C before E or P. check if any claim has a C event timestamp earlier than the E or P events."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So putting this into SQL queries For multiple evaluations approvals SELECT claim_id COUNT as event_count FROM claim_events WHERE activity IN E P GROUP BY claim_id HAVING COUNT > 1 For skipped notifications WITH claim_events_ordered AS SELECT claim_id activity timestamp ROW_NUMBER OVER PARTITION BY claim_id ORDER BY timestamp as event_order FROM claim_events SELECT ceo.claim_id FROM claim_events_ordered ceo WHERE ceo.activity = C AND NOT EXISTS SELECT 1 FROM claim_events_ordered ceo2 WHERE ceo2.claim_id = ceo.claim_id AND ceo2.timestamp < ceo.timestamp AND ceo2.activity = N For premature closure SELECT ce.claim_id FROM claim_events ce WHERE ce.activity = C AND EXISTS SELECT 1 FROM claim_events WHERE claim_id = ce.claim_id AND activity = A AND timestamp < ce.timestamp AND NOT EXISTS SELECT 1 FROM claim_events WHERE claim_id = ce.claim_id AND activity IN E P AND timestamp BETWEEN SELECT timestamp FROM claim_events WHERE claim_id = ce.claim_id AND activity = A AND ce.timestamp"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

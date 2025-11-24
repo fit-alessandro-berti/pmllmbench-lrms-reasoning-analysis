@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Okay so I need to write a DuckDB query that excludes certain cases from the event log Let me break down the problem step by step First the goal is to return all events except those that are in cases which have the sequence Approve Purchase Requisition followed by Create Order followed by Confirm Order with the time between Create Order and Confirm Order being more than 5 days"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Hmm right So the steps are 1 Find all cases that have the exact three activity sequence in order with no other events in between 2 Among those cases filter out the ones where the time between the second and third activity Create Order to Confirm Order is over 5 days 3 Exclude these filtered cases from the final result meaning the final result includes all events except those in these cases"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "So how do I approach this in SQL Let me think about how to detect the sequence in a case For each case id I need to check if there exists three consecutive events in the order specified One approach is to look for a triplet in the event log where the activity names are exactly in the order Approve Purchase Requisition Create Order Confirm Order and there are no other event from the same case in between them"
+  },
+  {
+    "Name": "Hypothesis Generation - NE",
+    "Text": "SELECT DISTINCT e1 case id FROM event log e1 JOIN event log e2 ON e1 case id e2 case id AND e1 timestamp lt e2 timestamp AND e2 activity Create Order JOIN event log e3 ON e2 case id e3 case id AND e2 timestamp lt e3 timestamp AND e3 activity Confirm Order WHERE e1 activity Approve Purchase Requisition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait but this would find all triplets where the three activities are in sequence but there could be other events in between Because the join only ensures that e1 comes before e2 and e2 before e3 but there might be other events in between them in the same case So this approach would include cases where the three activities are not consecutive So thats not sufficient"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "SELECT e1 case id e1 activity e2 activity AS next activity e3 activity AS next next activity FROM ordered events e1 JOIN ordered events e2 ON e1 case id e2 case id AND e1 timestamp lt e2 timestamp AND e2 rn e1 rn 1 JOIN ordered events e3 ON e2 case id e3 case id AND e2 timestamp lt e3 timestamp AND e3 rn e2 rn 1 WHERE e1 activity Approve Purchase Requisition AND e2 activity Create Order AND e3 activity Confirm Order"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "among those cases that have this specific sequence further refine the selection to only those where the time elapsed between the Create Order event and the Confirm Order event of that sequence is more than 5 days the time elapsed between the Create Order event and the Confirm Order event of that sequence So probably for the case to be excluded there exists at least one such triplet in the case where the time is over 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH triplets with times AS SELECT e1 case id e2 timestamp AS create time e3 timestamp AS confirm time FROM event log e1 JOIN event log e2 ON e1 case id e2 case id AND e1 timestamp lt e2 timestamp AND e2 rn e1 rn 1 JOIN event log e3 ON e2 case id e3 case id AND e2 timestamp lt e3 timestamp AND e3 rn e2 rn 1 WHERE e1 activity Approve Purchase Requisition AND e2 activity Create Order AND e3 activity Confirm Order bad case ids AS SELECT DISTINCT case id FROM triplets with times WHERE confirm time create time gt interval 5 days SELECT FROM event log WHERE case id NOT IN SELECT case id FROM bad case ids"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This should work Let me verify each part First the triplets with times CTE It selects all triplets where e1 is Approve e2 is Create e3 is Confirm and e2 comes right after e1 no gap in rn and e3 comes right after e2 The timestamps are stored in create time and confirm time for each triplet Then bad case ids selects all case ids from triplets with times where the time between create and confirm is over 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Edge Cases A case has multiple triplets some with time over 5 some under The case is excluded because it has at least one triplet over A case has exactly one triplet with time exactly 5 days not excluded A case has a triplet with time just over 5 days excluded A case has no triplets not excluded so all its events are included A case has a triplet but the time is under 5 days not excluded so its events remain"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

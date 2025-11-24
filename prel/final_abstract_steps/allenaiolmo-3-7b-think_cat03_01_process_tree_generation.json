@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Okay, so I need to build a process tree for this hospital patient management scenario. Let me start by going through the problem step by step and try to map out each part according to the operators provided. First, the process starts with the patient arriving at the hospital, which is labeled as activity A. Then they have to go through Registration RG and Intake Assessment IA. Wait, the problem says after arriving, they must complete Registration first, then Intake Assessment. So thats a sequence, right? Because its mandatory in order. So A -> RG -> IA? But wait, the first step is Arriving A, then Registration RG comes next. Then after IA, the next step is triage. Looking at point 2: After intake assessment, the patient is evaluated by triage team with TI followed by TC in sequence. So IA -> TI -> TC. Then the triage classification determines the next step: either CE or FBP in an exclusive choice. So after TC, theres an XOR between CE and FBP. Let me note that down. So the structure so far is: A | -> RG | -> IA | -> TI -> TC XOR CE, FBP"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Then, once the initial diagnostic test is done, the results must be evaluated. If abnormal, a loop commences: The patient must be reviewed by a Specialist Consultation SC, which could be a cardiologist, hematologist, or another specialist depending on the findings. After consultation, an exclusive treatment choice is made: Administer a Targeted Medication TM, or Provide a Specialized Physical Therapy SPT session. Following the treatment, the patient must undergo a Re-Diagnostic Test RDT step. The RDT itself is an exclusive choice similar to the initial test: Either a Follow-up ECG FCE if cardiac issues persist, or A Follow-up Blood Analysis FBA if the issue is non-cardiac. This loop repeats: after the re-diagnostic test, if the results are still abnormal, the patient returns to the Specialist Consultation and subsequent exclusive treatments. This can happen several times until the results are deemed normal. Once normal results are obtained, the loop ends."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "So the loop is triggered when the initial test CE/FBP results are abnormal. Then: SC -> X TM/SPT -> RDT X FCE/FBA -> then, if RDT is abnormal, go back to SC again. Wait, the loop is a cycle starting at SC, going through the treatment and re-test, until the RDT is normal. Hmm, this seems like a loop where the loop body is: SC -> X choice between TM or SPT -> RDT -> SC again if needed."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "* A, B is a loop. So the process tree A is executed, then either you exit the loop, or you execute B and then A again this can happen several times until the loop is exited. So the * operator takes two arguments: A and B. The loop is: execute A, then decide to either exit or execute B followed by A again. Therefore, to model a loop that repeats a sequence of steps, we can structure it as a * operator where A is the first step of the loop body, and B is the rest of the loop body."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The loop body SC -> treatment -> RDT can be represented as a * operator where: A = SC B = the treatment X TM/SPT followed by RDT X FCE/FBA Therefore, the loop is * SC, SEQUENCE X TM, SPT, X FCE, FBA"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "After the XOR CE or FBP, the next step is the loop only if the test was abnormal. Since we cant model that condition in the process tree, the loop is placed after the XOR sequentially in the main sequence, approximating the conditional entry."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "After the loop when RDT is normal, the next steps are: + AI, NC for the two activities in parallel. Then after that, FAS -> DDI -> BL -> ICP -> MRF in sequence using -> operators."
+  },
+  {
+    "Name": "Heuristic Reasoning - NE",
+    "Text": "The root is a SEQUENCE operator with children in order: A, RG, IA, TI, TC, XOR CE FBP, LOOP SC seq, PARALLEL AI NC, FAS, DDI, BL, ICP, MRF each added as root.children.append, with some nested parents like RG parent A which is incorrect for leaves."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]
