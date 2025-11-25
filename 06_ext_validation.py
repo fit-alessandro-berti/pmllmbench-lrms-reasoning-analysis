@@ -3,6 +3,7 @@ import os
 import traceback
 import time
 import pm4py  # assumes pm4py.llm.google_query is available
+from concurrent.futures import ThreadPoolExecutor
 
 
 def read_json_file(file_path):
@@ -24,64 +25,57 @@ def extract_json_from_response(response_str):
 
 
 def evaluate_file(file_path, output_folder, api_key):
-    try:
-        # Read the validated source JSON of reasoning steps
-        source_data = read_json_file(file_path)
-        num_steps = len(source_data)
+    output_path = os.path.join(output_folder, os.path.basename(file_path))
 
-        # Build the evaluation prompt with the instructions and the source JSON.
-        reasoning_types = (
-            "Pattern Recognition, Deductive Reasoning, Inductive Reasoning, Abductive Reasoning, "
-            "Hypothesis Generation, Validation, Backtracking, Ethical or Moral Reasoning, "
-            "Counterfactual Reasoning, Heuristic Reasoning, and Conclusion (with suffixes: "
-            "' - PE', ' - IND', ' - NE' for reasoning steps; and 'Conclusion - C', 'Conclusion - PC', "
-            "'Conclusion - W' for conclusion)."
-        )
+    while True:
+        try:
+            if os.path.exists(output_path):
+                return
 
-        prompt = (
-                "You are provided with a JSON list of reasoning steps. Each element is an object with keys 'Name' "
-                "and optionally 'Text'. The 'Name' indicates the intended reasoning type (one of the following: "
-                f"{reasoning_types}) and ends with a suffix that indicates its effect on the final answer "
-                "(for reasoning steps: ' - PE' for positive effect, ' - IND' for neutral, or ' - NE' for negative; "
-                "for the conclusion step: 'Conclusion - C', 'Conclusion - PC', or 'Conclusion - W').\n\n"
-                "For each step, examine whether the provided 'Text' (if present) properly exhibits the reasoning "
-                "corresponding to the 'Name'. If the step's text clearly corresponds to the intended reasoning type, "
-                "output 'Y'. If it partially corresponds, output 'P'. If it does not, output 'N'.\n\n"
-                "Your answer must be a JSON list with exactly the same number of elements as the input list, in order. "
-                "Each element should be one of the following single-character strings: 'Y', 'P', or 'N'.\n\n"
-                "Do not include any extra text or formatting; output only the JSON list.\n\n"
-                "Source JSON:\n"
-                + json.dumps(source_data, indent=2)
-        )
+            # Read the validated source JSON of reasoning steps
+            source_data = read_json_file(file_path)
 
-        evaluation_list = None
+            # Build the evaluation prompt with the instructions and the source JSON.
+            reasoning_types = (
+                "Pattern Recognition, Deductive Reasoning, Inductive Reasoning, Abductive Reasoning, "
+                "Hypothesis Generation, Validation, Backtracking, Ethical or Moral Reasoning, "
+                "Counterfactual Reasoning, Heuristic Reasoning, and Conclusion (with suffixes: "
+                "' - PE', ' - IND', ' - NE' for reasoning steps; and 'Conclusion - C', 'Conclusion - PC', "
+                "'Conclusion - W' for conclusion)."
+            )
 
-        # Continue querying until a valid evaluation JSON is produced.
-        while True:
-            output_path = os.path.join(output_folder, os.path.basename(file_path))
+            prompt = (
+                    "You are provided with a JSON list of reasoning steps. Each element is an object with keys 'Name' "
+                    "and optionally 'Text'. The 'Name' indicates the intended reasoning type (one of the following: "
+                    f"{reasoning_types}) and ends with a suffix that indicates its effect on the final answer "
+                    "(for reasoning steps: ' - PE' for positive effect, ' - IND' for neutral, or ' - NE' for negative; "
+                    "for the conclusion step: 'Conclusion - C', 'Conclusion - PC', or 'Conclusion - W').\n\n"
+                    "For each step, examine whether the provided 'Text' (if present) properly exhibits the reasoning "
+                    "corresponding to the 'Name'. If the step's text clearly corresponds to the intended reasoning type, "
+                    "output 'Y'. If it partially corresponds, output 'P'. If it does not, output 'N'.\n\n"
+                    "Your answer must be a JSON list with exactly the same number of elements as the input list, in order. "
+                    "Each element should be one of the following single-character strings: 'Y', 'P', or 'N'.\n\n"
+                    "Do not include any extra text or formatting; output only the JSON list.\n\n"
+                    "Source JSON:\n"
+                    + json.dumps(source_data, indent=2)
+            )
 
-            if not os.path.exists(output_path):
-                print(f"Evaluating file: {os.path.basename(file_path)}")
-                response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="gpt-5-nano")
-                json_str = extract_json_from_response(response)
-                try:
-                    evaluation_list = json.loads(json_str)
-                except Exception as e:
-                    print("Failed to parse JSON from response, retrying...", e)
-                    continue
+            print(f"Evaluating file: {os.path.basename(file_path)}")
+            response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="gpt-5-nano")
+            json_str = extract_json_from_response(response)
+            evaluation_list = json.loads(json_str)
+            evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
 
-                evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
+            # Save the validated evaluation JSON list to the output folder with the same filename.
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(evaluation_list, f, indent=2, ensure_ascii=False)
+            print(f"Processed file {os.path.basename(file_path)} and saved evaluation to {output_path}")
+            return
 
-                # Save the validated evaluation JSON list to the output folder with the same filename.
-                with open(output_path, 'w', encoding='utf-8') as f:
-                    json.dump(evaluation_list, f, indent=2, ensure_ascii=False)
-                print(f"Processed file {os.path.basename(file_path)} and saved evaluation to {output_path}")
-
-            break
-
-    except Exception as ex:
-        traceback.print_exc()
-        print(f"Error processing file: {file_path}")
+        except Exception as ex:
+            traceback.print_exc()
+            print(f"Error processing file: {file_path}. Retrying...")
+            time.sleep(2)
 
 
 def main(input_folder, output_folder):
@@ -90,11 +84,23 @@ def main(input_folder, output_folder):
     with open(api_key_path, "r") as f:
         api_key = f.read().strip()
 
-    # Process each JSON file from the input folder.
-    for file in os.listdir(input_folder):
-        if file.endswith(".json"):
+    # Process each JSON file from the input folder using a thread pool.
+    json_files = [
+        file for file in os.listdir(input_folder)
+        if file.endswith(".json")
+    ]
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        futures = []
+        for file in json_files:
+            output_path = os.path.join(output_folder, file)
+            if os.path.exists(output_path):
+                continue
             file_path = os.path.join(input_folder, file)
-            evaluate_file(file_path, output_folder, api_key)
+            futures.append(executor.submit(evaluate_file, file_path, output_folder, api_key))
+
+        for future in futures:
+            future.result()
     print("All files have been processed.")
 
 

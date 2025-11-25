@@ -4,6 +4,8 @@ import traceback
 import pyperclip
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
+import pm4py
 
 # You need to install jsonschema if you haven't already:
 # pip install jsonschema
@@ -24,86 +26,8 @@ def read_file_contents(input_path):
     return content
 
 
-def main(input_folder, pattern, prel_folder, questions_folder):
-    # JSON Schema to validate the final structure.
-    # We expect an array of objects. Each object can be either:
-    #    1) A normal reasoning step, where "Name" matches one of the
-    #       known reasoning patterns, followed by " - PE", " - IND", or " - NE".
-    #    2) The "Conclusion" step, with "Name" matching "Conclusion - C",
-    #       "Conclusion - PC", or "Conclusion - W".
-    #
-    # The field "Corresponding text" must be a string for both types of items.
-    schema = {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "oneOf": [
-                {
-                    # Reasoning step pattern
-                    "properties": {
-                        "Name": {
-                            "type": "string",
-                            "pattern": (
-                                r"^(Pattern Recognition|Deductive Reasoning|Inductive Reasoning|"
-                                r"Abductive Reasoning|Hypothesis Generation|Validation|Backtracking|"
-                                r"Ethical or Moral Reasoning|Counterfactual Reasoning|Heuristic Reasoning)"
-                                r" - (PE|IND|NE)$"
-                            )
-                        },
-                        "Text": {"type": "string"}
-                    },
-                    "required": ["Name", "Text"]
-                },
-                {
-                    # Conclusion pattern
-                    "properties": {
-                        "Name": {
-                            "type": "string",
-                            "pattern": r"^Conclusion - (C|PC|W)$"
-                        }
-                    },
-                    "required": ["Name"]
-                }
-            ]
-        }
-    }
-
-    # List and filter matching files
-    all_files = os.listdir(input_folder)
-    txt_files = [
-        f for f in all_files
-        if f.startswith(pattern) and f.endswith(".txt")
-    ]
-
-    allowed = ["cat01", "cat02", "cat03", "cat04", "cat05", "cat06"]
-    # Process each matching file
-    for filename in txt_files:
-        found_allowed = False
-        for p in allowed:
-            if p in filename.lower():
-                found_allowed = True
-                break
-
-        if not found_allowed:
-            continue
-
-        # Build path to corresponding prel file
-        prel_path = os.path.join(prel_folder, filename)
-
-        # If the prel file doesn't exist, create it
-        if not os.path.exists(prel_path) and not os.path.exists(prel_path.replace(".txt", ".json")):
-            while True:
-                try:
-                    input_path = os.path.join(input_folder, filename)
-                    question_path = os.path.join(
-                        questions_folder,
-                        "cat" + filename.split("_cat")[1]
-                    )
-
-                    question = read_file_contents(question_path)
-                    reasoning_trace = read_file_contents(input_path)
-
-                    header_stri = """
+def build_header_string():
+    return """
 Produce a JSON containing the ordered list of abstract reasoning steps followed in the provided text.
 The list should include dictionaries having two keys:
 - Name: the name of the activity.
@@ -159,76 +83,173 @@ The JSON should look like:
     }
 ]
 ```
-                    """
+"""
 
-                    clipboard_content = "\n".join([
-                        header_stri,
-                        "\n\nQuestion:",
-                        question,
-                        "\n\nReasoning trace:",
-                        reasoning_trace
-                    ])
 
-                    if False:
-                        # Copy to clipboard
-                        pyperclip.copy(clipboard_content)
+def process_file_task(filename, input_folder, prel_folder, questions_folder, schema, api_key):
+    header_stri = build_header_string()
+    prel_path = os.path.join(prel_folder, filename)
+    input_path = os.path.join(input_folder, filename)
+    question_path = os.path.join(questions_folder, "cat" + filename.split("_cat")[1])
 
-                        print(f"Copied content of '{filename}' to clipboard with a prepended request.")
+    while True:
+        try:
+            question = read_file_contents(question_path)
+            reasoning_trace = read_file_contents(input_path)
 
-                        with open(prel_path, "w", encoding="utf-8") as f:
-                            f.write("")  # create empty file
+            clipboard_content = "\n".join([
+                header_stri,
+                "\n\nQuestion:",
+                question,
+                "\n\nReasoning trace:",
+                reasoning_trace
+            ])
 
-                        # Open in Notepad (blocking call until user closes)
-                        print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
-                        subprocess.call(["notepad", prel_path])
-                    else:
-                        import pm4py, time
+            if False:
+                # Copy to clipboard
+                pyperclip.copy(clipboard_content)
 
-                        print("req")
-                        resp = pm4py.llm.openai_query(clipboard_content, api_key=open("../api_grok.txt", "r").read(), openai_model="grok-4-1-fast-reasoning", api_url="https://api.x.ai/v1/")
-                        F = open(prel_path, "w", encoding="utf-8")
-                        F.write(resp)
-                        F.close()
+                print(f"Copied content of '{filename}' to clipboard with a prepended request.")
 
-                    # Extract the JSON from the prel file (delimited by ```json ... ```).
-                    # Be careful to pick the correct segment if multiple code fences exist.
-                    raw_prel = read_file_contents(prel_path)
-                    if "```json" in raw_prel:
-                        # Split at the first occurrence after ```json
-                        json_segment = raw_prel.split("```json", 1)[1]
-                        # Then split at the first triple backticks after that
-                        contents_str = json_segment.split("```", 1)[0]
-                    else:
-                        raise ValueError(
-                            "No ```json code fence found in the prel file. "
-                            "Please include the JSON inside ```json ... ``` fences."
-                        )
+                with open(prel_path, "w", encoding="utf-8") as f:
+                    f.write("")  # create empty file
 
-                    # Load the JSON
-                    contents = json.loads(contents_str)
+                # Open in Notepad (blocking call until user closes)
+                print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
+                subprocess.call(["notepad", prel_path])
+            else:
+                print("req")
+                resp = pm4py.llm.openai_query(
+                    clipboard_content,
+                    api_key=api_key,
+                    openai_model="grok-4-1-fast-reasoning",
+                    api_url="https://api.x.ai/v1/"
+                )
+                with open(prel_path, "w", encoding="utf-8") as f:
+                    f.write(resp)
 
-                    # Validate against the JSON schema
-                    try:
-                        validate(instance=contents, schema=schema)
-                    except ValidationError as e:
-                        # Raise a specific exception if validation fails
-                        raise Exception(f"JSON does not validate: {e.message}")
+            # Extract the JSON from the prel file (delimited by ```json ... ```).
+            # Be careful to pick the correct segment if multiple code fences exist.
+            raw_prel = read_file_contents(prel_path)
+            if "```json" in raw_prel:
+                # Split at the first occurrence after ```json
+                json_segment = raw_prel.split("```json", 1)[1]
+                # Then split at the first triple backticks after that
+                contents_str = json_segment.split("```", 1)[0]
+            else:
+                raise ValueError(
+                    "No ```json code fence found in the prel file. "
+                    "Please include the JSON inside ```json ... ``` fences."
+                )
 
-                    # If validation succeeds, rename prel_path to .json extension
-                    new_prel_path = prel_path.replace(".txt", ".json")
-                    os.rename(prel_path, new_prel_path)
+            # Load the JSON
+            contents = json.loads(contents_str)
 
-                    # Write out the validated JSON in the new file
-                    with open(new_prel_path, "w", encoding="utf-8") as fp:
-                        json.dump(contents, fp, indent=2, ensure_ascii=False)
+            # Validate against the JSON schema
+            try:
+                validate(instance=contents, schema=schema)
+            except ValidationError as e:
+                # Raise a specific exception if validation fails
+                raise Exception(f"JSON does not validate: {e.message}")
 
-                    print(f"Validation successful. Final JSON saved as '{new_prel_path}'.")
-                    print(f"Finished processing '{filename}'. Moving on...\n")
-                    break
+            # If validation succeeds, rename prel_path to .json extension
+            new_prel_path = prel_path.replace(".txt", ".json")
+            os.rename(prel_path, new_prel_path)
 
-                except Exception as ex:
-                    traceback.print_exc()
-                    print("Validation or file reading/writing failed. Fix the file and try again.")
+            # Write out the validated JSON in the new file
+            with open(new_prel_path, "w", encoding="utf-8") as fp:
+                json.dump(contents, fp, indent=2, ensure_ascii=False)
+
+            print(f"Validation successful. Final JSON saved as '{new_prel_path}'.")
+            print(f"Finished processing '{filename}'. Moving on...\n")
+            return
+
+        except Exception as ex:
+            traceback.print_exc()
+            print(f"Validation or file reading/writing failed for '{filename}'. Retrying...")
+            time.sleep(2)
+
+
+def main(input_folder, pattern, prel_folder, questions_folder):
+    # JSON Schema to validate the final structure.
+    # We expect an array of objects. Each object can be either:
+    #    1) A normal reasoning step, where "Name" matches one of the
+    #       known reasoning patterns, followed by " - PE", " - IND", or " - NE".
+    #    2) The "Conclusion" step, with "Name" matching "Conclusion - C",
+    #       "Conclusion - PC", or "Conclusion - W".
+    #
+    # The field "Corresponding text" must be a string for both types of items.
+    schema = {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "oneOf": [
+                {
+                    # Reasoning step pattern
+                    "properties": {
+                        "Name": {
+                            "type": "string",
+                            "pattern": (
+                                r"^(Pattern Recognition|Deductive Reasoning|Inductive Reasoning|"
+                                r"Abductive Reasoning|Hypothesis Generation|Validation|Backtracking|"
+                                r"Ethical or Moral Reasoning|Counterfactual Reasoning|Heuristic Reasoning)"
+                                r" - (PE|IND|NE)$"
+                            )
+                        },
+                        "Text": {"type": "string"}
+                    },
+                    "required": ["Name", "Text"]
+                },
+                {
+                    # Conclusion pattern
+                    "properties": {
+                        "Name": {
+                            "type": "string",
+                            "pattern": r"^Conclusion - (C|PC|W)$"
+                        }
+                    },
+                    "required": ["Name"]
+                }
+            ]
+        }
+    }
+
+    # List and filter matching files
+    all_files = os.listdir(input_folder)
+    txt_files = [
+        f for f in all_files
+        if f.startswith(pattern) and f.endswith(".txt")
+    ]
+
+    allowed = ["cat01", "cat02", "cat03", "cat04", "cat05", "cat06"]
+    api_key = open("../api_grok.txt", "r").read()
+    os.makedirs(prel_folder, exist_ok=True)
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        futures = []
+        for filename in txt_files:
+            if not any(p in filename.lower() for p in allowed):
+                continue
+
+            # Build path to corresponding prel file
+            prel_path = os.path.join(prel_folder, filename)
+
+            # If the prel file doesn't exist, create it
+            if not os.path.exists(prel_path) and not os.path.exists(prel_path.replace(".txt", ".json")):
+                futures.append(
+                    executor.submit(
+                        process_file_task,
+                        filename,
+                        input_folder,
+                        prel_folder,
+                        questions_folder,
+                        schema,
+                        api_key
+                    )
+                )
+
+        for future in futures:
+            future.result()
 
     print("All matching files have been processed.")
 
