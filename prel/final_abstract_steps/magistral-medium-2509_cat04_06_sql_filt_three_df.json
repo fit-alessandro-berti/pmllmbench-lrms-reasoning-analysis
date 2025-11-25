@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First the sequence is Approve Purchase Requisition then Create Order then Confirm Order all in a row with no other events in between for the same case"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "how do I find consecutive events Maybe using window functions Like for each event look at the previous event in the same case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "for the B event Create Order the previous should be A Approve Purchase Requisition and the following event is C Confirm Order"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "using LAG and LEAD with PARTITION BY case_id ORDER BY timestamp If activity is Create Order then LAG activity is Approve and LEAD activity is Confirm"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "for each Create Order event that is part of the sequence calculate the time difference to the next event using LEAD timestamp"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "steps 1 Create a CTE that finds all Create Order events where previous is Approve next is Confirm 2 check time diff >5 days 3 collect case_ids 4 select all events where case_id not in that list"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "WITH bad_cases AS SELECT DISTINCT case_id FROM subquery with LAG LEAD then WHERE activity Create Order and prev_activity Approve and next_activity Confirm and next_timestamp - timestamp > INTERVAL 5 DAYS"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "In DuckDB the subtraction of two timestamps gives an interval Comparing to INTERVAL 5 DAYS should work Alternatively DATEDIFF but interval is better for more than 5 days"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "refine to use WINDOW w AS PARTITION BY case_id ORDER BY timestamp in the CTE to define window once"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "test with examples case 1 Approve Create Confirm 7 days excluded case 2 4 days not excluded non-consecutive not excluded multiple sequences one bad excludes case edge cases first last events NULL handled correctly"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
