@@ -47,6 +47,7 @@
 | deepseekdeepseek-r1-distill-llama-8b             | **4594**  |  33 |   11 |   2 |  331 |    76 |   22 |
 | cogito14b-v1-preview-qwen-fp16                   | **4497**  |  34 |   12 |   0 |  242 |    43 |    4 |
 | allenaiolmo-3-7b-think                           | **4308**  |  32 |   10 |   4 |  344 |    72 |   23 |
+| arcee-aitrinity-mini                             | **4055**  |  32 |   13 |   1 |  275 |    55 |   17 |
 | qwen-qwq-32b-stepbystep                          | **3680**  |  29 |   15 |   2 |  318 |    80 |   21 |
 | baiduernie-4.5-21b-a3b-thinking                  | **2815**  |  26 |   18 |   1 |  276 |    85 |   23 |
 | exaone-deep2.4b-fp16                             | **2678**  |  28 |   14 |   4 |  284 |   102 |   33 |
@@ -109,6 +110,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseekdeepseek-r1-distill-llama-8b             |   17.2 |   18.6 |   13.8 |    8.6 |   16.1 | 11.4 |  5.1 |    2.8 |    0.9 |    5.4 |
 | cogito14b-v1-preview-qwen-fp16                   |   22.5 |   25.6 |   14.5 |    6.6 |   14.2 |  6.9 |  0.3 |    2.4 |    0.3 |    6.6 |
 | allenaiolmo-3-7b-think                           |   16.2 |   15.9 |    9.3 |    8.4 |   18.9 | 12.3 | 11.2 |    1.6 |    0.7 |    5.5 |
+| arcee-aitrinity-mini                             |   22.5 |   15   |    9.8 |   10.4 |   15.6 |  8.9 |  6.6 |    2   |    0.6 |    8.6 |
 | qwen-qwq-32b-stepbystep                          |   14.6 |   15.8 |   11.9 |   11.5 |   15.5 | 11.5 |  8.6 |    2.9 |    1.7 |    6.2 |
 | baiduernie-4.5-21b-a3b-thinking                  |   15.4 |   16.9 |   11.2 |    9.1 |   18.5 |  9.9 |  9.1 |    2.1 |    1.3 |    6.5 |
 | exaone-deep2.4b-fp16                             |   16.2 |   15.8 |   10.3 |    8.1 |   16   | 13.6 | 11   |    2.9 |    1.2 |    5   |
@@ -180,6 +182,7 @@ Dictionary of activities:
 | deepseekdeepseek-r1-distill-llama-8b             |   82.4 |   93.8 |   81.4 |   67.6 |   71   | 73.5 | 50   |   91.7 |   50   |   56.5 |
 | cogito14b-v1-preview-qwen-fp16                   |   78.5 |   90.5 |   90.5 |   73.7 |   82.9 | 85   |  0   |  100   |  100   |   68.4 |
 | allenaiolmo-3-7b-think                           |   98.6 |   94.3 |   82.9 |   70.3 |   72.3 | 81.5 | 34.7 |   71.4 |   66.7 |   83.3 |
+| arcee-aitrinity-mini                             |   87.2 |   94.2 |   94.1 |   69.4 |   81.5 | 80.6 | 34.8 |   85.7 |   50   |   56.7 |
 | qwen-qwq-32b-stepbystep                          |   83.6 |   90.9 |   82   |   68.8 |   73.8 | 79.2 | 41.7 |   75   |   71.4 |   69.2 |
 | baiduernie-4.5-21b-a3b-thinking                  |   74.6 |   90.8 |   76.7 |   54.3 |   76.1 | 71.1 | 48.6 |  100   |   20   |   56   |
 | exaone-deep2.4b-fp16                             |   77.9 |   84.8 |   79.1 |   70.6 |   61.2 | 78.9 | 26.1 |   75   |   40   |   38.1 |

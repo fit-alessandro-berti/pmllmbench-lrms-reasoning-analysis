@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "First I need to get the sequence of activities per case That means ordering events for each case_id by timestamp In DuckDB I can use window functions to assign an order within each case The ROW_NUMBER function with PARTITION BY case_id and ORDER BY timestamp will give each activity an order 1 2 etc"
+  },
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "Next to form the sequence I can use LISTAGG over the ordered activities But wait DuckDB doesnt have LISTAGG by default Hmm maybe I need to use a recursive CTE to concatenate the activities Or perhaps using the TAG_LISTAGG extension if available but Im not sure Alternatively using a join with a self-reference"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So steps 1 Assign row numbers per case by timestamp 2 Then for each case join the rows to position each activitys next activity then concatenate Like building a string of activities in order For example activity1 -> activity2 -> until the last"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Once the sequences are formed group by them and count the cases Then sort by count desc and pick top K Then filter the original event_log to include only events from those top K variants"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "But this would create duplicate and incomplete sequences Because each row in absolute_sequence is processed and for each the next row is added But the first step is rn1 then append activity with rn2 then the next step appends rn3 etc But the entire sequence for one case would be built in multiple rows of the CTE each being a partial sequence For example row where rn1 is A then row where rn2 is A->B then where rn3 is A->B->C each row represents a different rn and a different partial sequence The final sequence would be the latest in each case which would have all activities up to the last But the count would be 3 per case which is incorrect Therefore this approach isnt right"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we need to aggregate all activities into a single row per case This suggests that a recursive CTE that starts with the first activity and then appends each subsequent activity may not be the best way Instead in absolute_sequence CTE we can select per activity and then in final_sequences SELECT case_id seq FROM absolute_sequence WHERE rn MAX rn OVER PARTITION BY case_id This way each case_id will have only one row with the full sequence built from all activities"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

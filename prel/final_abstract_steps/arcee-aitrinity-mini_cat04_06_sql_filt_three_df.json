@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "To do this, I should first find all cases that have the desired sequence and satisfy the time condition. Then, I can subtract those cases from the main event log table, selecting all events from cases not in that set."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "To check for a sequence of three activities in order, I can use a window function to order events by timestamp and then filter based on the activities in order."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "use LEAD(activity) OVER (PARTITION BY case_id ORDER BY timestamp) AS next_activity, LEAD(timestamp) OVER (PARTITION BY case_id ORDER BY timestamp) AS next_timestamp"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Wait, but the above WHERE clause is incomplete. Lets structure this correctly. Actually, the confirmed_sequence should join the ordered_events table twice. Alternatively, use the ordered_events CTE to get all necessary columns."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH ordered AS ( SELECT *, ROW_NUMBER() OVER (PARTITION BY case_id ORDER BY timestamp) AS rn FROM event_log ), sequence AS ( SELECT case_id, rn FROM ordered WHERE activity = Approve Purchase Requisition )"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "JOIN ordered o2 ON s.case_id = o2.case_id AND o2.rn = s.rn + 1 AND o2.activity = Create Order JOIN ordered o1 ON o1.case_id = s.case_id AND o1.rn = s.rn + 2 AND o1.activity = Confirm Order WHERE o1.timestamp - o2.timestamp > INTERVAL 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "this approach requires that the three events are consecutive in the row number sequence, which they are if they are consecutive in time. Then the time difference condition is between the Create and Confirm events."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Using DISTINCT ensures uniqueness. Alternatively, without DISTINCT, since the same case_id would appear multiple times if the same case has multiple sequences, but the IN clause would still work."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
