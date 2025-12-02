@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to merge logs A and B. Both logs have the same order ID Order#1234. We need to align events based on order_id and timing tolerance say 2 seconds. Log A has 5 events: Order Received, Order Validated, Payment Processed, Item Shipped, Item Delivered. Log B has 5 events: OrderReceived 095958Z, OrderValidation 100129Z, PaymentCheck 100205Z, Quality Check 100300Z, Shipping 100502Z. Note that Log A also has Item Delivered at 102000Z, which is not in Log B. And Log B has Quality Check at 100300Z which is not in Log A. Also, timestamp mismatches: we have small differences: For Received: A 100000, B 095958 2 sec diff. For Validated: A 100130, B 100129 1 sec diff. For Payment Processed: A 100200, B 100205 5 sec diff."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Thats more than 2 seconds? Actually diff is 5 sec, beyond tolerance if we set 2 sec. But maybe we can consider it same event because its the only payment event. However there is no other payment event in Log B; maybe its indeed the same. But need to decide based on tolerance or use event type mapping."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach: For each event in A, try to find an event in B with same order_id and similar timestamp within tolerance and semantically matching event type. For A events: Order Received matches B OrderReceived; Order Validated matches B OrderValidation; Payment Processed matches B PaymentCheck; Item Shipped matches B Shipping. For Delivery, no B event. Then B Quality Check unmatched."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For matched events, combine attributes. For unmatched, include as separate events. The final output should be in chronological order. Since A is primary timeline, well use its timestamp as the primary event_time for ordering. For merged events, we can use the timestamp from A as primary."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If timestamps differ slightly, you can select one as primary or include both. Because Log A is considered the primary timeline, for merged events I will use the timestamp from Log A as the primary timestamp for ordering and display; however, to preserve accuracy, I also include the timestamp from Log B as an additional attribute."
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "If we strictly used 2 seconds, Payment would be unmatched, then we would have separate Payment Processed A and PaymentCheck B. That would lead to 7 events. Which is more appropriate? The conservative approach is to not merge unless confident."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now check if any ordering issues: The B-only Quality Check at 100300Z is between Payment Processed 100200Z and Item Shipped 100500Z. Thats fine. Now confirm matching reasoning: We used timestamp tolerance of 2 seconds for all except Payment 5 sec. We decided to match Payment due to semantic similarity and uniqueness."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We used a tolerance of 5 seconds for matching Payment Processed, and that we used As timestamps as primary. Map event names: As Order Received = Bs OrderReceived, etc. Identify matches: four matches; one B-only Quality Check; one A-only Item Delivered."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

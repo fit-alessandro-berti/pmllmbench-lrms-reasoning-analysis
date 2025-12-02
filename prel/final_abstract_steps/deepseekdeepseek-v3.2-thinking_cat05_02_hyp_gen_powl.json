@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The model defines a loop between Evaluate (E) and Approve (P) activities. This loop allows for multiple evaluations and approvals, which might indicate that a claim can be evaluated and approved multiple times, or that the approval step might be repeated if the evaluation is repeated. This is unusual because typically a claim is evaluated once and then approved (or rejected). Having a loop might indicate that the process allows for re-evaluation and re-approval, which could be by design (e.g., if the claim is sent back for rework) but note that the loop is defined as E, P meaning that in each iteration, we do E then P, and then we can either exit or do another iteration (which would start with E again). This could lead to multiple E and P events for a single claim."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "There is an XOR (exclusive choice) between Notify Customer (N) and a silent transition (skip). This means that the process may skip the notification step. This is an anomaly because it is generally expected that the customer is notified after approval. However, in some cases, it might be by design (e.g., if the claim is denied, but note that the model does not have a denial path). Alternatively, it might be an oversight."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The partial order structure (StrictPartialOrder) defines edges: R->A, A->loop, loop->xor. However, it also adds an edge A->C. This edge allows the Close Claim (C) activity to happen after Assign Adjuster (A) without going through the loop and the XOR. In other words, it might be possible to close a claim without evaluating, approving, or notifying the customer. This is a major anomaly."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Additionally, note that the edge from loop to xor is present, but there is no edge from xor to C. However, since C is in the same partial order and there is an edge from A to C, it might be possible that C is executed concurrently with the loop and xor, or even before them. The partial order only specifies that some activities must happen before others, but without a constraint, activities can happen in any order that respects the edges. Specifically, the edge A->C means that C must happen after A, but it doesnt require that C happens after the loop and xor. Therefore, the model allows for the possibility that after A, we can do C without doing the loop and xor."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The loop between E and P might exist because the business process allows for re-evaluation and re-approval. For example, if an adjuster makes a mistake, they might have to re-evaluate and get re-approval. Alternatively, it might be a modeling error where the modeler intended to have a sequence of E then P, but accidentally made it a loop. The XOR that skips notification might be due to certain claims not requiring customer notification (e.g., very small claims, or internal claims). Alternatively, it might be an oversight in the model, or a technical error in the workflow system that allowed the silent transition to be included. The direct edge from A to C might be due to a change in business rules where some claims can be closed immediately after assignment (e.g., if they are duplicate claims or invalid). Alternatively, it might be a modeling error where the modeler intended to have a different structure but accidentally added an edge. It could also be due to inadequate constraints in the process modelers tool, allowing the addition of edges that violate the intended process. The lack of an edge from xor to C might be an oversight, meaning that the process model does not enforce that closing the claim happens after the notification (or skip)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We have three tables: claims, adjusters, and claim_events. The claim_events table logs each activity for a claim. We can write queries to check for occurrences of the anomalies. Anomaly 1: Loop between E and P leading to multiple evaluations and approvals for a single claim. We can check for claims that have multiple E and/or P events. Specifically, we can look for claims where the activity Evaluate Claim appears more than once, or where Approve Claim appears more than once. Anomaly 2: XOR that may skip customer notification. We can check for claims that do not have a Notify Customer event. Anomaly 3: Direct edge from A to C allowing premature closing. We want to find claims that were closed (C) without having an evaluation (E) or approval (P). Anomaly 4: Lack of edge from xor to C might allow C to happen before xor. We can check for claims where the Close Claim event occurs before the Notify Customer event."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "These queries will help us verify if the anomalies in the model are actually occurring in practice. If we find many instances, then the anomalies might be intentional or at least tolerated. If we find few or none, then the anomalies might be modeling errors that do not reflect reality."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

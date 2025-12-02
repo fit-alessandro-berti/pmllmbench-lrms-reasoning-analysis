@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are given a scenario: We have a temporal profile model (dictionary) mapping pairs of activities to average time in seconds and standard deviation. We need to identify anomalies, generate hypotheses, and propose SQL verification queries. Thus we need to output: - A list or description of anomalies observed from the temporal profile. - Hypotheses explaining why each anomaly might exist (possible reasons). - Proposed verification approaches: SQL queries to test those hypotheses."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Let's analyze the temporal profile: temporal_profile = { ('R', 'A'): (3600, 600),     # avg 1 hour, stdev 10 min ('R', 'E'): (86400, 28800),  # avg 1 day, stdev 8 hours ('R', 'P'): (90000, 3600),   # avg ~25 hours (90000 sec = 25 hours), stdev 1 hour (low stdev) ('A', 'C'): (7200, 3600),    # avg 2 hours, stdev 1 hour ('E', 'N'): (300, 60),       # avg 5 min, stdev 1 min ('E', 'C'): (3600, 3000),    # avg 1 hour, stdev 50 min (large relative stdev) ('P', 'N'): (604800, 172800),# avg 7 days, stdev 2 days (high) ('N', 'C'): (1800, 300)      # avg 30 min, stdev 5 min }"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Given the temporal profile, we can highlight: - R to P: average time ~25 hours, but standard deviation only 1 hour. That is unusually low variability. This could indicate a rigid automated process or artificially enforced timing. - P to N: average 7 days, standard deviation 2 days. Very long delay, high variability. Could be bottleneck in notification process, or maybe notification is only sent after a long period for some reason. - A to C: average 2 hours, standard deviation 1 hour. That is a short time from assign to close, but the expected process should go through evaluate, approve, notify, then close. So perhaps some claims are closed directly after assignment without evaluation/approval, or they are expedited. - E to N: average 5 minutes, standard deviation 1 minute. Very fast notification after evaluation, maybe automated or skipping intermediate approval step? - Also E to C: average 1 hour, stdev 50 minutes: high relative variability, maybe indicating two populations: some claims close quickly after evaluate, others take longer."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Potential reasons: - Low stdev in R->P: maybe an automated system that approves exactly 25 hours after receipt, or manual approval batch processing at fixed times. - High delay in P->N: maybe notifications are batched weekly, or there is a backlog in the notification team, or notifications require additional verification. - Quick A->C: Could be that some claims are automatically closed due to being invalid or below threshold, skipping evaluation. - Quick E->N: could indicate that notification is triggered automatically right after evaluation, but why is there a 7 day delay after approval? That inconsistency suggests that maybe notifications are sometimes sent directly after evaluation (if evaluation leads to immediate decision) but other times after approval? The temporal profile includes both E->N and P->N. Perhaps for some claims, the process skips approval and goes directly from evaluate to notify?"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "This inconsistency may reflect an internal backlog or resource constraints. - Large stdev for E->C: some claims close quickly after evaluate (maybe denied), others take longer (maybe require further steps)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then propose SQL queries to verify. Use the claim_events table. We have activity codes: R,A,E,P,N,C. We have timestamps. We can compute durations between events per claim. We can filter by claim type, adjuster, etc. Also join with claims table to get claim_type, claim_amount, etc. And maybe adjusters table through resource."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can propose queries to: - Find claims where time from R to P is outside expected bounds (e.g., beyond 1 or 2 stdev from avg). That can identify outliers. - Group by claim_type to see if certain claim types have longer/shorter times. - For A to C: find claims where there is no Evaluate or Approve between assign and close? That would indicate skipping. Could check sequence of events. - For P to N: long delays: find claims where time between P and N exceeds some threshold, and see correlation with adjuster specialization or region. - For E to N: very short times: find claims where time between E and N is less than, say, 1 minute, maybe automated."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Now structure output: I think we should present: # Anomalies Identified List each anomaly with description. # Hypotheses For each anomaly, propose possible reasons. # Verification Queries Provide SQL queries that can be run to investigate each hypothesis."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

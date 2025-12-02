@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For each case_id, get ordered sequence of activities by timestamp. This can be done with LIST(activity ORDER BY timestamp) within a GROUP BY case_id."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Group cases by their complete activity sequence (the list) to identify unique process variants. Count number of cases per variant. Determine top K variants by frequency (number of cases). Lets assume K is a parameter; we need to incorporate it into query, maybe as a variable? In DuckDB we can use a parameter."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Edge Cases: multiple events with same timestamp? Possibly, ordering could be ambiguous. But well assume timestamp is unique per case or we accept any ordering; but spec says order by timestamp. Also need to consider performance: list aggregation order by ensures correct ordering."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Compute variants: For each case, produce ordered activity list as a string or array. In DuckDB, we can produce an array with array_agg(activity ORDER BY timestamp). Or list? Actually DuckDB has list and array; list is more flexible. But for grouping by sequence, we need a comparable type: arrays can be compared, but list might not? In DuckDB, arrays are comparable? Lets check: DuckDB supports array type, and arrays can be compared for equality. Also we could use a string concatenation with a delimiter, but careful about collisions. Better to use ARRAY_AGG(activity ORDER BY timestamp) to produce an array of activities."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_sequences AS ( SELECT case_id, ARRAY_AGG(activity ORDER BY timestamp) AS variant_array FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT variant_array, COUNT(*) AS case_count FROM case_sequences GROUP BY variant_array ), ranked_variants AS ( SELECT variant_array, case_count, ROW_NUMBER() OVER (ORDER BY case_count DESC) AS rn FROM variant_counts ), top_variants AS ( SELECT variant_array FROM ranked_variants WHERE rn <= K ), top_cases AS ( SELECT case_id FROM case_sequences WHERE variant_array IN (SELECT variant_array FROM top_variants) ) SELECT e.* FROM event_log e JOIN top_cases c ON e.case_id = c.case_id;"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Alternatively we could use DENSE_RANK if ties should be included? The problem: determine the top K variants by their frequency. Usually top K by frequency, if there are ties for the K-th position, it might be ambiguous; we can either include ties (more than K) or break ties arbitrarily. The problem statement doesnt specify ties, so we can just use ROW_NUMBER, which gives exactly K rows, but might cut off ties. Usually in such tasks, they might want to include ties for top K using rank/dense_rank? But we can decide: Ill use ROW_NUMBER."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Well include ORDER BY case_count DESC, variant_array (or any stable order) to make ROW_NUMBER deterministic. But ordering by variant_array (an array) may not be allowed? DuckDB may allow ordering arrays? Possibly but can be expensive. We can use some tie-breaker like the first case_id? Not directly. Could order by case_count desc, variant_array::VARCHAR? That may be heavy. Or we can just order by case_count desc and accept non-determinism; its fine. But in DuckDB, arrays are comparable lexicographically, so we can order by variant_array as tie-breaker. Ok."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now test with example data: event_log: case1: A, B, C timestamps increasing. case2: A, B, C same sequence. case3: A, C, B different. Then case_sequences: case1: [A,B,C], case2: [A,B,C], case3: [A,C,B] variant_counts: [A,B,C] cnt=2, [A,C,B] cnt=1 ranked: [A,B,C] rn=1, [A,C,B] rn=2 top K=1 => only [A,B,C] variant, top_cases: case1, case2 Join returns events for case1 and case2. Works."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
