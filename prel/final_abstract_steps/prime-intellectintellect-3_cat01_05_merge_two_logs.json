@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given two logs: Log A (System A) and Log B (System B). Our goal is to merge them into a single event log by matching events that represent the same activity, and to handle events that are only in one log. Steps: 1. Parse both logs into a list of dictionaries for easier manipulation. Log A: events = [ {'timestamp': '2023-10-10T10:00:00Z', 'event_type': 'Order Received', 'order_id': 'Order#1234'}, ... ] Log B: events = [ {'timestamp': '2023-10-10T09:59:58Z', 'event_name': 'OrderReceived', ...}, ... ]"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We will use a small timestamp tolerance (e.g., 2 seconds) for matching events by time and order_id. For each event in Log A, we'll look for a matching event in Log B (if any) and merge them. If no match, we keep the event from Log A. Similarly, events in Log B that are not matched with any in Log A will be included as from System B only. Use the timestamp from Log A as the primary timestamp when available."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Matching: 1. Log A event 0: Order Received at 2023-10-10T10:00:00Z Log B event 0: 09:59:58Z -> difference is 2 seconds (within tolerance). So we match. 2. Log A event 1: Order Validated at 10:01:30Z Log B event 1: 10:01:29Z -> difference is 1 second -> match. 4. Log A event 3: Item Shipped at 10:05:00Z Log B event 4: 10:05:02Z -> difference is 2 seconds -> match."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Log A event 2: Payment Processed at 10:02:00Z Log B event 2: 10:02:05Z -> difference is 5 seconds -> not within 2 seconds. So we don't match. Log A event 4: Item Delivered at 10:20:00Z There is no corresponding event in Log B. Log B event 3: Quality Check at 10:03:00Z -> no match in Log A."
+  },
+  {
+    "Name": "Backtracking - NE",
+    "Text": "But note: requirement says slight offset, so we might consider 5 seconds too much? Let's stick to 2 seconds. However, we must consider that the systems might have different clock settings or network delays. But the requirement says a small timestamp tolerance (e.g., if timestamps differ by less than 2 seconds). So we use 2 seconds. Payment Processed (A) and PaymentCheck (B): timestamps differ by 5 seconds -> not merged (exceeds tolerance)."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We'll create a merged event record: timestamp from Log A, timestamp_b from Log B, event_type_a from Log A, event_name_b from Log B, order_id, user_id from Log B, resource_id from Log B, notes from Log B, source: A+B. For Log A only: user_id null etc, source A. For Log B only: event_type_a null, source B. Then, sort all merged_events by the primary timestamp."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "merged_events from Log A order: merged at 10:00:00Z, merged at 10:01:30Z, Log A only at 10:02:00Z, merged at 10:05:00Z, Log A only at 10:20:00Z. Then remaining Log B: PaymentCheck at 10:02:05Z, Quality Check at 10:03:00Z. Sort by timestamp: 10:00:00Z, 10:01:30Z, 10:02:00Z, 10:02:05Z, 10:03:00Z, 10:05:00Z, 10:20:00Z."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Document reasoning: We matched events based on order_id and timestamp within 2 seconds tolerance. Merged: Order Received/OrderReceived (2s), Order Validated/OrderValidation (1s), Item Shipped/Shipping (2s). Not merged: Payment Processed/PaymentCheck (5s), Quality Check (no match), Item Delivered (no match). Used Log A timestamp as primary for merged."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets break down each constraint in the DECLARE model - init This constraint states that every trace must start with activity R Receive This is consistent with the intended process - existence This constraint states that every trace must end with activity C Close This is also consistent with the intended process - responded_existence This constraint states that for every occurrence of activity A Assign there must be a subsequent occurrence of activity E Evaluate This is consistent with the intended flow Assign then Evaluate - precedence This constraint states that for every occurrence of activity C Close there must be a prior occurrence of activity R Receive This is also consistent because the process starts with Receive and ends with Close - noncoexistence This constraint states that activities E Evaluate and C Close cannot occur in the same trace However the intended process flow includes both Evaluate and Close with Evaluate happening before Close Therefore this constraint is problematic because it forbids the cooccurrence of Evaluate and Close which should naturally occur together in a valid claim process"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1 Identify Anomalies The main anomaly is in the noncoexistence constraint it states that Evaluate E and Close C cannot coexist in the same trace However in the intended process every claim that is closed must have been evaluated and also assigned approved notified etc Therefore the noncoexistence constraint directly contradicts the intended process and the other constraints"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "Additionally note that the model does not enforce the entire sequence For example There is no constraint that forces the sequence RAEPNC The model does not prevent skipping activities eg going from R directly to C or having E without A But the immediate problem is the noncoexistence of E and C"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "2 Generate Hypotheses Why might such an anomaly exist - Misinterpretation of business requirements The modeler might have misunderstood the noncoexistence constraint Perhaps they intended to say that Evaluate and Close cannot happen at the same time ie concurrency but allowed in sequence However the DECLARE constraint as written forbids any cooccurrence in the same trace - Incremental changes in policies The model might have been built incrementally Initially there might have been a rule that claims must be closed without evaluation which is not the case now and then the process evolved to require evaluation but the old constraint was not removed - Technical issues or incomplete data The model might have been generated automatically from event logs that had many traces without evaluation eg because of data collection issues and then the noncoexistence constraint was learned Alternatively the model might have been built by someone who is not familiar with the DECLARE notation - Pressure to handle claims quickly In some scenarios claims might be closed without evaluation eg for small claims However that would be a deviation from the standard process The constraint as written would then be an attempt to enforce that deviation as a rule but it contradicts the intended process"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "3 Propose Verification Approaches We need to write SQL queries to check if the anomalies occur in practice We have three tables claims adjusters and claim_events We are particularly interested in the claim_events table which records the events activities for each claim Note Each claim has a unique claim_id and we can group events by claim_id to form a trace Well focus on the noncoexistence anomaly E and C cooccurring because that is the most critical But we can also check for other potential issues"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "a Check for traces that have both E and C which should not exist according to the noncoexistence constraint but in reality they should exist The noncoexistence constraint forbids any trace that has both E and C However in a valid process every closed claim should have been evaluated Therefore we expect every closed claim with event C to have at least one evaluation event E But the constraint says they cannot coexist So if we find any claim that has both E and C then the constraint is violated which is actually the desired behavior However if we find claims that are closed without evaluation that would be a different problem missing E Query 1 Find claims that have both E and C which should be all closed claims but the constraint forbids Query 2 Find claims that are closed without evaluation which is a deviation from the intended process b Check for other anomalies like claims that do not start with R do not end with C etc with Query 3 4 5a 5b c Check the responded_existence constraint for every Assign A there must be an Evaluate E after it Query 6 d Check the precedence constraint for every Close C there must be a prior Receive R Query 7 8 Summary of Verification Queries We have proposed several SQL queries to check for anomalies The critical one for the noncoexistence constraint is Query 1 and Query 2 These queries can be run on the database to verify if the anomalies are present in the actual data"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

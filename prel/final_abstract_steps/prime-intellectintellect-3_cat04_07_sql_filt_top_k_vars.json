@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We are going to break down the problem into several steps: Step 1: For each case, order the events by timestamp and then aggregate the activities into a sequence (as a string of comma-separated activities). Step 2: Group by the sequence string to get each variant and count the number of cases per variant. Step 3: Determine the top K variants. However, note that K is a parameter that we need to handle. We can use a parameter in DuckDB. But the problem says top K, so we must have a way to specify K. Well assume we have a parameter :k for that. Step 4: We need to get the list of case_ids that belong to the top K variants. Then, we will filter the original event_log to only include events from those cases."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach: We can use a common table expression (CTE) or subqueries. Lets outline: 1. First, we create a subquery that for each case, we get the ordered sequence of activities and then we group by that sequence to get the count of cases per variant. We can do: WITH case_sequences AS ( SELECT case_id, STRING_AGG(activity, , ORDER BY timestamp) AS sequence FROM event_log GROUP BY case_id ) However, note: the problem says ordered sequence of activities that occur in a single case, determined by sorting events within that case by their timestamp. So this is correct."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2. Then, we want to group by the sequence and count the cases per variant: variant_counts AS ( SELECT sequence, COUNT(*) AS frequency FROM case_sequences GROUP BY sequence ) 3. Now, we want to get the top K variants by frequency. We can use: top_k_variants AS ( SELECT sequence FROM variant_counts ORDER BY frequency DESC LIMIT :k ) 4. Now, we need to get the case_ids that have a sequence in the top_k_variants. qualifying_cases AS ( SELECT cs.case_id FROM case_sequences cs JOIN top_k_variants t ON cs.sequence = t.sequence ) 5. Finally, we select all events from the original event_log where the case_id is in qualifying_cases."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "However, note: the STRING_AGG might be expensive for long sequences? But there is a caveat: the sequence is a string. What if two different sequences become the same string? For example, if an activity contains a comma? Then we might have a problem. The problem does not specify the content of the activity. If activities can contain commas, then we should use a different separator or a different method. DuckDB supports arrays. We can do: ARRAY_AGG(activity ORDER BY timestamp) AS activity_array Then we can group by the array. But note: DuckDB does not allow grouping by an array? Actually, it does. Well go with arrays because it is more robust."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH case_sequences AS ( SELECT case_id, ARRAY_AGG(activity ORDER BY timestamp) AS activity_array FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_array, COUNT(*) AS frequency FROM case_sequences GROUP BY activity_array ), top_k_variants AS ( SELECT activity_array FROM variant_counts ORDER BY frequency DESC LIMIT :k ), qualifying_cases AS ( SELECT cs.case_id FROM case_sequences cs WHERE EXISTS ( SELECT 1 FROM top_k_variants t WHERE t.activity_array = cs.activity_array ) ) SELECT * FROM event_log WHERE case_id IN (SELECT case_id FROM qualifying_cases) ORDER BY case_id, timestamp;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets test with a small example. event_log: case_id | activity | timestamp 1 | A | 2020-01-01 08:00 1 | B | 2020-01-01 08:05 2 | A | 2020-01-01 09:00 2 | B | 2020-01-01 09:05 3 | A | 2020-01-01 10:00 3 | C | 2020-01-01 10:05 For case 1: array is [A,B] For case 2: array is [A,B] -> same as case 1 For case 3: array is [A,C] Then variant_counts: [A,B] -> 2 [A,C] -> 1 If k=1, then top_k_variants: only [A,B] Then qualifying_cases: case_id 1 and 2. Then we return all events for case 1 and 2. This is correct."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "However, note: the timestamp might have ties? The problem does not specify. We must break ties? Because if two events in the same case have the same timestamp, then the order is not defined. The problem says: determined by sorting events within that case by their timestamp. So if there is a tie, we need a secondary sort? Well assume that the timestamp is unique per case? Or if not, we can use the activity as a tie-breaker? Well do: ORDER BY timestamp, activity This will break ties by the activity name."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "However, what if there are ties in frequency? Then we take the first K arbitrarily? But the problem doesnt specify. Well do: ORDER BY frequency DESC, activity_array LIMIT :k This will break ties by the lexicographical order of the activity array."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "the final query: WITH case_sequences AS ( SELECT case_id, ARRAY_AGG(activity ORDER BY timestamp, activity) AS activity_array FROM event_log GROUP BY case_id ), ... ORDER BY case_id, timestamp, activity; note: the problem does not require the final ordering. But we add it for clarity."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

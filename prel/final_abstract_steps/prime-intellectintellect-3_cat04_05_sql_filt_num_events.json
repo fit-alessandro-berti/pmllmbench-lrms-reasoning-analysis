@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are going to: 1. First, we need to count the number of events per case_id. We can do this by grouping by case_id and counting the number of rows per group. 2. Then, we want to filter out any case_id that has more than six events. This gives us a list of case_ids that have 6 or fewer events. 3. Finally, we join this filtered list of case_ids back to the original event_log table to get all the events for those cases."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "SELECT * FROM event_log WHERE case_id IN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 );"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "This might be inefficient for large tables because the subquery is executed for each row? Actually, the subquery is executed once and then the IN condition is checked."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "SELECT * FROM ( SELECT *, COUNT(*) OVER (PARTITION BY case_id) as event_count_per_case FROM event_log ) AS sub WHERE event_count_per_case <= 6;"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Both methods are valid. Well choose the window function method because it avoids a correlated subquery and might be more efficient in some cases?"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "the window function method returns an extra column? The problem says return only the events, meaning all the original columns. We dont want the extra column."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_counts AS ( SELECT case_id, COUNT(*) as event_count FROM event_log GROUP BY case_id ) SELECT el.* FROM event_log el JOIN case_counts cc ON el.case_id = cc.case_id WHERE cc.event_count <= 6;"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "the CTE approach with a join does two passes: one for aggregation and one for the join. But the aggregation is on a subset of columns only case_id and then the join is on case_id."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Well go with the subquery method for simplicity."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets test with a small example: Suppose we have case_id 1 with 3 events included case_id 2 with 7 events excluded Then the subquery returns case_id 1 and the main query returns all events of case_id 1. This is correct."
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "what if we have a case_id that is NULL? The GROUP BY will put all NULLs in one group. Then the HAVING clause will count the number of rows in that group. If that count is <=6, then the subquery returns one row with NULL? Then the outer query will return all rows with NULL case_id? That is correct."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

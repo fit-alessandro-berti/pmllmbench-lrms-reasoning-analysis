@@ -34,6 +34,7 @@
 | exaone-deep7.8b-fp16                             | **6183**  |  39 |    6 |   1 |  351 |    87 |   17 |
 | nousresearchhermes-4-70b                         | **6180**  |  38 |    7 |   0 |  337 |    70 |   11 |
 | DeepSeek-V3.1-Reasoner                           | **6170**  |  42 |    4 |   0 |  250 |    50 |    4 |
+| prime-intellectintellect-3                       | **6158**  |  39 |    7 |   0 |  317 |    52 |    8 |
 | QwenQwen3-30B-A3B                                | **6141**  |  39 |    6 |   1 |  337 |    89 |   12 |
 | deepseek-aiDeepSeek-R1-Distill-Qwen-32B          | **6092**  |  37 |    8 |   1 |  360 |    68 |    7 |
 | qwen-qwq-32b-nostepbystep                        | **5996**  |  34 |   11 |   1 |  427 |    94 |   14 |
@@ -97,6 +98,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | exaone-deep7.8b-fp16                             |   14.9 |   18.9 |    9.2 |    8.1 |   20   | 12.7 |  7.3 |    3.3 |    1.5 |    4   |
 | nousresearchhermes-4-70b                         |   15.3 |   19.9 |   10   |    8.6 |   16.5 | 14.1 |  6.7 |    1.7 |    1   |    6.2 |
 | DeepSeek-V3.1-Reasoner                           |   19.7 |   18.1 |   11.8 |    6.9 |   13.5 |  9.2 |  3.9 |    2.3 |    1.3 |   13.2 |
+| prime-intellectintellect-3                       |   18.8 |   16.4 |    9.8 |    8.5 |   15.6 | 11.7 |  7.4 |    1.6 |    1.6 |    8.5 |
 | QwenQwen3-30B-A3B                                |   15.1 |   22.4 |   10.3 |    9.1 |   15.3 | 13.2 |  4.6 |    2.1 |    1.1 |    6.8 |
 | deepseek-aiDeepSeek-R1-Distill-Qwen-32B          |   16.1 |   22.8 |   13.6 |    7.6 |   18.2 |  9.9 |  4.1 |    2.5 |    0.9 |    4.4 |
 | qwen-qwq-32b-nostepbystep                        |   13.5 |   15.5 |   12   |    8.2 |   18.7 | 11.6 |  9.2 |    2.6 |    2.2 |    6.5 |
@@ -169,6 +171,7 @@ Dictionary of activities:
 | exaone-deep7.8b-fp16                             |   76.5 |   95.3 |   88.1 |   75.7 |   73.6 | 79.3 | 45.5 |   86.7 |   14.3 |   55.6 |
 | nousresearchhermes-4-70b                         |   92.2 |   94   |   81   |   72.2 |   81.2 | 84.7 | 32.1 |   71.4 |  100   |   61.5 |
 | DeepSeek-V3.1-Reasoner                           |   88.3 |   89.1 |   83.3 |   71.4 |   80.5 | 92.9 | 66.7 |  100   |   25   |   70   |
+| prime-intellectintellect-3                       |   97.2 |   98.4 |   86.5 |   68.8 |   81.4 | 88.6 | 60.7 |  100   |   66.7 |   59.4 |
 | QwenQwen3-30B-A3B                                |   68.2 |   90.8 |   86.7 |   65   |   85.1 | 81   | 25   |   88.9 |   40   |   63.3 |
 | deepseek-aiDeepSeek-R1-Distill-Qwen-32B          |   77.1 |   90.9 |   84.7 |   84.8 |   81   | 86   | 44.4 |   90.9 |  100   |   78.9 |
 | qwen-qwq-32b-nostepbystep                        |   84.7 |   90.4 |   90.6 |   77.3 |   88   | 77.4 | 44.9 |   78.6 |   58.3 |   65.7 |

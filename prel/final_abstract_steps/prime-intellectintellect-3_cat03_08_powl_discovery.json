@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Key observations from the event log: 1. Common Start and End: Every case starts with OR (Order Received) and ends with D (Dispatch). 2. Core Sequence: After OR, the process goes through MS (Material Sourcing), QS (Quality Screening), and then AS (Assembly). However, note that after Assembly, there is often an IQC (In-line Quality Check) which may lead to a repetition of Assembly (AS) if quality issues are found. 3. Loop in Quality Control: The pattern shows that after AS, there is an IQC, and then sometimes AS again. 4. Testing Phase: After the assembly and quality loop, the product goes to TST (Testing). If the test fails, it goes to RT (Re-Testing) and then back to TST. 5. Packaging and Labeling: After passing the test, the product is packaged (PK). Then, labeling (LB) may or may not occur. 6. Distribution: After packaging (and optionally labeling), the process goes to DP (Distribution Planning) and then D (Dispatch). 7. Variations: - Case 1: ... - Case 5: ..."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "From these observations, we can break down the process into the following components: - Initial Sequence: OR -> MS -> QS -> AS But note: after the initial AS, we have a loop for quality control (IQC and then back to AS) that can repeat 0 or more times."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can model the quality control as a loop operator: *(AS, IQC) meaning: do AS, then either exit or do IQC and then AS again."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "However, note that in case 4, we dont want the loop at all. So we have a choice: either do the loop *(AS, IQC) or skip it? But note: the initial AS is common. Therefore, we must have the initial AS, and then we have a choice: either exit the loop (to TST) or do the body (IQC) and then the loop again?"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This matches: the initial AS is always done. Then, after that AS, we have a choice: either go to TST (so the loop body is skipped) or do IQC and then AS (and then we are back to the same choice). But note: the loop operator in POWL is defined as: *(A, B) = A; (B; A)*. So for A=AS and B=IQC, we get: AS; (IQC; AS)*."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The testing phase is: a loop operator: *(TST, RT) Then, after the testing loop, we have PK (Packaging). Then, we have a choice for LB (Labeling): either do LB or skip it. So we model this as an XOR choice: either LB or a silent transition (tau). So: X(LB, tau)"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can create a StrictPartialOrder with the following nodes: nodes = [OR, MS, QS, loop1, loop2, PK, xor1, DP, D] Then, we define the order: OR --> MS MS --> QS QS --> loop1 loop1 --> loop2 loop2 --> PK PK --> xor1 xor1 --> DP DP --> D"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However, lets validate with the cases: Case 1: ... This matches the log. Case 2: ... Case 3: ... Case 4: ... Case 5: ... This matches the log."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
