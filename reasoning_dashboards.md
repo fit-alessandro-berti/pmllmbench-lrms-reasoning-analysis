@@ -45,6 +45,7 @@
 | gpt-oss-20b                                      | **5250**  |  35 |   11 |   0 |  309 |   100 |    7 |
 | deepseekdeepseek-r1-zerofree                     | **5242**  |  35 |   11 |   0 |  291 |    48 |    1 |
 | qwen38b                                          | **5073**  |  32 |   13 |   1 |  386 |    87 |   20 |
+| nvidianemotron-3-nano-30b-a3b-thinking           | **5058**  |  37 |    8 |   1 |  247 |    52 |    3 |
 | deepseekdeepseek-r1-distill-llama-8b             | **4594**  |  33 |   11 |   2 |  331 |    76 |   22 |
 | cogito14b-v1-preview-qwen-fp16                   | **4497**  |  34 |   12 |   0 |  242 |    43 |    4 |
 | allenaiolmo-3-7b-think                           | **4308**  |  32 |   10 |   4 |  344 |    72 |   23 |
@@ -109,6 +110,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | gpt-oss-20b                                      |   13.2 |   18.3 |   12.3 |    9.1 |   16.3 | 11.3 |  3.1 |    2.4 |    0.7 |   13.2 |
 | deepseekdeepseek-r1-zerofree                     |   15.3 |   22.1 |   14.1 |    6.5 |   17.9 | 14.4 |  2.9 |    2.6 |    0.9 |    3.2 |
 | qwen38b                                          |   14.8 |   20.7 |   12.8 |    7.9 |   15.4 | 12.2 |  7.3 |    3.2 |    1.4 |    4.3 |
+| nvidianemotron-3-nano-30b-a3b-thinking           |   19.2 |   17.2 |    8.6 |    6.6 |   16.9 |  9.3 |  3.3 |    2.6 |    0.7 |   15.6 |
 | deepseekdeepseek-r1-distill-llama-8b             |   17.2 |   18.6 |   13.8 |    8.6 |   16.1 | 11.4 |  5.1 |    2.8 |    0.9 |    5.4 |
 | cogito14b-v1-preview-qwen-fp16                   |   22.5 |   25.6 |   14.5 |    6.6 |   14.2 |  6.9 |  0.3 |    2.4 |    0.3 |    6.6 |
 | allenaiolmo-3-7b-think                           |   16.2 |   15.9 |    9.3 |    8.4 |   18.9 | 12.3 | 11.2 |    1.6 |    0.7 |    5.5 |
@@ -182,6 +184,7 @@ Dictionary of activities:
 | gpt-oss-20b                                      |   87.3 |   84.2 |   88.2 |   73.7 |   76.5 | 70.2 | 30.8 |   80   |   33.3 |   47.3 |
 | deepseekdeepseek-r1-zerofree                     |   86.5 |   98.7 |   93.8 |   77.3 |   77   | 85.7 | 40   |  100   |   33.3 |   63.6 |
 | qwen38b                                          |   83.6 |   91.2 |   87.3 |   71.8 |   82.9 | 85   | 25   |   62.5 |   42.9 |   61.9 |
+| nvidianemotron-3-nano-30b-a3b-thinking           |  100   |   92.3 |   88.5 |   60   |   84.3 | 75   | 80   |   37.5 |    0   |   66   |
 | deepseekdeepseek-r1-distill-llama-8b             |   82.4 |   93.8 |   81.4 |   67.6 |   71   | 73.5 | 50   |   91.7 |   50   |   56.5 |
 | cogito14b-v1-preview-qwen-fp16                   |   78.5 |   90.5 |   90.5 |   73.7 |   82.9 | 85   |  0   |  100   |  100   |   68.4 |
 | allenaiolmo-3-7b-think                           |   98.6 |   94.3 |   82.9 |   70.3 |   72.3 | 81.5 | 34.7 |   71.4 |   66.7 |   83.3 |

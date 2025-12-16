@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The user wants a prompt for a benchmark they want a DuckDB SQL query that does certain tasks They want the query to Extract ordered sequence of activities per case_id by sorting by timestamp Group cases by their complete activity sequence to identify unique process variants Count frequency of each variant Determine top K variants by frequency Return all events from original event_log that belong only to cases which are part of these top K variants Exclude cases not matching top K"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "Constraints need to write a query that accomplishes this presumably using window functions array_agg string_agg etc Also need to allow K to be parameterized Probably they want a query where K is a variable maybe they want to use a CTE to compute frequencies and then select top K"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We need to ensure correct extraction of ordered sequence per case maybe use GROUP_CONCAT activity ORDER BY timestamp Better approach Use GROUP_CONCAT activity ORDER BY timestamp as sequence string"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then group by that sequence to count cases Then compute top K using DENSE_RANK over count descending Use a CTE to compute frequencies then pick top K Finally join back to original event_log where case_id is in the set of case_ids belonging to those top K variants"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Make sure to mention that GROUP_CONCAT respects ordering Might need to use subquery to enforce order Actually we can use GROUP_CONCAT expr ORDER BY Im not sure Theres LISTAGG that can take an ORDER BY clause"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively we can use LISTAGG activity ORDER BY timestamp which is standard DuckDB supports LISTAGG final query WITH ordered_activities AS SELECT case_id LISTAGG activity ORDER BY timestamp AS activity_sequence variant_counts AS SELECT activity_sequence COUNT AS freq DENSE_RANK OVER ORDER BY COUNT DESC AS rank top_k_variants AS SELECT activity_sequence FROM variant_counts WHERE rank <= 5"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The join with top_k_variants ensures that only cases whose sequence is in top_k_variants are returned Thus answer includes query Will provide as final"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
