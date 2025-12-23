@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Identify cases that have the sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order meaning that for a given case there must be an event with activity Approve Purchase Requisition followed by an event with activity Create Order with the next event in the case and then immediately by Confirm Order Additionally for each such occurrence the time between Create Order and Confirm Order is more than 5 days Then exclude all events from cases that have at least one such occurrence"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can break the problem into two parts Part A Find cases that have at least one occurrence of the sequence with the time condition Part B Return all events from cases that are not in Part A"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use window functions to look ahead and check for the next activities in the same case a Assign a row number for events in each case ordered by timestamp b For each event look at the next event using LEAD to check if it is Create Order and then the event after that to check if it is Confirm Order c Also compute the time difference between the Create Order and Confirm Order events which would be the next event after Create Order and check if it is more than 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can create a row number for each event per case ordered by timestamp Then for each event that is Approve Purchase Requisition we check the next event with row number1 is Create Order and the event after that row number2 is Confirm Order Also we check the timestamp difference between the row number1 and row number2 Then self-join on rn e1 rn e2 rn-1 e3 rn-2 WHERE e1 activity Approve Purchase Requisition e2 Create Order e3 Confirm Order and e3 timestamp - e2 timestamp > INTERVAL 5 DAY"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "the above uses e3 timestamp - e2 timestamp which is correct the events are in direct succession meaning no other event in between Our self-join on rn and rn-1 and rn-2 ensures that what if there are multiple events with the same timestamp We are ordering by timestamp and then by the order they appear but we dont have an event id We assume that the timestamp order defines the sequence"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively we can use the LEAD without the row number WITH base AS SELECT LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp as next_activity LEAD timestamp 1 as next_timestamp LEAD activity 2 as next_next_activity LEAD timestamp 2 as next_next_timestamp FROM event_log SELECT DISTINCT case_id FROM base WHERE activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 DAY"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "the row_number method is more explicit Considering the above Ill choose the row_number method because it is more straightforward and does not rely on the LEAD functions behavior for ties We can break ties arbitrarily by the row number but that might be acceptable The problem does not specify Well go with the row_number method"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final query using row_number WITH base AS SELECT ROW_NUMBER OVER PARTITION BY case_id ORDER BY timestamp as rn FROM event_log bad_cases AS SELECT DISTINCT e1 case_id FROM base e1 JOIN base e2 ON e1 case_id e2 case_id AND e1 rn e2 rn -1 JOIN base e3 ON e1 case_id e3 case_id AND e1 rn e3 rn -2 WHERE e1 activity Approve Purchase Requisition AND e2 activity Create Order AND e3 activity Confirm Order AND e3 timestamp - e2 timestamp > INTERVAL 5 DAY SELECT FROM event_log WHERE case_id NOT IN SELECT case_id FROM bad_cases the condition on the time difference we are subtracting two timestamps and comparing to an interval of 5 days In DuckDB the subtraction of two timestamps returns an interval and then we compare to INTERVAL 5 DAY This should work what if a case has multiple sequences We only need one occurrence to mark the case as bad Our query uses DISTINCT so thats taken care of"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

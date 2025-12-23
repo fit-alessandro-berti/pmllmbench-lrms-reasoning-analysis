@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Analyze the Request: Context: Insurance claim handling process with a PostgreSQL database (claims, adjusters, claim_events). Process Flow: R -> A -> E -> P -> N -> C. Input: A specific temporal profile model (dictionary of activity pairs -> (avg_time, stdev)). Anomalies in Model: (R, P): Low STDEV relative to AVG (rigid scheduling?). (P, N): High AVG (7 days) and High STDEV (bottleneck/backlog). (A, C): Short time (2 hours) relative to the flow (skipping steps?). (E, N): Very short time (5 minutes) (skipping P?)."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "2. Drafting Section 1: Identifying Anomalies: Observation 1: R -> P. AVG ~25 hours, STDEV = 1 hour. This is surprisingly tight for a complex process involving multiple steps. It looks too perfect. Observation 2: P -> N. AVG = 7 days, STDEV = 2 days. This is a huge gap. Approval usually leads quickly to notification, or at least shouldnt take a week on average. Observation 3: A -> C. AVG = 2 hours. This implies the claim goes from Assign to Close in 2 hours. Where is Evaluation and Approval? Observation 4: E -> N. AVG = 5 minutes. This is very fast. It suggests Notification is happening immediately after Evaluation, potentially skipping the Approval (P) step entirely, or P and E are happening simultaneously/incorrectly logged."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Drafting Section 2: Generating Hypotheses: For R -> P (Rigid Timing): Maybe a batch job runs every 24 hours? Or approvals are rubber-stamped automatically at a specific time? For P -> N (Long Delay): System issue? The notification system might be down, or run on a weekly batch. Alternatively, there might be a manual mailing process involved that isnt tracked electronically until the batch runs. For A -> C (Premature Closure): Claims might be rejected/denied immediately upon assignment, skipping evaluation. Or adjusters are closing duplicate claims immediately. For E -> N (Too Fast): The Approval step is being skipped for fast-tracked claims (low value?), or the data is entered retroactively (backdating), or P and E labels are swapped or mislogged. General Hypotheses: Resource constraints (adjuster workload), claim complexity (high value vs low value), automated scripts vs manual handling."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4. Drafting Section 3: SQL Verification Queries: Goal 1: Find specific claims violating the norms. Need LAG/FIRST_VALUE logic or self-joins to calculate time differences between specific activities. Since the schema is claim_events, I need to look for pairs of events on the same claim_id. Scenario A -> C (Fast close): Find claims where C occurs within a short time (e.g., < 1 day) after A and there is no E or P in between. Scenario P -> N (Long wait): Find claims where timestamp(N) - timestamp(P) > X. Goal 2: Correlate with attributes (Adjuster, Claim Type). Join claim_events with claims and adjusters. Group by adjuster_id or claim_type and calculate averages. Query Construction Details (PostgreSQL): To get time between activities: Use Window Functions LAG over PARTITION BY claim_id ORDER BY timestamp. However, specific activity pairs are needed. A common pattern for process mining in SQL is: SELECT t1.claim_id, t1.timestamp as start_time, t2.timestamp as end_time FROM claim_events t1 JOIN claim_events t2 ON t1.claim_id = t2.claim_id WHERE t1.activity = R AND t2.activity = P AND t1.timestamp < t2.timestamp;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Self-Correction during drafting: Correction: In the model, (E, N) is 5 mins. The intended flow is E -> P -> N. If E -> N is 5 mins, it implies P is skipped or concurrent. My hypothesis should focus on Fast-tracking or Missing P. Correction: (P, N) is 7 days. This is extremely long. My hypothesis should focus on Batch processing or Manual letter sending. SQL nuance: Make sure the SQL looks like PostgreSQL (functions like EXTRACT, ::date)."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "5. Structuring the Final Output: Section 1: Anomaly Identification: Clear bullet points derived from the model. Section 2: Hypotheses Generation: Plausible business/technical reasons. Section 3: SQL Verification Approaches: Concrete SQL examples. Final Polish: Ensure tone is professional and analytical, directly answering the prompts requirements without preamble."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

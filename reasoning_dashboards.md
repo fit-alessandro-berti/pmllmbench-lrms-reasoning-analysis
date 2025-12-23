@@ -11,6 +11,7 @@
 | Qwen3-30B-A3B-2507-Thinking                      | **7527**  |  42 |    4 |   0 |  389 |    63 |    5 |
 | QwenQwen3-32B                                    | **7497**  |  43 |    3 |   0 |  366 |    63 |    5 |
 | moonshotaikimi-k2-thinking                       | **7429**  |  45 |    1 |   0 |  333 |    61 |   12 |
+| z-aiglm-4.7                                      | **7233**  |  44 |    2 |   0 |  316 |    47 |    4 |
 | deepseek-aiDeepSeek-R1                           | **7133**  |  41 |    5 |   0 |  375 |    57 |    8 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
@@ -50,6 +51,7 @@
 | cogito14b-v1-preview-qwen-fp16                   | **4497**  |  34 |   12 |   0 |  242 |    43 |    4 |
 | allenaiolmo-3-7b-think                           | **4308**  |  32 |   10 |   4 |  344 |    72 |   23 |
 | arcee-aitrinity-mini                             | **4055**  |  32 |   13 |   1 |  275 |    55 |   17 |
+| minimaxminimax-m2.1                              | **3756**  |  30 |   16 |   0 |  254 |    44 |    7 |
 | qwen-qwq-32b-stepbystep                          | **3680**  |  29 |   15 |   2 |  318 |    80 |   21 |
 | baiduernie-4.5-21b-a3b-thinking                  | **2815**  |  26 |   18 |   1 |  276 |    85 |   23 |
 | exaone-deep2.4b-fp16                             | **2678**  |  28 |   14 |   4 |  284 |   102 |   33 |
@@ -76,6 +78,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | Qwen3-30B-A3B-2507-Thinking                      |   14   |   17.5 |   12   |    8.5 |   15.8 | 15.5 |  4.4 |    2.6 |    1.3 |    8.3 |
 | QwenQwen3-32B                                    |   17.1 |   16.8 |   14.3 |    6.2 |   20.5 | 12.7 |  4.6 |    2.3 |    1.2 |    4.4 |
 | moonshotaikimi-k2-thinking                       |   15   |   19.7 |    9.6 |    9.4 |   13.8 | 14.5 |  5.7 |    1.5 |    1.2 |    9.6 |
+| z-aiglm-4.7                                      |   16.3 |   13.4 |    9.5 |    7.4 |   11.7 | 17.4 |  9.8 |    1.4 |    2.5 |   10.6 |
 | deepseek-aiDeepSeek-R1                           |   14.5 |   19.5 |   14.1 |    9.1 |   15.9 | 13   |  5.2 |    1.6 |    1.4 |    5.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
@@ -115,6 +118,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | cogito14b-v1-preview-qwen-fp16                   |   22.5 |   25.6 |   14.5 |    6.6 |   14.2 |  6.9 |  0.3 |    2.4 |    0.3 |    6.6 |
 | allenaiolmo-3-7b-think                           |   16.2 |   15.9 |    9.3 |    8.4 |   18.9 | 12.3 | 11.2 |    1.6 |    0.7 |    5.5 |
 | arcee-aitrinity-mini                             |   22.5 |   15   |    9.8 |   10.4 |   15.6 |  8.9 |  6.6 |    2   |    0.6 |    8.6 |
+| minimaxminimax-m2.1                              |   24.9 |   16.1 |   10.8 |    8.9 |   14.8 |  8.9 |  3.6 |    1   |    1.3 |    9.8 |
 | qwen-qwq-32b-stepbystep                          |   14.6 |   15.8 |   11.9 |   11.5 |   15.5 | 11.5 |  8.6 |    2.9 |    1.7 |    6.2 |
 | baiduernie-4.5-21b-a3b-thinking                  |   15.4 |   16.9 |   11.2 |    9.1 |   18.5 |  9.9 |  9.1 |    2.1 |    1.3 |    6.5 |
 | exaone-deep2.4b-fp16                             |   16.2 |   15.8 |   10.3 |    8.1 |   16   | 13.6 | 11   |    2.9 |    1.2 |    5   |
@@ -150,6 +154,7 @@ Dictionary of activities:
 | Qwen3-30B-A3B-2507-Thinking                      |   85.9 |   98.8 |   85.5 |   82.1 |   81.9 | 85.9 | 70   |  100   |   66.7 |   68.4 |
 | QwenQwen3-32B                                    |   95.9 |   95.9 |   77.4 |   74.1 |   86.5 | 85.5 | 50   |   70   |   40   |   73.7 |
 | moonshotaikimi-k2-thinking                       |   93.4 |   92.5 |   92.3 |   78.9 |   83.9 | 78   | 56.5 |  100   |   20   |   59   |
+| z-aiglm-4.7                                      |   95   |   95.9 |   94.3 |   88.9 |   88.4 | 89.1 | 83.3 |  100   |   33.3 |   56.4 |
 | deepseek-aiDeepSeek-R1                           |   93.8 |   96.5 |   98.4 |   77.5 |   80   | 87.7 | 26.1 |   85.7 |   66.7 |   72   |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |
@@ -189,6 +194,7 @@ Dictionary of activities:
 | cogito14b-v1-preview-qwen-fp16                   |   78.5 |   90.5 |   90.5 |   73.7 |   82.9 | 85   |  0   |  100   |  100   |   68.4 |
 | allenaiolmo-3-7b-think                           |   98.6 |   94.3 |   82.9 |   70.3 |   72.3 | 81.5 | 34.7 |   71.4 |   66.7 |   83.3 |
 | arcee-aitrinity-mini                             |   87.2 |   94.2 |   94.1 |   69.4 |   81.5 | 80.6 | 34.8 |   85.7 |   50   |   56.7 |
+| minimaxminimax-m2.1                              |   93.4 |   95.9 |   81.8 |   85.2 |   75.6 | 74.1 | 63.6 |  100   |   25   |   70   |
 | qwen-qwq-32b-stepbystep                          |   83.6 |   90.9 |   82   |   68.8 |   73.8 | 79.2 | 41.7 |   75   |   71.4 |   69.2 |
 | baiduernie-4.5-21b-a3b-thinking                  |   74.6 |   90.8 |   76.7 |   54.3 |   76.1 | 71.1 | 48.6 |  100   |   20   |   56   |
 | exaone-deep2.4b-fp16                             |   77.9 |   84.8 |   79.1 |   70.6 |   61.2 | 78.9 | 26.1 |   75   |   40   |   38.1 |

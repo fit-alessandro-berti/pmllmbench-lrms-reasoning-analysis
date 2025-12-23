@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a table event_log with columns: case_id, activity, timestamp. Steps: 1. For each case, we want to order the events by timestamp and then create a sequence (string) of activities. We can use string_agg with ORDER BY timestamp to form the sequence for each case."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2. Then, we want to group by this sequence (the process variant) and count the number of cases per variant. 3. We then want to rank the variants by their count (frequency) and take the top K. 4. Finally, we want to return all events (from the original event_log) that belong to cases which are in the top K variants."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 1: Create a CTE or subquery for the variant per case. WITH case_sequences AS ( SELECT case_id, STRING_AGG(activity, ',' ORDER BY timestamp) AS variant_sequence FROM event_log GROUP BY case_id )"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Step 2: Then, we can count the frequency of each variant: variant_counts AS ( SELECT variant_sequence, COUNT(*) AS variant_count, ARRAY_AGG(case_id) AS cases -- We might not need to aggregate the case_ids here for counting, but we need to know which cases are in the top K. FROM case_sequences GROUP BY variant_sequence ) But note: we dont necessarily need to aggregate the case_ids at this step for counting, but we do need to later filter events by case_id that are in the top K."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 3: Now, we want to get the top K variants. We can use the DENSE_RANK window function to rank by variant_count descending. variant_ranked AS ( SELECT variant_sequence, variant_count, DENSE_RANK() OVER (ORDER BY variant_count DESC) AS rank FROM variant_counts ) Then, we can filter where rank <= K."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 4: Now, we have the top K variant_sequences. We then want to get the case_ids that belong to these variants. We can do: top_k_cases AS ( SELECT DISTINCT case_id FROM case_sequences WHERE variant_sequence IN (SELECT variant_sequence FROM variant_ranked WHERE rank <= K) ) Alternatively, we can join: SELECT cs.case_id FROM case_sequences cs JOIN variant_ranked vr ON cs.variant_sequence = vr.variant_sequence WHERE vr.rank <= K"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "However, note: the problem does not specify the value of K. We must assume K is a given parameter. We can set K as a variable, but in DuckDB we can use a parameter or just substitute. For the purpose of this query, we can assume K is given, e.g., 10."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Revised plan: WITH case_sequences AS ( SELECT case_id, STRING_AGG(activity, ',' ORDER BY timestamp) AS variant_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT variant_sequence, COUNT(*) AS variant_count FROM case_sequences GROUP BY variant_sequence ), variant_ranked AS ( SELECT variant_sequence, variant_count, DENSE_RANK() OVER (ORDER BY variant_count DESC) AS rank FROM variant_counts ), top_variants AS ( SELECT variant_sequence FROM variant_ranked WHERE rank <= 10 -- Here K=10 ), top_cases AS ( SELECT DISTINCT case_id FROM case_sequences WHERE variant_sequence IN (SELECT variant_sequence FROM top_variants) ) SELECT e.* FROM event_log e WHERE e.case_id IN (SELECT case_id FROM top_cases) ORDER BY e.case_id, e.timestamp; -- Optionally order by case and time for clarity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However, note: the problem does not require ordering the final result, but it might be helpful. But wait: what if two events in the same case have the same timestamp? Then the order might be arbitrary. The problem says ordered by timestamp. We assume that the timestamp has enough precision to order the events."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "But note: the problem says top K variants by their frequency, and we are using DENSE_RANK to get the top K. This will include all variants that are in the top K by count. If there are ties for the K-th rank, DENSE_RANK will include all with the same rank."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "Lets test with an example: Variant A: count 100 -> rank 1 Variant B: count 99 -> rank 2 Variant C: count 98 -> rank 3 Variant D: count 98 -> rank 3 Variant E: count 97 -> rank 4 If K=3, then we want variants A, B, C, D? Because C and D are both 98 and are in the top 3? Actually, the top 3 ranks are 1, 2, and 3. So we want A, B, C, D."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "We can also consider using a JOIN instead of IN for better performance, but IN is acceptable. Lets write the query with a JOIN for the top_cases: ... top_cases AS ( SELECT cs.case_id FROM case_sequences cs JOIN top_variants tv ON cs.variant_sequence = tv.variant_sequence ) SELECT e.* FROM event_log e JOIN top_cases tc ON e.case_id = tc.case_id ORDER BY e.case_id, e.timestamp;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This query should work. But wait: the problem says Return all events from the original event log that belong only to cases which are part of these top K variants. The JOIN version will do that. This query should meet the requirements."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
