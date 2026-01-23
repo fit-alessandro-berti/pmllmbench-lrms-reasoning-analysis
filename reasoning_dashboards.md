@@ -53,6 +53,7 @@
 | arcee-aitrinity-mini                             | **4055**  |  32 |   13 |   1 |  275 |    55 |   17 |
 | minimaxminimax-m2.1                              | **3756**  |  30 |   16 |   0 |  254 |    44 |    7 |
 | qwen-qwq-32b-stepbystep                          | **3680**  |  29 |   15 |   2 |  318 |    80 |   21 |
+| z-aiglm-4.7-flash                                | **3615**  |  32 |    8 |   6 |  284 |    45 |   19 |
 | baiduernie-4.5-21b-a3b-thinking                  | **2815**  |  26 |   18 |   1 |  276 |    85 |   23 |
 | exaone-deep2.4b-fp16                             | **2678**  |  28 |   14 |   4 |  284 |   102 |   33 |
 | gpt-oss-120b                                     | **2635**  |  29 |   16 |   1 |  162 |    65 |    1 |
@@ -61,6 +62,7 @@
 | deepseekdeepseek-r1-distill-qwen-7b              | **622**   |  19 |   23 |   4 |  259 |    68 |   35 |
 | qwen31.7b                                        | **-932**  |  21 |   12 |  13 |  209 |    82 |   62 |
 | deepseekdeepseek-r1-distill-qwen-1.5b            | **-2850** |  13 |   18 |  15 |  260 |    90 |   93 |
+| liquidlfm-2.5-1.2b-thinkingfree                  | **-3780** |   9 |   22 |  15 |  208 |    80 |   74 |
 | qwen30.6b                                        | **-3792** |  14 |   12 |  20 |  182 |    92 |   86 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
@@ -120,6 +122,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | arcee-aitrinity-mini                             |   22.5 |   15   |    9.8 |   10.4 |   15.6 |  8.9 |  6.6 |    2   |    0.6 |    8.6 |
 | minimaxminimax-m2.1                              |   24.9 |   16.1 |   10.8 |    8.9 |   14.8 |  8.9 |  3.6 |    1   |    1.3 |    9.8 |
 | qwen-qwq-32b-stepbystep                          |   14.6 |   15.8 |   11.9 |   11.5 |   15.5 | 11.5 |  8.6 |    2.9 |    1.7 |    6.2 |
+| z-aiglm-4.7-flash                                |   18.4 |   13.5 |   10.3 |    8.3 |   11.8 | 16.4 | 10.3 |    1.1 |    1.7 |    8   |
 | baiduernie-4.5-21b-a3b-thinking                  |   15.4 |   16.9 |   11.2 |    9.1 |   18.5 |  9.9 |  9.1 |    2.1 |    1.3 |    6.5 |
 | exaone-deep2.4b-fp16                             |   16.2 |   15.8 |   10.3 |    8.1 |   16   | 13.6 | 11   |    2.9 |    1.2 |    5   |
 | gpt-oss-120b                                     |   16.2 |   21.9 |   12.7 |    4.8 |   14   |  7.5 |  1.3 |    2.2 |    0   |   19.3 |
@@ -128,6 +131,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseekdeepseek-r1-distill-qwen-7b              |   17.4 |   16.6 |   14.1 |   11   |   13.8 |  9.9 |  6.1 |    2.5 |    1.1 |    7.5 |
 | qwen31.7b                                        |   15   |   17   |   12.2 |    8.5 |   17.3 | 12.2 |  9.3 |    2   |    0   |    6.5 |
 | deepseekdeepseek-r1-distill-qwen-1.5b            |   16.3 |   16.9 |   14   |   10.6 |   17.8 |  8.8 |  5.4 |    2   |    1.4 |    6.8 |
+| liquidlfm-2.5-1.2b-thinkingfree                  |   19.6 |    9.9 |   10.5 |    8.8 |   20.4 |  8.3 | 10.2 |    1.4 |    0.8 |    9.9 |
 | qwen30.6b                                        |   17.2 |   16.1 |   12.8 |    8.3 |   18.1 | 12.5 |  6.4 |    0.6 |    0.3 |    7.8 |
 
 Dictionary of activities:
@@ -196,6 +200,7 @@ Dictionary of activities:
 | arcee-aitrinity-mini                             |   87.2 |   94.2 |   94.1 |   69.4 |   81.5 | 80.6 | 34.8 |   85.7 |   50   |   56.7 |
 | minimaxminimax-m2.1                              |   93.4 |   95.9 |   81.8 |   85.2 |   75.6 | 74.1 | 63.6 |  100   |   25   |   70   |
 | qwen-qwq-32b-stepbystep                          |   83.6 |   90.9 |   82   |   68.8 |   73.8 | 79.2 | 41.7 |   75   |   71.4 |   69.2 |
+| z-aiglm-4.7-flash                                |   87.5 |   93.6 |   86.1 |   82.8 |   78   | 84.2 | 80.6 |  100   |   50   |   46.4 |
 | baiduernie-4.5-21b-a3b-thinking                  |   74.6 |   90.8 |   76.7 |   54.3 |   76.1 | 71.1 | 48.6 |  100   |   20   |   56   |
 | exaone-deep2.4b-fp16                             |   77.9 |   84.8 |   79.1 |   70.6 |   61.2 | 78.9 | 26.1 |   75   |   40   |   38.1 |
 | gpt-oss-120b                                     |   83.8 |   86   |   86.2 |  100   |   81.2 | 58.8 |  0   |  100   |    0   |   25   |
@@ -204,4 +209,5 @@ Dictionary of activities:
 | deepseekdeepseek-r1-distill-qwen-7b              |   88.9 |   86.7 |   82.4 |   47.5 |   78   | 63.9 | 31.8 |  100   |   50   |   37   |
 | qwen31.7b                                        |   67.9 |   70   |   65.1 |   63.3 |   67.2 | 53.5 |  6.1 |  100   |    0   |   47.8 |
 | deepseekdeepseek-r1-distill-qwen-1.5b            |   65.3 |   69.3 |   66.1 |   51.1 |   55.7 | 53.8 | 12.5 |   88.9 |   50   |   56.7 |
+| liquidlfm-2.5-1.2b-thinkingfree                  |   83.1 |   75   |   71.1 |   50   |   44.6 | 56.7 | 21.6 |  100   |    0   |   44.4 |
 | qwen30.6b                                        |   64.5 |   53.4 |   56.5 |   50   |   52.3 | 51.1 | 13   |   50   |    0   |   32.1 |

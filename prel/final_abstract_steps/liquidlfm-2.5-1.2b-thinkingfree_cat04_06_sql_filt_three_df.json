@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Abductive Reasoning - NE",
+    "Text": "Okay lets tackle this problem step by step The user wants a DuckDB SQL query that does a few things Let me parse the requirements again carefully First requirement Find cases where the event_log has three consecutive activities in order Approve Purchase Requisition Create Order Confirm Order in that exact sequence with no other event from the same case in between them Second among those cases we need the time elapsed between Create Order and Confirm Order must be more than 5 days Then finally exclude those cases that have both the sequence and that time condition So the result should be cases that do NOT have both those conditions"
+  },
+  {
+    "Name": "Hypothesis Generation - NE",
+    "Text": "Perhaps the user wants cases where the three activities are in order but the time between Create Order and Confirm Order is not more than 5 days So the steps First extract all cases where the three events are consecutive in order Lets call this Case A Then from Case A select those where the time between Create Order and Confirm Order is >5 days So the remaining after this step are the cases that have the sequence but time too short Then exclude them so the final are the cases with sequence and time <=5d"
+  },
+  {
+    "Name": "Deductive Reasoning - NE",
+    "Text": "The desired result is the cases that have the three events in order but the time between Create Order and Confirm Order <=5 days Therefore the final query needs to find case_ids where 1 The activities are in order Approve Purchase Requisition Create Order Confirm Order consecutively no other activities in between same case 2 AND the time between Create Order and Confirm Order <=5 days"
+  },
+  {
+    "Name": "Pattern Recognition - NE",
+    "Text": "How to enforce that For case_id check that in the cases logs those three events appear in consecutive order in order X Y Z Or perhaps the subquery for that can be SELECT case_id FROM event_log WHERE activity=Approve Purchase Requisition AND activity=Create Order AND activity=Confirm Order ORDER BY timestamp The three must be consecutive in their row counts in that cases log entries The sequence A B C exists in the logs for that case no other activity between them"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Use a subquery or WHERE clause conditions The plan Use EXISTS with a subquery that looks for the sequence A B C with no intervening entries in same case Using window function to check for the order of A B C For a given case_id there exists a row where activity is Approve Purchase Requisition followed immediately by Create Order followed immediately by Confirm Order in that order SELECT case_id FROM event_log WHERE EXISTS SELECT 1 FROM event_log a WHERE a.activity=Approve Purchase Requisition AND a.activity=Create Order AND a.activity=Confirm Order"
+  },
+  {
+    "Name": "Backtracking - NE",
+    "Text": "Alternatively use JOIN Alternatively given time constraints perhaps move forward with an approach Alternatively the position of A comes before B which comes before C Alternatively use a window function Alternatively the full query would be SELECT c.case_id FROM event_log e WHERE EXISTS SELECT 1 FROM event_log a WHERE a.case_id = e.case_id AND a.activity = Approve Purchase Requisition AND a.activity = Create Order AND a.activity = Confirm Order AND ROW_NUMBER OVER PARTITION BY c.case_id ORDER BY a.timestamp =1"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "For the time between Create Order and Confirm Order which are consecutive in sequence The time elapsed can be computed by comparing the timestamps of Create Order and Confirm Order then finding the difference Assuming the difference between the timestamp of B and C must be <= 5 days EXTRACTDAY FROM SELECT timestamp from event_log where case_id = e.case_id AND activity = Create Order AND activity = Confirm Order - between Bs timestamp and Cs timestamp <=5*86400"
+  },
+  {
+    "Name": "Conclusion - W"
+  }
+]
