@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a process tree model that is supposed to represent an Order-to-Cash process but it is underfitting. First lets understand the intended process: 1. Receive Order 2. Check Inventory 3. If inventory sufficient: Authorize Payment Package Items Ship Order then Close Order 4. If Inventory is insufficient: Cancel Order then Close Order. Then describing the process tree construction: root SEQUENCE receive_order check_inventory xor_node close_order xor_node XOR successful_subtree cancel_subtree successful_subtree PARALLEL authorize_payment package_items ship_order cancel_subtree SEQUENCE cancel_order close_order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The root sequence is Receive_Order Check_Inventory xor_node Close_Order. In the cancel_subtree there is already a Close_Order inside. In the failure branch the trace would be Receive_Order Check_Inventory Cancel_Order Close_Order from cancel_subtree and then after the xor_node the root sequence adds another Close_Order. So the trace includes Close_Order twice"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "That is a problem because in process trees activities with the same label appearing multiple times means the trace can contain the same activity label multiple times but in reality an order should be closed only once. So candidate trace Receive_Order Check_Inventory Cancel_Order Close_Order Close_Order"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Confirming the trace for cancel branch: after check_inventory execute cancel_order then close_order from cancel_subtree then xor_node terminates then root close_order so yes Receive_Order Check_Inventory Cancel_Order Close_Order Close_Order is valid according to the model"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "In the successful branch successful_subtree is PARALLEL authorize_payment package_items ship_order so after Check_Inventory the three activities in any order then Close_Order"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The model allows any interleaving of the three like Ship_Order before Package_Items but domain knowledge requires package before ship and likely authorize payment before shipping as listed in order Authorize Payment Package Items Ship Order"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Candidate trace for successful branch Receive_Order Check_Inventory Ship_Order Package_Items Authorize_Payment Close_Order which violates packaging before shipping"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Two types of problematic traces: 1 double Close_Order in failure branch 2 wrong order in successful branch like Ship_Order before Package_Items. Which one to choose? Both valid but natural order of operations suggests parallel issue. Weighing double close vs parallel ordering"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Choose the parallel ordering trace because the problem emphasizes natural order of operations and Ship_Order before Package_Items is clearly illogical while double close is also wrong but about cardinality"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

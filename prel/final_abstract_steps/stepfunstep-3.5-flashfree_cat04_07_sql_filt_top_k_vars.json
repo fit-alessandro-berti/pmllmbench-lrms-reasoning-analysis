@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Step 1: For each case_id, we need to get the ordered sequence of activities (by timestamp). We can use LIST_AGG with ordering by timestamp, but note: we must order by timestamp and then aggregate the activity names. SELECT case_id, LIST_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2: Then we count the frequency of each variant: SELECT variant, COUNT(*) as case_count FROM ( SELECT case_id, LIST_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id ) AS case_variants GROUP BY variant ORDER BY case_count DESC"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Step 3: We want the top K variants. We can use a window function or a LIMIT, but note: we are going to use this to filter the original cases. the problem says top K variants by their frequency, so we want the K highest counts. If there are ties for the K-th, we might want to include all that tie"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "we can use a window function to assign a rank and then take ranks <= K? But that would break ties arbitrarily? Actually, if we use DENSE_RANK and take rank <= K, then we might get more than K if there are ties. Alternatively, we can use ROW_NUMBER and take row number <= K"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "If we have: 10, 9, 9, 8 and K=2, then the ranks would be: 1, 2, 2, 3. So taking rank<=2 gives us 10 and the two 9s -> 3 variants. If we use ROW_NUMBER and take row number <= K, then we get 10 and one of the 9s -> 2 variants"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Given the ambiguity, I will choose the interpretation that we want the K most frequent variants, and if there are ties for the last position, we break ties arbitrarily and take exactly K. ORDER BY case_count DESC, variant LIMIT K"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "LIST_AGG(activity, -> ORDER BY timestamp, activity) to break ties by activity for determinism. Use -> as separator. Order by case_count DESC, variant in top_k_variants to break ties deterministically"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a simple example: event_log with cases 1,2,3. variant_counts: A->B:2, A->C:1. top 1: A->B. Return events for case 1 and 2. Now if tie: A->B:4, A->C:4. top 2 takes both due to order"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

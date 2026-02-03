@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Hmm, this is a detailed process mining scenario with clear schema and sample data. The user wants the LLM to autonomously identify anomalies in the event log and propose investigative SQL queries. Let me break down the requirements. First, I need to analyze the event log against the assumed normal process flow. The normal sequence is strict: Register Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment. Looking at the sample cases: - Case 1002 has Confirm Shipment before Credit Check and Validate Stock—that’s a clear sequence violation. - Case 1003 also has Ship Goods before Confirm Shipment, and Confirm Shipment after Ship Goods? Wait, no, the timestamps show Ship Goods at 09:10, then Confirm Shipment at 09:45—so Ship Goods happens before Confirm Shipment, which breaks the logical order. - Case 1004 has Receive Payment before Issue Invoice—that’s impossible in a standard process."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Next, I should check for missing activities. Case 1003 skips Validate Stock entirely. Also, Credit Check seems missing in Case 1004? Wait, no, Case 1004 has no Credit Check event at all. That’s a compliance risk. Resource assignments might be off too. For example, FinanceTeam_02 (Cashier) doing Receive Payment in Case 1002 is fine, but in Case 1004, they do Receive Payment before Issue Invoice—role-wise, Cashiers shouldn’t handle invoices. Also, SalesRep_01 in Case 1004 does Register Order, but then... no other Sales activities? Actually, SalesRep roles are only for Register Order, so that’s fine."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Timing anomalies: In Case 1004, Receive Payment happens just 5 minutes after Register Order, with no intermediate steps—suspiciously fast payment. Order value is 3000, so maybe fraud or system error. Department handoffs: Normal flow moves Sales Finance Logistics Logistics Finance Finance. Case 1002 jumps Logistics before Finance for Credit Check? Actually, Confirm Shipment (Logistics) before Credit Check (Finance) violates department sequencing."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now for hypotheses: Sequence violations could be system bugs allowing backdating, or human error skipping steps. Missing Credit Check might be policy bypass for trusted customers? But Case 1004 has high order value (3000) with no Credit Check—big risk. Early payment in Case 1004 could be a prepayment scenario, but without Invoice issued, it’s odd."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For SQL queries, I need to detect: 1. Cases where activities are out of order. 2. Missing mandatory activities per case. 3. Resource-activity mismatches (e.g., non-Finance doing Finance tasks). 4. Unrealistic timing (e.g., payment before invoice). 5. Department sequence violations. I’ll draft queries step by step. First, find sequence violations using window functions to compare event orders. Then, pivot activities per case to see missing steps. Check resource roles against activity expectations. Join with orders to flag high-value orders without Credit Check. Calculate time deltas between Invoice and Payment."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Also, consider the additional_info for clues—like attempted_early in Case 1002 might explain early shipment, but still Credit Check was late."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The user emphasized no hints, so the LLM must generate these insights and queries organically. I’ll structure the response: list anomalies, hypothesize causes, then provide SQL queries as bullet points with explanations. Wait, the prompt says “propose relevant SQL queries... without any hints or guidance provided here.” So I should present queries cleanly, maybe with comments but no extra text? The user example shows queries in code blocks, so I’ll follow that."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Double-check Case 1004: events are Register Receive Payment Issue Invoice Confirm Shipment Ship Goods. That’s totally backwards. Definitely needs investigation. Alright, time to compile."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
