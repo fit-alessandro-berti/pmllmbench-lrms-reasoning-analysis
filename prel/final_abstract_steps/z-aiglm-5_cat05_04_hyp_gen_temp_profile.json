@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Analyze the Request: Goal: Identify anomalies in a provided temporal profile model, generate hypotheses for them, and propose SQL verification methods. Input Data: A PostgreSQL schema (claims, adjusters, claim_events) and a Python dictionary representing a temporal profile model with average times and standard deviations between process activities (R, A, E, P, N, C). Constraints: Do not reference the instructions/explanations provided in the prompt. Present findings independently."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Analyze the Temporal Profile Model: (R, A): 1 hour +/- 10 mins. (Seems normal). (R, E): 1 day +/- 8 hours. (Seems reasonable for evaluation scheduling). (R, P): ~25 hours +/- 1 hour. Anomaly Detected: The standard deviation is extremely low (1 hour) relative to the average (25 hours). (A, C): 2 hours +/- 1 hour. Anomaly Detected: The gap between Assign and Close is very short. (E, N): 5 mins +/- 1 min. Anomaly Detected: Very fast transition from Evaluation to Notification. (P, N): 7 days +/- 2 days. Anomaly Detected: Huge delay between Approval and Notification. (E, C): 1 hour +/- 50 mins. (High variance, but not necessarily an anomaly). (N, C): 30 mins +/- 5 mins. (Normal)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Develop Hypotheses: For (R -> P) low variance: Rubber stamping or automated approval script. Maybe a specific claim type has a fixed SLA that is strictly adhered to by software, ignoring actual case complexity. For (A -> C) short duration: Incomplete claims. Adjusters might be closing claims without evaluation to clear their queue (cherry-picking). Or perhaps these are duplicate claims being closed immediately. For (E -> N) short duration: Automated rejection notification. Or an automated system triggers notification instantly upon evaluation entry. For (P -> N) long duration: Batch processing. Notifications might not be sent in real-time but collated and emailed/posted on a weekly schedule. Or an external vendor handles notifications with a lag."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "4. Draft SQL Verification Strategies: Goal 1: Validate (R -> P) low variance. Calculate actual duration for each claim between R and P. Look for outliers or a perfect bell curve. Check if specific claim types or adjusters correlate with this rigid timing. Goal 2: Validate (A -> C) short duration. Find claims that have A and C but missing E or P. Join with claims to see claim amounts (low value claims might be fast-tracked or auto-closed). Goal 3: Validate (P -> N) long duration. Identify claims with large gaps. Join with adjusters to see if specific regions or specializations are affected. Goal 4: Correlate anomalies. Do claims with fast A->C have specific resources associated?"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "5. Construct the Output: Section 1: Anomaly Identification. Focus on the R-P variance, P-N duration, A-C duration, and E-N speed. Section 2: Hypotheses. Connect the identified anomalies to business process flaws (automation errors, batching, queue clearing). Section 3: SQL Verification. Write valid PostgreSQL queries."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "6. Refine SQL Queries: Correction on R-P numbers: Avg=90000, Stdev=3600. Range check: [82800, 97200]. Note on Schema mapping: claim_events.resource is VARCHAR. adjusters.adjuster_id is INTEGER. Assume resource corresponds to adjusters.name for the query example."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "7. Final Review of the Output Structure: Ensure the tone is analytical. Ensure SQL is PostgreSQL compatible. Ensure the Do not reference instructions constraint is met. Self-Correction during drafting: The prompt asks for proposing verification approaches using SQL. Provide the specific SQL queries. Refining the Hypothesis for E->N (5 mins): Its the standard deviation. 1 minute stdev implies automated action. Refining A->C (2 hours): Hypothesis: Claims rejected immediately after evaluation without formal approval?"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
