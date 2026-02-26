@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Understand the Goal: The objective is to write a DuckDB SQL query that filters out specific cases from an event_log table. The cases to be excluded must meet two conditions: Condition A: They contain a specific sequence of three activities (Approve Purchase Requisition, Create Order, Confirm Order) in direct succession (no other activities in between). Condition B: Within that sequence, the time difference between Create Order and Confirm Order is greater than 5 days. Final Output: All events from event_log except those belonging to cases identified in Condition A + B."
+  },
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "Analyze the Data Structure: Table: event_log Columns: case_id, activity, timestamp. Assumption: There might be multiple events per case per activity, but the sequence logic implies ordering by timestamp is crucial."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Step 1: Identify the Sequence. I need to find cases where Approve Purchase Requisition is immediately followed by Create Order, which is immediately followed by Confirm Order. Immediately followed means there is no other event with a different activity between them in the chronological order for that specific case. Approach: Window functions are best here. I can use LEAD or LAG to look at the next/previous activities within a partition of case_id ordered by timestamp. LEAD(activity, 1) OVER (PARTITION BY case_id ORDER BY timestamp) to get the next activity. LEAD(activity, 2) OVER (PARTITION BY case_id ORDER BY timestamp) to get the activity after that. Filtering: I need to check if activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2: Check the Timing Condition. For the rows identified in Step 1 (where the sequence starts), I need to calculate the time between the Create Order (which is the 2nd event in the sequence) and the Confirm Order (which is the 3rd event). If I use the window function approach where the current row is Approve..., then next_timestamp is Create Order, and next_next_timestamp is Confirm Order. Calculation: next_next_timestamp - next_timestamp > 5 days. DuckDB syntax for interval: INTERVAL 5 DAY."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Step 3: Aggregate Case IDs. Once I find the specific rows that satisfy both the sequence and the time condition, I need to extract the unique case_ids associated with them. Lets call this list excluded_cases. Step 4: Filter the Main Table. The final query needs to select all rows from event_log where case_id is NOT IN excluded_cases."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Drafting the Query (Mental or Scratchpad): CTE 1 (Window Analysis): WITH ranked_events AS ( SELECT case_id, activity, timestamp, LEAD(activity) OVER (PARTITION BY case_id ORDER BY timestamp) as next_act, LEAD(timestamp) OVER (PARTITION BY case_id ORDER BY timestamp) as next_ts, LEAD(activity, 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_next_act, LEAD(timestamp, 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_next_ts FROM event_log ) CTE 2 (Identify Excluded Cases): excluded_cases AS ( SELECT DISTINCT case_id FROM ranked_events WHERE activity = Approve Purchase Requisition AND next_act = Create Order AND next_next_act = Confirm Order AND (next_next_ts - next_ts) > INTERVAL 5 DAY ) Final Query: SELECT * FROM event_log WHERE case_id NOT IN (SELECT case_id FROM excluded_cases)"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining the Logic (Edge Cases): What if next_next_ts is NULL? LEAD returns NULL if the row doesnt exist. The WHERE clause handles this. What about multiple sequences in one case? If a case has the sequence twice, DISTINCT case_id handles it. What if the time difference is exactly 5 days? The prompt says more than 5 days (>). Ordering: The prompt asks for proper grouping, ordering, and filtering. I should probably order the final result by case_id and timestamp for readability."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "Self-Correction on Direct Succession: Strictly speaking, LEAD looks at the immediate next row in the sorted order. This satisfies no other event from the same case in between them. Example: 1. Approve (10:00) 2. Approve (10:05) 3. Create Order (10:10) 4. Confirm Order (10:20) Row 1 sees Row 2 as next_act (Approve). Fails check. Row 2 sees Row 3 as next_act (Create). Matches first part. Row 2 sees Row 4 as next_next_act (Confirm). Matches second part. This logic works correctly. Another example: 1. Approve 2. Create 3. Approve 4. Confirm Row 1: Next=Create, NextNext=Approve. (Fail) Correct, sequence must be consecutive."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "NOT IN with a subquery is standard. NOT EXISTS might be slightly more performant. NOT EXISTS is often safer against NULLs. Lets use NOT EXISTS to be safe and robust. Revised Final Query Plan: Use NOT EXISTS in final select. One small detail: ORDER BY timestamp. If timestamps are identical, the order is undefined. For robustness stick to ORDER BY timestamp."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review of Requirements: 1. Sequence: Approve -> Create -> Confirm. (Check: LEAD logic). 2. Direct Succession: (Check: LEAD logic). 3. Time > 5 days between Create and Confirm. (Check: T3 - T2). 4. Exclude these cases. (Check: NOT IN). 5. Return all events from remaining cases. (Check: SELECT * FROM event_log). Final check on Direct Succession with more examples. Logic is solid."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

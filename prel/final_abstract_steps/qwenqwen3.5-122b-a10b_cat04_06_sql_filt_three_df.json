@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Condition A: The case contains the specific sequence of activities: Approve Purchase Requisition -> Create Order -> Confirm Order directly (no intervening activities)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step-by-Step Logic Construction: Step 1: Order Events. To detect sequences, I need to know the position of each event within its case. Ill need window functions like ROW_NUMBER() or LAG()/LEAD(). Step 2: Identify the Sequence. ... Step 5: Exclude. Select all rows from event_log where case_id is NOT IN the list from Step 4."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Drafting the Query: Approach 1: Self-Joins. Join event_log to itself 3 times based on case_id and time ordering. ... Approach 2: Window Functions (Recommended). CTE ordered_events: Add row numbers partitioned by case_id ordered by timestamp. LEAD(activity, 1) gives next activity. LEAD(activity, 2) gives next next activity."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Using LEAD on the row-numbered data ensures direct succession because LEAD(n) looks at the immediate next row in the ordered sequence."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining the Logic (Edge Cases & Details): Direct Succession: Using LEAD ... Correct. Time Calculation: DuckDB handles date/timestamp arithmetic well. ... Multiple Occurrences: A case might have this sequence multiple times. ... So if one instance matches, the whole case is excluded."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Final check on Time Calculation: LEAD(timestamp, 2) is the timestamp of the 3rd activity (Confirm). timestamp is the timestamp of the 1st (Approve). Wait, the requirement is: time elapsed between the Create Order event and the Confirm Order event. So I need t2 - t1. My previous thought used t2 - t0. I need to correct this. LEAD(timestamp, 2) - LEAD(timestamp, 1)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Reviewing against Constraints: Direct succession: LEAD checks the immediate next row. Correct. Time elapsed > 5 days: LEAD(timestamp, 2) - LEAD(timestamp, 1). Correct. Exclude them: NOT IN. Correct."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "What if a case has: 1. Approve 2. Create 3. Confirm 4. Approve 5. Create 6. Confirm (Time > 5 days) This case should be excluded because it contains a sequence meeting the criteria. What if the sequence is Approve -> Approve -> Create -> Confirm? Row 2 check: Next = Create. Next Next = Confirm. Match sequence."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final check on exclusion: SELECT * FROM event_log WHERE case_id NOT IN (...). This returns all events for the kept cases. This matches the requirement."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

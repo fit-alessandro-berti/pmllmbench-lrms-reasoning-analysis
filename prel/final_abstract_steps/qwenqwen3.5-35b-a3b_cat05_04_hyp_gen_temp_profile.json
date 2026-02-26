@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Analyze the Request: Input: Database context (PostgreSQL schema: claims, adjusters, claim_events), an example temporal profile model with specific anomalies (R->A, R->E, R->P, A->C, E->N, E->C, P->N, N->C), and a prompt asking the LLM to identify anomalies, generate hypotheses, and propose SQL verification queries. Task: Act as the target LLM. Constraints: Do not reference the instructions or explanations above. Present the output independently. Cover three main areas: Anomaly Identification, Hypotheses Generation, SQL Verification Proposals. Goal: Provide a structured response analyzing the provided temporal profile data against the database schema to find process inefficiencies or errors."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Temporal Profile Data: (R, A): (3600, 600) -> 1 hour avg, 10 min std. Seems reasonable. (R, E): (86400, 28800) -> 1 day avg, 8 hours std. Reasonable variance. (R, P): (90000, 3600) -> ~25 hours avg, 1 hour std. Anomaly: Low std dev relative to avg suggests rigid scheduling or system automation bypassing intermediate steps (like E or A). (A, C): (7200, 3600) -> 2 hours avg, 1 hour std. Anomaly: Very fast closure after assignment without explicit E/P/N steps in the path. Suggests claims might be closed prematurely or events are missing. (E, N): (300, 60) -> 5 mins avg, 1 min std. Anomaly: Extremely fast. Suggests automated notification immediately upon evaluation, potentially skipping customer review or internal approval checks. (E, C): (3600, 3000) -> 1 hour avg, 50 min std. High variance. (P, N): (604800, 172800) -> 7 days avg, 2 days std. Anomaly: Long delay between approval and notification. Could be manual batch processing or system backlog. (N, C): (1800, 300) -> 30 mins avg, 5 min std. Reasonable."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Drafting the Content - Section by Section: Section 1: Anomaly Identification: Focus on R->P (low variance, fast overall), A->C (too fast closure), E->N (too fast notification), P->N (too slow notification). Highlight the statistical implications (low STDEV = rigid/automated, High STDEV = inconsistent/bottlenecked). Section 2: Hypotheses: R->P: Automated approval workflow skipping evaluation? Or data entry error? A->C: Claims closed without proper evaluation? Or C event triggered prematurely? E->N: System auto-notifies immediately? Missing human verification? P->N: Manual notification backlog? Batch processing on specific days? Section 3: SQL Verification Queries: Need to use claim_events table. Query 1: Find claims where R->P is outside range (Z-score approach logic). Query 2: Find claims where A->C is suspiciously short. Query 3: Find claims where P->N is excessively long. Query 4: Correlate anomalies with adjuster_id or claim_type."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Refining the SQL: PostgreSQL syntax. Use LAG() or self-joins to calculate time differences between activities for the same claim_id. Example: MIN(CASE WHEN activity = R THEN timestamp END) and MIN(CASE WHEN activity = P THEN timestamp END). Filter based on the thresholds derived from the profile (e.g., R->P < 24 hours or > 30 hours). Ensure the queries are executable and logical."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review against Constraints: Did I reference the instructions? No. Is it independent? Yes. Did I cover all three tasks? Yes. Is the tone professional? Yes."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Final Polish: Make sure the SQL is clear and commented. Ensure the hypotheses link back to the specific anomalies identified. Check the math on the profile (e.g., 90000 seconds is indeed ~25 hours). Self-Correction on SQL: Calculating time between specific activities in a sequence can be tricky with just one table. A common pattern is pivoting the events into rows per claim. Approach: Use conditional aggregation to get timestamps for specific activities per claim, then calculate the difference. Example: MIN(CASE WHEN activity = R THEN timestamp END) as r_time, MIN(CASE WHEN activity = P THEN timestamp END) as p_time. Condition: p_time - r_time compared to expected. Refining the A->C anomaly: The profile says A->C is 2 hours. The process flow is R->A->E->P->N->C. If A->C is 2 hours, but E, P, N should happen in between, this implies the events E, P, N are missing or timestamps are wrong. Or the claim was closed without going through the full pipeline."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

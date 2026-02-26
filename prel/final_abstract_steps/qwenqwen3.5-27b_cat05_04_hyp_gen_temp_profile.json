@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1. Analyze the Request: Input: A database context PostgreSQL schema: claims, adjusters, claim_events, a temporal profile model dictionary of activity pairs with avg time and STDEV, and a description of potential anomalies. Task: Act as an LLM receiving a prompt provided in the text to: 1. Identify anomalies in the temporal profile. 2. Generate hypotheses for these anomalies. 3. Propose verification approaches using SQL queries. Constraint: Do not reference the instructions or explanations above. Present the output independently. Goal: Generate a response that looks like a direct answer to the Prompt for the Target LLM section, based on the provided context."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Deconstruct the Temporal Profile & Anomalies: ('R', 'P'): Avg 90000s 25h, STDEV 3600s 1h. Anomaly: Very low STDEV for a complex process step. Suggests rigid timing, possibly automated or batched artificially. ('P', 'N'): Avg 604800s 7 days, STDEV 172800s 2 days. Anomaly: Long delay between Approval and Notification. High variance suggests inconsistency some fast, some very slow. ('A', 'C'): Avg 7200s 2h, STDEV 3600s 1h. Anomaly: Very fast closure after Assignment. Skips Evaluate/Approve? Premature closure? ('E', 'N'): Avg 300s 5 mins, STDEV 60s 1 min. Anomaly: Very fast notification after evaluation. Might skip Approval? Or automated notification? ('E', 'C'): Avg 3600s 1h, STDEV 3000s 50 mins. Anomaly: High variance relative to mean."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Drafting the Response - Section by Section: Section 2: Hypotheses * R to P: Automated approval scripts running on a schedule? Data fabrication? * P to N: Manual notification process is backlogged? System queue failure? * A to C: Quick close for low-value claims without full evaluation? Fraudulent closure? * E to N: Automated notification triggered immediately upon evaluation, bypassing approval? * General: Resource constraints, system latency, or process deviation."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Section 3: Verification SQL Queries Need to write PostgreSQL queries. Query 1 R to P Anomaly: Find claims where time between R and P is extremely consistent or outside the expected range. Query 2 P to N Delay: Find claims where time between P and N exceeds a threshold e.g. 5 days. Query 3 A to C Skip: Find claims where C follows A directly without E or P. Query 4 Correlation: Join with adjusters or claims to see if specific adjusters or claim types cause these issues."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "4. Refining the SQL: The claim_events table has claim_id, activity, timestamp. To calculate time between activities, I need self-joins or window functions. Query for P to N delay: Join claim_events on claim_id where one is P and next is N. Calculate EXTRACT(EPOCH FROM (n.timestamp - p.timestamp)). Filter > threshold. Query for A to C skip: Check if C happens within 3 hours of A and no E or P exists in between. Query for Adjuster correlation: Join with adjusters."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. Review against Constraints: Do not reference the instructions or explanations above. -> Do not say Based on the provided text... or Here is the answer to the prompt.... Just output the analysis. Present the anomalies, possible reasons, and verification queries independently. -> Use clear headings."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "6. Final Polish: Self-Correction on SQL: Calculating time between specific activity pairs in a single query can be complex with self-joins. I will use CTEs or subqueries to make it readable. For A to C anomaly: The profile says Avg 2 hours. This is suspiciously fast if E and P are supposed to happen. A query checking for claims where C occurs shortly after A without E or P intervening would be strong. Correction: The prompt says resource is VARCHAR. adjuster_id is INTEGER. I will cast appropriately or just group by resource directly."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1. Analyze the Request: Input: Database schema PostgreSQL Table descriptions order_event_log orders resources Example Event Log Data 4 cases: 1001 1002 1003 1004 Reference Tables orders resources. Task: The user wants me to act as the Target LLM described in the prompt. I need to identify anomalies undesirable behaviors in the provided event log data hypothesize reasons and propose SQL queries to investigate them. Constraint: I should not provide hints or guidance in the output that reveals the specific anomalies I found beforehand. Interpretation: The user is giving me the context schema + data and the instructions for what I the LLM should do. I need to produce the output that fulfills the Prompt for the Target LLM section. Essentially I need to perform the analysis hypothesis generation and query proposal based on the provided data."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Analyze the Data for Anomalies: Expected Flow: Register Order -> Credit Check -> Validate Stock -> Confirm Shipment -> Ship Goods -> Issue Invoice -> Receive Payment. Case 1001: Register 0815 -> Credit 0830 -> Stock 0900 -> Confirm 0915 -> Ship 0945 -> Invoice 1000 -> Payment 0205 1500. Observation: Follows expected flow perfectly. Case 1002: Register 0820 -> Confirm Shipment 0825 -> Ship Goods 0840 -> Credit Check 0910 -> Validate Stock 0915 -> Invoice 0930 -> Payment 0202 1000. Anomaly: Confirm Shipment and Ship Goods happened before Perform Credit Check and Validate Stock. Severity: High. Shipping before credit check stock validation is a major policy violation risk. Case 1003: Register 0845 -> Credit 0900 -> Ship Goods 0910 -> Invoice 0930 -> Confirm Shipment 0945 -> Payment 0202 1100. Anomaly: Ship Goods happened before Confirm Shipment. Usually you confirm scheduling before shipping. Severity: Medium. Process inversion. Note: Validate Stock is missing entirely in this log. Case 1004: Register 0900 -> Receive Payment 0905 -> Issue Invoice 0920 -> Confirm Shipment 0925 -> Ship Goods 0950. Anomaly: Payment received 5 mins after registration before Invoice issued before Stock Ship steps. Severity: Critical. Payment before Invoice is impossible logically usually. Payment before Shipment is possible but highly unusual prepayment. Payment before Invoice is a system process error."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Formulate Hypotheses: Case 1002: System glitch allowing out-of-order events Manual override by SalesRep Urgent order priority type bypassed checks Case 1003: Missing log entry for Validate Stock Or skipped entirely Confirm Shipment logged late due to manual entry delay Case 1004: Pre-payment scenario System bug recording timestamps incorrectly Invoice generated after payment reverse flow"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "4. Develop SQL Queries: Need to check ordering of activities per case_id. Need to check for missing steps. Need to join with orders to check order_type e.g. is Case 1002 priority. Need to join with resources to check departments involved. Need to calculate durations between steps."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "5. Drafting the Response: Section 1: Anomaly Identification. List the specific cases and what went wrong. Section 2: Hypotheses. Explain why it might have happened. Section 3: SQL Investigation. Provide specific PostgreSQL queries to verify these hypotheses using the schema provided."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Refining SQL Queries: Query 1: Activity Ordering. Use ROW_NUMBER partitioned by case_id ordered by timestamp to see the sequence. Query 2: Missing Steps. Check if all expected activities exist for each case. Query 3: Cross-Table Analysis. Join orders to see if order_type correlates with anomalies e.g. 1002 is priority. Query 4: Time Gaps. Calculate time between specific critical steps e.g. Register to Credit."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "7. Review against Constraints: The prompt says without any hints or guidance provided here. This usually means Dont tell the user Look at Case 1002 before showing the query. However since I am generating the analysis based on the provided data I must explicitly state the findings to make the analysis useful. The constraint likely means Dont give me a tutorial on how to write SQL just give me the solution. Or it means Dont include meta-commentary about the prompt. I will interpret this as: Provide a direct professional analysis and the SQL code required to reproduce find these issues in a live database. Self-Correction on Without hints: The instruction says The target model should be encouraged to Propose relevant SQL queries without any hints or guidance provided here. This is an instruction for me the LLM on how to behave. It means I should not say Here is a hint: check the timestamps. I should just provide the analysis and queries."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "8. Final Polish: Ensure SQL syntax is PostgreSQL compliant e.g. :: casting if needed though standard SQL is fine here. Ensure table names match exactly order_event_log orders resources. Wait one more check: Is the user asking me to simulate the target model Yes. The target model should be encouraged to. I am the target model. I need to output the analysis and queries. Wait looking at the data again: Case 1004: Payment 0905 -> Invoice 0920. This is definitely an anomaly. Case 1002: Ship 0840 -> Credit Check 0910. This is definitely an anomaly. Case 1003: Ship 0910 -> Confirm 0945. Missing Validate Stock. Okay ready to write. Structure: 1. Executive Summary of Anomalies. 2. Detailed Anomaly Analysis Case by Case. 3. Hypotheses. 4. SQL Investigation Plan Queries. SQL Specifics: - Use CTEs for clarity. - Use LEAD LAG or ROW_NUMBER to sequence events. - CASE WHEN logic for expected flow. Okay ready. Wait one detail in Case 1004: Receive Payment at 0905 Register Order at 0900. Issue Invoice at 0920. This implies Payment before Invoice. Also Confirm Shipment at 0925 Ship Goods at 0950. So flow: Register -> Pay -> Invoice -> Confirm -> Ship. This is highly irregular. Case 1002: Confirm Shipment 0825 before Credit Check 0910. Flow: Register -> Confirm -> Ship -> Credit -> Stock -> Invoice -> Pay. Major bypass. Case 1003: Ship Goods 0910 before Confirm Shipment 0945. Also Validate Stock is missing. Flow: Register -> Credit -> Ship -> Invoice -> Confirm -> Pay. Okay I have enough to construct the response."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

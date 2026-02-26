@@ -18,7 +18,9 @@
 | deepseek-aiDeepSeek-R1                           | **7133**  |  41 |    5 |   0 |  375 |    57 |    8 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
+| qwenqwen3.5-27b                                  | **7108**  |  43 |    2 |   1 |  334 |    32 |    5 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab | **7052**  |  41 |    5 |   0 |  359 |    58 |    4 |
+| qwenqwen3.5-35b-a3b                              | **7046**  |  43 |    2 |   1 |  334 |    34 |    8 |
 | qwenqwen3-next-80b-a3b-thinking                  | **7021**  |  41 |    5 |   0 |  370 |    59 |   11 |
 | grok-3-mini-high                                 | **7020**  |  44 |    2 |   0 |  296 |    60 |    4 |
 | QwenQwen3-235B-A22B                              | **7019**  |  39 |    7 |   0 |  403 |    71 |    7 |
@@ -34,6 +36,7 @@
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         | **6619**  |  41 |    5 |   0 |  320 |    61 |    6 |
 | grok-3-mini-low                                  | **6616**  |  43 |    2 |   1 |  289 |    54 |    6 |
 | phi4-reasoning                                   | **6545**  |  42 |    4 |   0 |  289 |    85 |    3 |
+| qwenqwen3.5-122b-a10b                            | **6533**  |  41 |    4 |   1 |  323 |    37 |    8 |
 | phi4-reasoningplus                               | **6493**  |  39 |    7 |   0 |  356 |    87 |    9 |
 | deepseekdeepseek-r1-distill-qwen-14b             | **6342**  |  38 |    8 |   0 |  354 |    58 |    7 |
 | exaone-deep32b-fp16                              | **6329**  |  37 |    9 |   0 |  382 |    91 |   10 |
@@ -92,7 +95,9 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseek-aiDeepSeek-R1                           |   14.5 |   19.5 |   14.1 |    9.1 |   15.9 | 13   |  5.2 |    1.6 |    1.4 |    5.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
+| qwenqwen3.5-27b                                  |   17.3 |   10.8 |    8.1 |    5.9 |   12.9 | 18.1 | 12.9 |    1.6 |    0.8 |   11.6 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   14.3 |   19.7 |   12.8 |    7.1 |   20   | 12.4 |  3.8 |    2.9 |    1.2 |    5.9 |
+| qwenqwen3.5-35b-a3b                              |   16.5 |   15.7 |    8   |    5.1 |   11.4 | 17.3 | 12.5 |    2.4 |    1.3 |    9.8 |
 | qwenqwen3-next-80b-a3b-thinking                  |   15   |   14.5 |   11.1 |    7.5 |   18   | 16.4 |  6.8 |    2   |    1.4 |    7.3 |
 | grok-3-mini-high                                 |   20.3 |   18.1 |   10.8 |    8.6 |   14.7 | 11.1 |  3.6 |    2.5 |    0.3 |   10   |
 | QwenQwen3-235B-A22B                              |   15.2 |   22.7 |   11.2 |    7.7 |   15.8 | 13.3 |  6   |    2.7 |    0.4 |    5   |
@@ -108,6 +113,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         |   18.1 |   21.7 |   14.2 |    6.2 |   16.5 | 10.9 |  2.8 |    2.6 |    0.8 |    6.2 |
 | grok-3-mini-low                                  |   19.2 |   19.5 |   12.3 |   10.3 |   14.3 |  8.9 |  1.7 |    1.7 |    0.3 |   11.7 |
 | phi4-reasoning                                   |   16.2 |   18.8 |   10.9 |    8.2 |   14.9 | 10.6 |  3.4 |    6.4 |    0.3 |   10.3 |
+| qwenqwen3.5-122b-a10b                            |   18.5 |   12.2 |    6.2 |    7.3 |   12.2 | 18.2 | 13   |    1.4 |    1.4 |    9.5 |
 | phi4-reasoningplus                               |   15.7 |   16.8 |   11.1 |    9.5 |   14.4 | 13.3 |  7.3 |    1.8 |    0.7 |    9.5 |
 | deepseekdeepseek-r1-distill-qwen-14b             |   20   |   24.1 |   11.9 |    7.2 |   13.6 |  8.6 |  4.3 |    2.6 |    1   |    6.7 |
 | exaone-deep32b-fp16                              |   14.5 |   17.8 |    8.9 |    8.5 |   22.8 | 11.4 |  7.5 |    1.9 |    1.9 |    5   |
@@ -175,7 +181,9 @@ Dictionary of activities:
 | deepseek-aiDeepSeek-R1                           |   93.8 |   96.5 |   98.4 |   77.5 |   80   | 87.7 | 26.1 |   85.7 |   66.7 |   72   |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |
+| qwenqwen3.5-27b                                  |  100   |   95   |  100   |   90.9 |   83.3 | 95.5 | 89.6 |  100   |    0   |   67.4 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   88.3 |   92.8 |   88.9 |   66.7 |   85.7 | 94.2 | 50   |   91.7 |   40   |   76   |
+| qwenqwen3.5-35b-a3b                              |   96.8 |   98.3 |   86.7 |   78.9 |   81.4 | 93.8 | 74.5 |  100   |   60   |   86.5 |
 | qwenqwen3-next-80b-a3b-thinking                  |   80.3 |   92.2 |   95.9 |   87.9 |   86.1 | 86.1 | 50   |   88.9 |   50   |   81.2 |
 | grok-3-mini-high                                 |   82.2 |   87.7 |   84.6 |   87.1 |   83   | 97.5 | 46.2 |   77.8 |    0   |   63.9 |
 | QwenQwen3-235B-A22B                              |   86.3 |   93.6 |   88.9 |   81.1 |   81.6 | 85.9 | 41.4 |   92.3 |    0   |   79.2 |
@@ -191,6 +199,7 @@ Dictionary of activities:
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         |   84.3 |   94   |   92.7 |   66.7 |   79.7 | 81   | 36.4 |   90   |   66.7 |   62.5 |
 | grok-3-mini-low                                  |   79.1 |   88.2 |   93   |   94.4 |   84   | 80.6 | 66.7 |  100   |  100   |   58.5 |
 | phi4-reasoning                                   |   85.2 |   98.6 |   82.9 |   61.3 |   83.9 | 80   | 30.8 |   29.2 |  100   |   59   |
+| qwenqwen3.5-122b-a10b                            |  100   |   95.6 |   91.3 |   88.9 |   82.2 | 92.5 | 70.8 |  100   |   40   |   77.1 |
 | phi4-reasoningplus                               |   84.5 |   92.1 |   90   |   76.7 |   86.2 | 71.7 | 27.3 |   87.5 |  100   |   69.8 |
 | deepseekdeepseek-r1-distill-qwen-14b             |   85.7 |   98   |   88   |   73.3 |   86   | 88.9 | 44.4 |   81.8 |   75   |   57.1 |
 | exaone-deep32b-fp16                              |   74.3 |   94.2 |   86   |   68.3 |   80.9 | 90.9 | 41.7 |   88.9 |   44.4 |   75   |

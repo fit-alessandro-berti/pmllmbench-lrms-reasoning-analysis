@@ -1,0 +1,25 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Analyze the Attributes: timestamp: Crucial for ordering events within a case. Events in a single case must follow a chronological order. activity: Describes what happened (e.g., Register, Triage, Consultation, Surgery). This helps define the workflow. resource: Who performed the action (e.g., Dr. Lee, Nurse Joy). While helpful, resources might change between events for the same patient. department: Where the action happened (ER, Surgery, Radiology, etc.). patient_age: A strong identifier. Patients rarely change age during a short hospital visit. patient_gender: Another strong identifier. additional_info: Contextual details (insurance, diagnosis, specific tests)."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "3. Strategy for Grouping: Primary Key: The combination of patient_age and patient_gender is the strongest initial filter. If two events have the same age and gender, they might belong to the same case. However, different patients can have the same age and gender. Secondary Key: timestamp. Events must flow logically in time. Tertiary Key: activity flow. A Register event usually starts a case. A Discharge event usually ends it. Intermediate steps (Triage, X-ray, Consultation) should fit between them. Conflict Resolution: If multiple potential matches exist for age/gender, look at the specific workflow logic (e.g., ER vs. Surgery departments)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4. Step-by-Step Event Analysis & Clustering: Event 1: timestamp: 2024-03-15T08:05:13Z, Register, ER, 45, M, insurance=private. Hypothesis: Start of Case A. Signature: Age 45, Male, ER. Event 2: ... Start of Case B. ... Event 3: ... Start of Case C. ... Event 4: Match: Matches Event 1 (45, M, ER). Logic: Registration -> Triage is a standard ER flow. Assign: Case A. [continuing similarly for all events up to Event 18: Match: Matches Case C (28, M). Logic: Recovery -> Discharge. Assign: Case C. (Case C Complete)]"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. Verification: Case A (45, M): Events 1, 4, 7, 12, 15. Flow: Register (ER) -> Triage (ER) -> X-ray (Rad) -> Consult (ER) -> Discharge (ER). Timeline: 08:05 -> 08:10 -> 08:15 -> 08:23 -> 08:30. (Logical progression). Case B (62, F): Events 2, 5, 8, 10, 11, 14, 17. Flow: Register (ER) -> Triage (ER) -> Lab Req (ER) -> Lab Complete (Lab) -> Consult (ER) -> Prescription (ER) -> Discharge (ER). Timeline: 08:07 -> 08:12 -> 08:16 -> 08:20 -> 08:22 -> 08:27 -> 08:35. (Logical progression). Case C (28, M): Events 3, 6, 9, 13, 16, 18. Flow: Register (Surgery) -> Consult (Surgery) -> Prep (Surgery) -> Surgery (Surgery) -> Recovery (Surgery) -> Discharge (Surgery). Timeline: 08:07 -> 08:13 -> 08:16 -> 08:25 -> 08:31 -> 08:40. (Logical progression)."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "7. Final Review: Does any event not fit? No, all 18 events are accounted for. Are there any ambiguities? No, the Age/Gender combinations are unique enough across the three distinct patients (45M, 62F, 28M) to make this a deterministic clustering task. Self-Correction/Refinement: In a real-world scenario, two patients could be 45 and Male. However, in this specific dataset, the age/gender combinations are unique per patient journey start point. I will explicitly state that the grouping relies on the unique combination of patient_age and patient_gender combined with the chronological workflow. Wait, check Event 3 vs Event 1: Event 1: 45, M, ER. Event 3: 28, M, Surgery. These are clearly different patients. Event 2: 62, F, ER. Distinct from 1 and 3. So, the grouping is strictly based on the triplet (Age, Gender, Department context at start). Actually, just Age + Gender is sufficient here because they dont overlap. (45M, 62F, 28M)."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
