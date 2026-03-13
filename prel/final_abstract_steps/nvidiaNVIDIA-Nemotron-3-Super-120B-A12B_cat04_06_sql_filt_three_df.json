@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We need to produce DuckDB SQL query that returns all events from event_log except those belonging to cases that have the sequence Approve Purchase Requisition Create Order Confirm Order with no intervening events in same case, and where time between Create Order and Confirm Order 5 days. So we need to identify those case IDs, then filter them out."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use window functions to detect sequences. Approach: For each case, order by timestamp. Use LAG/LEAD to check patterns. For direct succession, we need three consecutive rows with those activities."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "We can compute row_number per case ordered by timestamp. Then self-join where rn+1 and rn+2 correspond to next two rows. Or use lead/lag."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Compute for each row: activity, lead1 = lead(activity) over (partition by case_id order by timestamp), lead2 = lead(activity,2) over same. Then case where activity=Approve Purchase Requisition and lead1=Create Order and lead2=Confirm Order. Also need time difference between lead1 timestamp and lead2 timestamp > interval 5 days. We need timestamps: we can also lead timestamp."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "with sequenced as ( select case_id, timestamp as ts_approve, lead(timestamp) over (partition by case_id order by timestamp) as ts_create, lead(timestamp,2) over (partition by case_id order by timestamp) as ts_confirm, activity as act1, lead(activity) over (partition by case_id order by timestamp) as act2, lead(activity,2) over (partition by case_id order by timestamp) as act3 from event_log ) select distinct case_id from sequenced where act1 = Approve Purchase Requisition and act2 = Create Order and act3 = Confirm Order and (ts_confirm - ts_create) > interval 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But need to ensure no other events in between: using lead ensures they are immediate next rows, so no other events between."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now final query: select * from event_log where case_id not in (select case_id from sequenced where ...). Use not exists perhaps. Thus final: with seq as ( select case_id, activity as a1, lead(activity) over (partition by case_id order by timestamp) as a2, lead(activity,2) over (partition by case_id order by timestamp) as a3, timestamp as t1, lead(timestamp) over (partition by case_id order by timestamp) as t2, lead(timestamp,2) over (partition by case_id order by timestamp) as t3 from event_log ) select * from event_log where case_id not in ( select case_id from seq where a1 = Approve Purchase Requisition and a2 = Create Order and a3 = Confirm Order and (t3 - t2) > interval 5 days );"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Make sure to alias columns. Also need to handle null leads for last rows; they will be null, condition fails. Return all columns."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "We can also use not exists. Make sure to mention ordering not required but could order by case_id, timestamp."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

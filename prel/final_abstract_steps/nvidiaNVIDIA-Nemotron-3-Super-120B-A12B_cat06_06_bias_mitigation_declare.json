@@ -1,0 +1,25 @@
+[
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We need to produce updated declare_model with added constraints. We must infer activities related to sensitive attributes: CheckApplicantAge, CheckApplicantGender, CheckApplicantRace, perhaps also attribute values like ApplicantAgeMinority? The prompt suggests decision steps of Approve, Reject, RequestAdditionalInfo (?), ManualReview. In the given model, we have StartApplication, FinalDecision, RequestAdditionalInfo. We need to add constraints to enforce fairness, e.g., FinalDecision must coexist with ManualReview when sensitive attribute check occurs."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We need to add unary constraints (existence) for maybe CheckApplicantRace, ManualReview, Approve, Reject? Actually decision steps may be part of FinalDecision? Could break FinalDecision into Approve_Minority, Reject_Minority, etc. But we can add generic activities: Approve, Reject, ManualReview, CheckApplicantRace, BiasMitigationCheck. Also CheckApplicantAge, CheckApplicantGender. Provide constraints: - Coexistence: If Approve occurs, then ManualReview must coexist (i.e., both must appear in trace). Similarly for Reject. - Response: After a sensitive attribute check (e.g., CheckApplicantRace), we must have a BiasMitigationCheck before any decision. - Non-succession: Prevent direct succession from CheckApplicantRace to Approve or Reject."
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "We need to preserve format: For unary constraints, map activity to dict with support/confidence. For binary, map source activity to dict mapping target activity to dict."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Thus final declare_model: Add to existence: ManualReview, Approve, Reject, CheckApplicantRace, BiasMitigationCheck. Add to coexistence: Approve: ManualReview, Reject: ManualReview. Add to response: CheckApplicantRace: BiasMitigationCheck. Add to succession: BiasMitigationCheck: Approve, BiasMitigationCheck: Reject. Add to nonsuccession: CheckApplicantRace: Approve, Reject."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We might add also that ManualReview must coexist with FinalDecision for sensitive, but we already have Approve/Reject."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

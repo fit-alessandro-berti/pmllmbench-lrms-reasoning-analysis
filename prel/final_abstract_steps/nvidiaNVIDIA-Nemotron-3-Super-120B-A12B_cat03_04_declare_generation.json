@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to produce a Python dict representing DECLARE model for scenario. We must follow given format: keys: existence, absence, exactly_one, init, responded_existence, coexistence, response, precedence, succession, altresponse, altprecedence, altsuccession, chainresponse, chainprecedence, chainsuccession, noncoexistence, nonsuccession, nonchainsuccession. Each keys value is a dict containing as keys the activities and as corresponding value the support 1.0 and confidence of the declarative rule. It says: value is a dictionary containing as keys the activities and as corresponding value the support 1.0 and confidence of the declarative rule. So likely each activity maps to a dict with keys support and confidence or maybe a tuple. In pm4py, they have a representation like {existence: {IG: {support:1.0, confidence:0.9}, ...}}. Thus we need to fill plausible constraints for each category."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We need to reason about process: Idea Generation -> Design Draft -> Technical Feasibility Check -> Cost Evaluation -> Prototype Creation -> Laboratory Testing -> User Testing -> Approval Gate -> Marketing Plan -> Final Launch."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can define existence constraints: every activity that must appear at least once: perhaps IG, DD, TFC, CE, PC, LT, UT, AG, MP, FL. existence = { IG: {support: 1.0, confidence: 1.0}, DD: {support: 1.0, confidence: 1.0}, ... FL: {support: 1.0, confidence: 1.0} } Absence: maybe none, we can set empty dict. Exactly_one: maybe IG must appear exactly once start and FL exactly once end. exactly_one = { IG: {support: 1.0, confidence: 1.0}, FL: {support: 1.0, confidence: 1.0} } Init: activity that can start case: IG. init = { IG: {support: 1.0, confidence: 1.0} }"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Responded_existence: if A occurs then B must occur later. Eg, after Idea Generation IG must have Design Draft DD. After Design Draft must have Technical Feasibility Check TFC etc. responded_existence = { IG: {DD: {support: 1.0, confidence: 1.0}}, DD: {TFC: {support: 1.0, confidence: 1.0}}, ... MP: {FL: {support: 1.0, confidence: 0.95}} } Coexistence: activities that must appear together both or none. Eg: Laboratory Testing LT and User Testing UT. coexistence = { LT: {UT: {support: 1.0, confidence: 0.9}}, UT: {LT: {support: 1.0, confidence: 0.9}}, PC: {AG: {support: 0.8, confidence: 0.7}} } Response: similar to responded_existence. response = { IG: {DD: {support: 1.0, confidence: 1.0}}, ... } Succession: must happen directly after, maybe we set for each immediate pair. succession = { IG: {DD: {support: 1.0, confidence: 1.0}}, ... }"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Altresponse: alternative response? maybe if A occurs then either B or C must occur later. Well set some. altresponse = { PC: {LT: {support: 0.6, confidence: 0.5}, UT: {support: 0.4, confidence: 0.3}} } Altprecedence: if B occurs then either A or ... Well set something. altprecedence = { AG: {PC: {support: 0.7, confidence: 0.6}, CE: {support: 0.3, confidence: 0.2}} } Altsuccession: if A occurs then either B or C must occur directly after. altsuccession = { LT: {UT: {support: 0.5, confidence: 0.4}, AG: {support: 0.5, confidence: 0.3}} } Chainresponse: same as response but immediate? Actually chainresponse is when after A occurs, B must occur somewhere later no other occurrences of A in between? Well set similar to response. chainresponse = { IG: {FL: {support: 1.0, confidence: 0.8}} } Chainprecedence: if B occurs then A must have occurred before any distance. Well set FL preceded by IG. chainprecedence = { FL: {IG: {support: 1.0, confidence: 1.0}} } Chainsuccession: if A occurs then B must occur directly after and no other A in between? Well set immediate. chainsuccession = { IG: {DD: {support: 1.0, confidence: 1.0}}, ... }"
+  },
+  {
+    "Name": "Hypothesis Generation - NE",
+    "Text": "Noncoexistence: mutually exclusive activities: maybe Idea Generation and Final Launch cannot both be absent? Actually they both appear. Lets set noncoexistence between Prototyping and Marketing Plan? Actually they can both appear. Maybe set that Laboratory Testing and User Testing cannot both appear they are alternative. Actually we had alternative response earlier. So we can set noncoexistence between LT and UT. noncoexistence = { LT: {UT: {support: 1.0, confidence: 0.9}}, UT: {LT: {support: 1.0, confidence: 0.9}} }"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Nonsuccession: if A occurs then B cannot occur directly after. Eg, after Idea Generation you cannot directly go to Technical Feasibility Check skip Design Draft. So nonsuccession IG -> TFC. nonsuccession = { IG: {TFC: {support: 1.0, confidence: 1.0}}, DD: {CE: {support: 1.0, confidence: 1.0}}, ... } Nonchainsuccession: if A occurs then B cannot occur somewhere after any distance. Eg, after Idea Generation you cannot later have Cost Evaluation without passing through Design Draft etc? Simplify: define nonchainsuccession for pairs that cannot appear in order A then B anywhere. Eg, Marketing Plan cannot appear before Idea Generation. So nonchainsuccession MP -> IG. nonchainsuccession = { MP: {IG: {support: 1.0, confidence: 1.0}}, FL: {IG: {support: 1.0, confidence: 1.0}}, ... }"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Given the task likely expects a plausible dict showing understanding, we can provide a concise but filled dict. Well output Python code: declare_model = { existence: {...}, ... } Well include all keys with dict values. Well produce final answer accordingly."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]
