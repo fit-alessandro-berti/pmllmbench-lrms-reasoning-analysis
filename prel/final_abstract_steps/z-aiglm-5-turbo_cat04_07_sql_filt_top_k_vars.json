@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Understand the Goal: The objective is to find the events belonging to the top K process variants in a DuckDB table named event_log. Process variant = ordered list of activities for a given case_id (ordered by timestamp). Group by variant, count cases. Identify top K variants. Return all events from event_log where the case_id belongs to one of these top K variants."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "2. Step-by-Step Breakdown: Step 1: Create the ordered sequence of activities per case_id. DuckDB has list_agg(activity ORDER BY timestamp ASC) or array_agg which supports ORDER BY inside the aggregate function. Actually, DuckDB does support ORDER BY inside aggregate functions! Use list_agg(activity ORDER BY timestamp ASC). Step 2 & 3: Group by this sequence, count cases, and get the top K. ORDER BY count DESC LIMIT K is the simplest."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Drafting the SQL: WITH CaseVariants AS ( SELECT case_id, list_agg(activity ORDER BY timestamp ASC) AS variant FROM event_log GROUP BY case_id ), VariantCounts AS ( SELECT variant, COUNT(*) AS case_count FROM CaseVariants GROUP BY variant ORDER BY case_count DESC LIMIT ? ), TopKCases AS ( SELECT cv.case_id FROM CaseVariants cv INNER JOIN VariantCounts vc ON cv.variant = vc.variant ) SELECT e.case_id, e.activity, e.timestamp FROM event_log e WHERE e.case_id IN (SELECT case_id FROM TopKCases) ORDER BY e.case_id, e.timestamp."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "4. Refining the SQL for DuckDB specifics: Does DuckDB list_agg support ORDER BY inside? Yes. Use array_agg. LIMIT K for top K. Use JOIN instead of IN for efficiency."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. Review against requirements: DuckDB table named event_log: Used. Process variant ordered sequence by timestamp: Handled via array_agg(activity ORDER BY timestamp ASC). Group cases by variant: Handled. Count cases: Handled. Top K by frequency: Handled. Return all events from original log only for top K: Handled via JOINs."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "6. Edge cases & nuances: What if an activity happens at the exact same timestamp for the same case? ORDER BY might arbitrarily order them. Add secondary sort ORDER BY timestamp ASC, activity ASC to ensure deterministic array creation."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "7. Finalizing the Query Structure: WITH CaseVariants AS ( SELECT case_id, array_agg(activity ORDER BY timestamp ASC, activity ASC) AS variant FROM event_log GROUP BY case_id ), TopKVariants AS ( SELECT variant FROM ( SELECT variant, COUNT(*) AS case_frequency FROM CaseVariants GROUP BY variant ORDER BY case_frequency DESC LIMIT 5 ) AS ranked_variants ) SELECT e.case_id, e.activity, e.timestamp FROM event_log e INNER JOIN CaseVariants cv ON e.case_id = cv.case_id INNER JOIN TopKVariants tkv ON cv.variant = tkv.variant ORDER BY e.case_id, e.timestamp ASC."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "8. Formatting the Output: Present the SQL clearly, explain the CTEs, point out the deterministic sorting as best practice. Mention replacing 5 with K. Explain why array_agg preferred over string_agg."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

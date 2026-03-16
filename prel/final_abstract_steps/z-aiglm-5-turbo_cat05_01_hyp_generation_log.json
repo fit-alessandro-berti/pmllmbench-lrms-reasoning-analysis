@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Data & Identify Anomalies: Assumed Normal Flow: Register Order -> Perform Credit Check -> Validate Stock -> Confirm Shipment -> Ship Goods -> Issue Invoice -> Receive Payment. Case 1001: Follows the normal flow perfectly. Case 1002: Flow: Register -> Confirm Shipment -> Ship Goods -> Perform Credit Check -> Validate Stock -> Issue Invoice -> Receive Payment. Anomalies: Confirm Shipment happens before Credit Check and Validate Stock. Validate Stock happens after Ship Goods. Info: attempted_early=Y in Confirm Shipment. Case 1003: Flow: Register -> Perform Credit Check -> Ship Goods -> Issue Invoice -> Confirm Shipment -> Receive Payment. Anomalies: Ship Goods happens before Confirm Shipment and Validate Stock. Validate Stock is missing entirely. Info: late_confirmation=Y in Confirm Shipment. Case 1004: Flow: Register -> Receive Payment -> Issue Invoice -> Confirm Shipment -> Ship Goods. Anomalies: Receive Payment and Issue Invoice happen before anything else credit stock logistics. Validate Stock is missing. Info: shipment_scheduled=N in Confirm Shipment."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Formulate Hypotheses: Hypothesis 1: Bypassing Credit & Stock Checks for specific order types or customers. Case 1002 is a priority order. Maybe priority orders skip checks or people try to fast-track them attempted_early=Y. Hypothesis 2: System integration errors or out-of-order logging. Case 1003 shipped before confirmation late_confirmation=Y. Maybe the warehouse system triggered an event before the logistics manager approved it or theres a lag in event logging. Hypothesis 3: Pre-payments / Exception handling Cash on Delivery or upfront payments. Case 1004 received payment and issued invoice immediately. Maybe its a pre-paid order but the process still shouldnt ignore stock validation and shipment scheduling. Hypothesis 4: Resource/Role confusion or lack of training. Are specific departments e.g. Logistics triggering events out of sequence? Are junior staff making mistakes?"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Formulate Hypotheses: Hypothesis 1: Bypassing Credit & Stock Checks for specific order types or customers. Case 1002 is a priority order. Maybe priority orders skip checks or people try to fast-track them attempted_early=Y. Hypothesis 2: System integration errors or out-of-order logging. Case 1003 shipped before confirmation late_confirmation=Y. Maybe the warehouse system triggered an event before the logistics manager approved it or theres a lag in event logging. Hypothesis 3: Pre-payments / Exception handling Cash on Delivery or upfront payments. Case 1004 received payment and issued invoice immediately. Maybe its a pre-paid order but the process still shouldnt ignore stock validation and shipment scheduling. Hypothesis 4: Resource/Role confusion or lack of training. Are specific departments e.g. Logistics triggering events out of sequence? Are junior staff making mistakes?"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Develop SQL Queries to Test Hypotheses: Query 1: Identify sequences violating the assumed flow specifically logistics before finance. Need to use Window Functions LAG/LEAD to find if Credit Check happens after Ship Goods or Confirm Shipment. Query 2: Correlate anomalies with Order Types. Join order_event_log and orders to see if priority orders have a higher rate of out-of-sequence events compared to standard ones. Query 3: Identify missing activities. Check if all cases contain the 7 baseline activities using conditional aggregation COUNT(CASE WHEN...). Specifically looking for missing Validate Stock. Query 4: Investigate specific resource behavior. Join with resources to see if specific roles/departments are responsible for out-of-sequence timestamps. E.g. are Logistics Managers confirming shipments too early? Query 5: Analyze the Pre-payment anomaly pattern. Find cases where Receive Payment is the second activity or happens before shipping."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Structure the Output: Introduction: Acknowledge the task and set the analytical tone. Section 1: Identified Anomalies: Break down the anomalies case-by-case or by pattern Out-of-sequence events Missing steps. Highlight specific rows. Section 2: Hypotheses: Provide logical business/system reasons for why these happened. Tie them back to the anomalies. Section 3: Investigative SQL Queries: Present the queries clearly explaining what each query tests and how it works crucial for PostgreSQL context utilizing LAG CTEs conditional aggregation. Conclusion/Next Steps: Brief wrap-up."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Refine the SQL Queries Self-Correction/Edge Case Handling during drafting: Drafting Query 1 Sequence Violations: Finding if Ship Goods happens before Credit Check. WITH Sequences AS SELECT case_id activity timestamp LAG(activity) OVER PARTITION BY case_id ORDER BY timestamp as prev_activity FROM order_event_log SELECT case_id activity timestamp prev_activity FROM Sequences WHERE activity IN Ship Goods Confirm Shipment AND prev_activity NOT IN Perform Credit Check Validate Stock AND prev_activity IS NOT NULL. Better: Explicitly look for events where the expected prerequisite timestamp is later than the current event timestamp. Drafting Query 3 Missing Activities: SELECT case_id MAX(CASE WHEN activity = Validate Stock THEN 1 ELSE 0 END) as has_stock_validation FROM order_event_log GROUP BY case_id HAVING MAX(CASE WHEN activity = Validate Stock THEN 1 ELSE 0 END) = 0; This is clean and standard Postgres. Drafting Query 2 Order Type Correlation: Need to flag a case as anomalous then join to orders. WITH AnomalousCases AS find cases where logistics happens before finance ... SELECT o.order_type COUNT(a.case_id) ... Lets use a simpler approach for the final output to ensure readability while maintaining power. Defining anomaly as Ship Goods before Credit Check or Missing Validate Stock."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish: Ensure terminology matches the provided schema case_id event_id additional_info. Make sure hypotheses sound like a real process mining/business analyst. e.g. using terms like fast-tracking process drift system decoupling. Check PostgreSQL syntax standard SQL works perfectly here but mentioning window functions is good."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

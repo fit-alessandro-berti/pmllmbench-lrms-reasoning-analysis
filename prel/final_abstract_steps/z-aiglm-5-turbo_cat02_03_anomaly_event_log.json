@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Understand the Goal: The user wants an analysis of a provided event log representing a Procure-to-Pay P2P process. I need to identify anomalous sequences, explain why they are anomalous based on standard P2P best practices, and detail the potential problems they cause. 2. Understand the Standard P2P Process: What does a normal P2P flow look like? Create Purchase Requisition PR Approve Purchase Requisition Issue Purchase Order PO Receive Goods Goods Receipt Vendor Invoice Received Match Invoice to PO 3-way match: PO, GR, Invoice Release Payment Close Case Logical dependencies: Approval must happen before PO issuance. PO should ideally precede Goods Receipt you cant officially receive against a non-existent PO. Payment must follow the 3-way match. Invoice matching needs PO, GR, and Invoice."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "3. Analyze the Event Log Case by Case: Case 1001: 02-01: Create PR -> Approve PR -> Issue PO 02-02: Receive Goods -> Invoice Received 02-05: Match Invoice to PO 02-06: Release Payment 02-07: Close Case Assessment: Perfect flow. Standard sequential order. No anomalies. Case 1002: 02-01 08:30: Create PR 02-01 08:40: Issue PO Wait, no approval yet! 02-03 07:00: Vendor Invoice Received Goods not received yet! 02-03 07:15: Release Payment No match, no goods receipt! 02-03 08:00: Approve Purchase Requisition Way too late, happened after payment! 02-04 09:00: Receive Goods Happened after payment! 02-05 08:00: Match Invoice to PO Happened after payment! 02-06 16:00: Close Case Assessment: Extremely anomalous. Multiple severe control failures. Case 1003: 02-02: Create PR -> Approve PR -> Issue PO 02-08: Release Payment No invoice, no goods receipt yet! 02-09: Vendor Invoice Received Invoice arrived after payment 02-10: Receive Goods Goods arrived after payment 02-11: Match Invoice to PO Match happened after payment 02-12: Close Case Assessment: Highly anomalous. Payment occurred before goods were received and before the invoice was even received or matched. Case 1004: 02-05: Create PR -> Approve PR 02-06 09:00: Receive Goods Before PO was issued! 02-06 09:15: Issue Purchase Order 02-07: Invoice Received -> Match Invoice to PO -> Release Payment -> Close Case Assessment: Anomalous. Goods were received before the PO was formally issued."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "4. Synthesize the Anomalies and Categorize Them: Instead of just listing case by case, it is better to group them by the type of business rule violation, as this shows deeper process understanding. Anomaly Type 1: Skipping the Approval Gate Segregation of Duties / Authorization Failure Evidence: Case 1002 issued the PO before the PR was approved. Why problematic: Bypasses spending limits, budget controls, and Segregation of Duties SoD. Unauthorized purchases can be made. Anomaly Type 2: Payment Prior to 3-Way Matching Fraud/Overpayment Risk Evidence: Case 1002 Payment before Match and GR, Case 1003 Payment before Invoice, Match, and GR. Why problematic: The core control of P2P is the 3-way match PO = GR = Invoice. Paying before this happens means the company might pay for goods never received, pay the wrong amount, or fall victim to duplicate billing/fraud. Anomaly Type 3: Receiving Goods Before Issuing a Purchase Order Blind Receiving Evidence: Case 1004 Received Goods at 09:00, Issued PO at 09:15. Why problematic: Receiving blind means the warehouse doesnt know what was ordered, in what quantity, or at what price. It leads to accepting unauthorized goods, discrepancies in inventory, and negotiating power is lost. Anomaly Type 4: Out-of-Sequence/Post-Factual Processing Retroactive Document Handling Evidence: Case 1002 Approval, GR, and Match all happened after payment. Case 1003 Invoice and GR happened after payment. Why problematic: Indicates a process where documentation is falsified or backdated to justify an already-executed payment. High indicator of fraud or extreme process breakdown."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "5. Draft the Response: Introduction: Briefly state what a standard P2P process looks like to set the baseline Requisition -> Approval -> PO -> GR -> Invoice -> 3-way match -> Payment -> Close. Baseline Validation: Note that Case 1001 represents the ideal, compliant flow. Detailed Anomaly Breakdown: Use the categorized anomalies developed in Step 4. Reference specific Case IDs and timestamps to back up the claims. Business Impact/Risk Summary: Group the why this is problematic into a strong concluding section focusing on Compliance/Audit, Financial Loss, and Operational Inefficiency."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Review and Refine: Check against prompt: Did I identify anomalies? Yes. Did I explain why they are problematic based on standard P2P practices? Yes. Tone: Professional, analytical, audit-oriented. Clarity check: Are the timestamps clearly referenced to prove the point? eg, Case 1002 released payment on 02-03, but didnt receive goods until 02-04. Yes, the logic holds up perfectly."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "7. Final Output Generation: This matches the provided good response."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

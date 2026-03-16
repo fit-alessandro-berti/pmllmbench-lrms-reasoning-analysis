@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The problem asks us to write a DuckDB SQL query that filters out specific cases from an event_log table. A case should be excluded if it meets both of the following conditions: 1. It contains the exact sequence of three activities in direct succession: Approve Purchase Requisition, Create Order, Confirm Order. 2. The time elapsed between the Create Order event and the Confirm Order event of that sequence is more than 5 days."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "To achieve this, we can use a window function to look at the previous two activities and their timestamps for each event in a case, ordered by timestamp."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If the current event is Confirm Order, the previous event is Create Order, and the event before that is Approve Purchase Requisition, then the sequence condition is met. Then we check if the timestamp of the current event minus the timestamp of the previous event is greater than 5 days. If so, we flag this case_id for exclusion."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Lets formalize the window function approach. We can use a CTE to identify these case_ids."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets double check the requirements. Using LAG over guarantees direct succession by row position within the case."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "What if there are simultaneous events? Usually ORDER BY timestamp is sufficient for event logs unless specified otherwise. Lets assume standard ORDER BY timestamp."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets consider if a case could have multiple occurrences of this sequence, one greater than 5 days and one less than or equal to 5 days. The prompt says exclude them the cases. So if a case has any such sequence, the whole case is excluded. DISTINCT case_id handles this."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "What about NOT IN? If case_id could be NULL, NOT IN might filter out NULL case_ids. A LEFT JOIN or NOT EXISTS is safer."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets double check if more than 5 days means greater than INTERVAL 5 DAY. Yes, more than 5 days means strictly greater than."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets review the prompt to ensure no other requirements were missed. Identifies any case that contains the following sequence... with no other event in between them... time elapsed... more than 5 days... exclude them... only return events from cases that do not meet the above criteria."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "ensure proper grouping, ordering, and filtering... To be absolutely safe, we could order the final result set by case_id and timestamp, which is the natural order for event logs. Lets add ORDER BY case_id, timestamp at the end."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Looking at all cases: - Case 1: OR -> MS -> QS -> AS -> IQC -> AS -> TST -> RT -> TST -> PK -> LB -> DP -> D - Case 2: OR -> MS -> QS -> AS -> IQC -> AS -> TST -> PK -> DP -> D - Case 3: OR -> MS -> QS -> AS -> IQC -> IQC -> AS -> IQC -> AS -> TST -> RT -> TST -> PK -> LB -> DP -> D - Case 4: OR -> MS -> QS -> AS -> TST -> PK -> LB -> DP -> D - Case 5: OR -> MS -> QS -> AS -> IQC -> AS -> IQC -> AS -> TST -> RT -> TST -> RT -> TST -> PK -> LB -> DP -> D"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "From this, we can deduce the following blocks: 1. First block: OR -> MS -> QS -> AS Wait, is IQC always after AS? Case 1: AS -> IQC -> AS -> TST Case 3: AS -> IQC -> IQC -> AS -> IQC -> AS -> TST. Wait, Case 3 has two IQCs in a row."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So usually AS -> IQC -> AS. In Case 3: AS -> IQC -> IQC -> AS. It could just be a loop of IQC, or maybe the loop is actually around IQC, but wait, in Case 1 and 5, AS always precedes IQC. So maybe its * ( AS, IQC )? Wait, the first AS is not repeated. So its AS -> * ( IQC, AS )? What if its * ( AS, IQC )?"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets trace * ( AS, IQC ): 1. execute AS. 2. exit OR execute IQC then AS again. So the possible traces from * ( AS, IQC ) are: - AS - AS, IQC, AS - AS, IQC, AS, IQC, AS ... This perfectly matches Case 1, Case 4, Case 5!"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "What about Case 3? AS, IQC, IQC, AS, IQC, AS. This might just be an error in the log or a specific edge case, but * ( AS, IQC ) is structurally the most sound interpretation ... I will stick to * ( AS, IQC ) and maybe add a brief note explaining that Case 3s double IQC is treated as a log anomaly/noise because * ( AS, IQC ) perfectly captures the semantics"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Testing block: After AS (and IQC loop), we have TST. Case 1: TST -> RT -> TST Case 2: TST Case 3: TST -> RT -> TST Case 4: TST Case 5: TST -> RT -> TST -> RT -> TST This perfectly matches * ( TST, RT ):"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "3. Post-testing block: After TST (and RT loop), we have PK. Then LB. Case 2 and 4 (skip LB): Case 2 has PK -> DP. Case 4 has PK -> LB -> DP. So LB is optional. We can model this as X ( LB, SilentTransition ). 4. Final block: DP -> D."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "5. First block: OR -> MS -> QS. These are strictly sequential. ... Lets put everything together in a StrictPartialOrder: Nodes: - OR - MS - QS - assembly_loop = * ( AS, IQC ) - testing_loop = * ( TST, RT ) - PK - labeling_choice = X ( LB, SilentTransition ) - DP - D Edges: - OR -> MS - MS -> QS - QS -> assembly_loop - assembly_loop -> testing_loop - testing_loop -> PK - PK -> labeling_choice - labeling_choice -> DP - DP -> D"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets do a final trace check. Case 1: OR -> MS -> QS -> assembly_loop(AS, IQC, AS) -> testing_loop(TST, RT, TST) -> PK -> labeling_choice(LB) -> DP -> D Matches exactly. Case 2: ... Matches exactly. ... Case 5: ... Matches exactly."
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]
