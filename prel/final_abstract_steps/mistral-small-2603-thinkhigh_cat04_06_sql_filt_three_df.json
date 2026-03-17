@@ -1,0 +1,53 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Okay lets break this down The user wants a DuckDB SQL query that excludes cases where theres a specific sequence of activities with a time condition First I need to find cases that have Approve Purchase Requisition followed immediately by Create Order followed immediately by Confirm Order with no other events in between Then among those cases check if the time between Create Order and Confirm Order is more than 5 days Finally exclude all events from those cases"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Hmm so the main steps are 1 Identify cases with the exact sequence of three activities in direct succession 2 For those cases check if the time between Create Order and Confirm Order is 5 days 3 Exclude all events from such cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For each case we can order the events by timestamp then use window functions to check consecutive activities One way is to use LAG or LEAD to check the previous and next activities"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "WITH sequence cases AS SELECT DISTINCT case id FROM event log WHERE activity Approve Purchase Requisition AND LEAD activity OVER PARTITION BY case id ORDER BY timestamp Create Order AND LEAD activity 2 OVER PARTITION BY case id ORDER BY timestamp Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Wait but we also need to check the time between Create Order and Confirm Order is more than 5 days For the sequence the Create Order is the second event Confirm Order is the third So the time between them is next timestamp from LEAD minus current timestamp"
+  },
+  {
+    "Name": "Backtracking - NE",
+    "Text": "WITH bad cases AS SELECT DISTINCT case id FROM event log e1 WHERE e1 activity Create Order AND EXISTS SELECT 1 FROM event log e2 WHERE e2 case id e1 case id AND e2 timestamp e1 timestamp AND e2 activity Confirm Order AND NOT EXISTS SELECT 1 FROM event log e3 WHERE e3 case id e1 case id AND e3 timestamp e1 timestamp AND e3 timestamp e2 timestamp AND e1 timestamp SELECT MAX timestamp FROM event log e4 WHERE e4 case id e1 case id AND e4 timestamp e1 timestamp 5 INTERVAL 1 DAY"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH next events AS SELECT case id activity timestamp LEAD activity OVER PARTITION BY case id ORDER BY timestamp AS next activity LEAD timestamp OVER PARTITION BY case id ORDER BY timestamp AS next timestamp FROM event log Then in this CTE look for rows where activity Create Order next activity Confirm Order AND next timestamp timestamp 5 INTERVAL 1 DAY"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH sequence events AS SELECT case id timestamp AS create order time FROM SELECT case id activity timestamp LAG activity OVER PARTITION BY case id ORDER BY timestamp AS prev activity LEAD activity OVER PARTITION BY case id ORDER BY timestamp AS next activity LEAD timestamp OVER PARTITION BY case id ORDER BY timestamp AS next timestamp FROM event log WHERE activity Create Order AND prev activity Approve Purchase Requisition AND next activity Confirm Order AND next timestamp timestamp 5 INTERVAL 1 DAY"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Yes this should give all case ids that have at least one occurrence of the three consecutive activities with the time between Create and Confirm 5 days Then the final query is to select all events from event log where case id is NOT in bad cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In DuckDB subtracting two timestamps gives an interval So next timestamp timestamp INTERVAL 5 days Also LAG and LEAD by default look at the immediate next previous row in the partition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another edge case what if a case has multiple occurrences of the sequence The bad cases CTE uses DISTINCT case id so even if a case has multiple bad sequences its only included once Which is correct Also what if the time difference is exactly 5 days more than 5 days so condition is correct"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Another possible approach is to use self joins but window functions are more efficient here"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

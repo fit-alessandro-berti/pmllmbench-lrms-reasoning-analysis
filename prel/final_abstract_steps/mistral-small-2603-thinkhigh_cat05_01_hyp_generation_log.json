@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Looking at the assumed normal process flow: 1. Register Order (Sales) 2. Perform Credit Check (Finance) 3. Validate Stock (Warehouse) 4. Confirm Shipment (Logistics) 5. Ship Goods (Logistics) 6. Issue Invoice (Finance) 7. Receive Payment (Finance) Now, lets check each case_id against this flow. Starting with case_id 1001: Events: Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment This matches the normal flow perfectly. No anomalies here. Case_id 1002: Events: Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Confirm Shipment is before Ship Goods, which might be okay if Confirm Shipment is just scheduling, but the main issue is the credit check coming after shipment."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case_id 1003: Events: Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment Ship Goods happens before Confirm Shipment and Issue Invoice. Thats odd. Normally, youd confirm shipment before shipping, and issue invoice after shipping. So shipping goods before confirming shipment is a problem. Also, Confirm Shipment is after Ship Goods, which might be a late confirmation. Case_id 1004: Events: Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods This is completely out of order. Payment received before invoice is issued? That doesnt make sense. Also, shipment activities are after payment. This seems like a major deviation."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So the main anomalies I see are: 1. Events happening out of the expected sequence (e.g., shipping before credit check, payment before invoice). 2. Missing events (e.g., in case 1004, no credit check or stock validation). 3. Possible premature activities (e.g., receiving payment before invoice is issued)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Possible reasons for these anomalies: System errors where events are logged incorrectly. Policy violations where steps are skipped or done out of order. Training issues where employees dont follow the correct procedure. Urgent orders where steps are bypassed (e.g., priority orders might skip credit check). Data entry mistakes where the wrong activity is logged."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Expected activity order (as per normal flow): 1. Register Order 2. Perform Credit Check 3. Validate Stock 4. Confirm Shipment 5. Ship Goods 6. Issue Invoice 7. Receive Payment So for each case_id, the events should follow this order. Any deviation in the sequence is an anomaly. We can assign an order number to each activity based on the normal flow. activity_order = { Register Order: 1, Perform Credit Check: 2, Validate Stock: 3, Confirm Shipment: 4, Ship Goods: 5, Issue Invoice: 6, Receive Payment: 7 } Then, for each case_id, when ordered by timestamp, the activity_order should be non-decreasing. If at any point the activity_order decreases, thats an anomaly."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "WITH ordered_events AS ( SELECT oel.case_id, oel.activity, oel.timestamp, CASE WHEN oel.activity = Register Order THEN 1 WHEN oel.activity = Perform Credit Check THEN 2 WHEN oel.activity = Validate Stock THEN 3 WHEN oel.activity = Confirm Shipment THEN 4 WHEN oel.activity = Ship Goods THEN 5 WHEN oel.activity = Issue Invoice THEN 6 WHEN oel.activity = Receive Payment THEN 7 ELSE 0 END AS expected_order FROM order_event_log oel ), ranked_events AS ( SELECT case_id, activity, timestamp, expected_order, LAG(expected_order) OVER (PARTITION BY case_id ORDER BY timestamp) AS prev_expected_order FROM ordered_events ) SELECT case_id, activity, timestamp, expected_order, prev_expected_order, CASE WHEN prev_expected_order IS NULL THEN First event WHEN expected_order < prev_expected_order THEN Anomaly: Activity out of sequence ELSE OK END AS sequence_status FROM ranked_events ORDER BY case_id, timestamp;"
+  },
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "Another anomaly could be the timing between activities. For example, credit check should happen within a certain time after order registration. But the problem doesnt specify time thresholds, so maybe not applicable here."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Check for missing mandatory activities... Wrong department performing the activity... Duplicate activities per case... WITH activity_departments AS ( SELECT Register Order AS activity, Sales AS expected_department UNION ALL SELECT Perform Credit Check, Finance UNION ALL SELECT Validate Stock, Logistics UNION ALL SELECT Confirm Shipment, Logistics UNION ALL SELECT Ship Goods, Logistics UNION ALL SELECT Issue Invoice, Finance UNION ALL SELECT Receive Payment, Finance )"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
