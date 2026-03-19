@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets break down the model: Activities: R, A, E, P, N, C, and a silent transition (skip). The model structure: - A loop: LOOP(E, P) which means: execute E, then either exit or do P and then E again, repeatedly. - An XOR: XOR(N, skip) which chooses between N or skipping it. - A partial order: R -> A -> loop -> xor -> C and also an extra edge A -> C (which might allow closing before the loop and xor are done)."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now, lets list the anomalies: 1. The loop (E, P) is unusual because it repeatedly evaluates and approves. In a typical process, we evaluate once and then approve once. 2. The XOR that chooses between notifying the customer (N) or skipping it (skip). This might lead to claims being closed without notifying the customer. 3. The partial order has an extra edge A -> C, which allows the claim to be closed (C) immediately after assigning an adjuster (A), without waiting for the loop (evaluation and approval) and the notification step. 4. Additionally, note that the partial order does not have an edge from xor to C, so it is possible that C occurs without the xor (and hence without notification) and even without the loop being completed. 5. The loop structure itself..."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now, lets hypothesize why these anomalies might exist: 1. The loop between E and P might be an attempt to model a rework loop where if the evaluation fails, we might need to re-evaluate after some adjustments. 2. The XOR for notification might be due to a business rule that sometimes does not require customer notification. 3. The extra edge A -> C might be a mistake in the model, or it might represent an emergency procedure. 4. The lack of ordering from xor to C might be an oversight. 5. The loop structure might be a result of a misunderstanding of the LOOP operator in POWL."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Now, lets propose database queries to verify these hypotheses: We have three tables: claims, adjusters, claim_events. The claim_events table records the activities... We can look for: 1. Claims that have been closed (C) without having been evaluated (E) or approved (P) appropriately. 2. Claims that have multiple evaluation (E) and approval (P) events... 3. Claims that were closed (C) without a notification event (N)... 4. Claims that were closed (C) before the evaluation (E) and approval (P) events were completed... 5. Claims that have an adjustment assignment (A) and then immediately a close (C) without any E or P in between."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "However, note that the model allows for the possibility that the loop (E, P) might be exited after the first E without P, so we might see claims that have E but no P. The above query might be too restrictive... We can adjust the query to look for claims that have A and C, and either no E or P events, or the last event (by timestamp) is C... Given the complexity, we might want to look at the sequence of events for each claim... Alternatively, we can look for claims that have A and C, and the time difference between A and C is very short... Given the complexity and the fact that we are dealing with a database of events, we might need to use window functions..."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets summarize the queries we have: Query 1: Claims closed without evaluation. SELECT DISTINCT claim_id FROM claim_events ce WHERE activity = C AND NOT EXISTS (SELECT 1 FROM claim_events ce2 WHERE ce2.claim_id = ce.claim_id AND ce2.activity = E); Query 2: Claims closed without approval... Query 3: Claims closed without notification... Query 4: Claims with multiple evaluations... Query 5: Claims with multiple approvals... Query 6: Claims closed before the last evaluation... Query 7: Claims where the event after A is C... Query 8: Claims that have C and then an E event after C. We can run these queries on the database to see how many claims exhibit these behaviors."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

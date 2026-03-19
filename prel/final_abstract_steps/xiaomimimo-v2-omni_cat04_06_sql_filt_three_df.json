@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to find cases that have the exact sequence of three activities in direct succession: Approve Purchase Requisition Create Order Confirm Order This means for a given case there must be three consecutive events in order with these activities."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use window functions to get the next activity and next timestamp for each event in a case ordered by timestamp. Lets use lead to get the next two activities and timestamps for each row within each case."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Using lead with offset 1 and 2 assumes that the next two events are the ones we are interested in and if there are events in between they will break the pattern."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Check for the pattern and time condition where activity = Approve Purchase Requisition and next_activity = Create Order and next_next_activity = Confirm Order and DATEDIFF day next_timestamp next_next_timestamp > 5 Then get the distinct case_ids from the above query."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "The window function in the MAX is over the entire case. However we cannot use window functions inside MAX like that. We need to use a subquery or a common table expression that first flags each row and then aggregate."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH lead_events AS select case_id activity timestamp LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_activity etc pattern_check AS select case_id MAX CASE WHEN activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5 THEN 1 ELSE 0 END AS has_pattern_with_time FROM lead_events GROUP BY case_id"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This should work. Now we want to return all events from event_log except those from the cases in the above list."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternative we can use NOT EXISTS or LEFT JOIN."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "WITH excluded_cases AS SELECT DISTINCT case_id FROM subquery with lead_events WHERE activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5 SELECT FROM event_log WHERE case_id NOT IN SELECT case_id FROM excluded_cases This might be more efficient."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets test with a simple example Suppose we have a case with events case_id=1 activity=Approve Purchase Requisition timestamp=2023-01-01 Create Order 2023-01-06 Confirm Order 2023-01-07 time between Create Order and Confirm Order is 1 day not more than 5 so not excluded. If Confirm Order 2023-01-12 then 6 days more than 5 exclude."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

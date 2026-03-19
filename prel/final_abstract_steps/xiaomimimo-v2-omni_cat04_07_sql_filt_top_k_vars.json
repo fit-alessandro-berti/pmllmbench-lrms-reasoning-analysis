@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps: 1. For each case, we need to get the ordered sequence of activities (by timestamp). 2. We will group by the entire sequence to get unique process variants. 3. Count the number of cases for each variant and pick the top K by frequency. 4. Finally, we want to return all events from the original event log that belong to the cases which are in the top K variants."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "In DuckDB, we can use list(activity ORDER BY timestamp) to get an ordered list of activities per case."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "SELECT activity_sequence, COUNT(*) AS variant_count FROM ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ) AS case_sequences GROUP BY activity_sequence ORDER BY variant_count DESC"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "WITH case_sequences AS ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_sequence, COUNT(*) AS variant_count FROM case_sequences GROUP BY activity_sequence ORDER BY variant_count DESC LIMIT K ) SELECT el.* FROM event_log el JOIN case_sequences cs ON el.case_id = cs.case_id JOIN variant_counts vc ON cs.activity_sequence = vc.activity_sequence"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "But note: the problem says top K variants by their frequency, so we take the top K from the above. what if there are ties? The problem does not specify how to handle ties."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "WITH case_sequences AS ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_sequence, COUNT(*) AS variant_count, RANK() OVER (ORDER BY COUNT(*) DESC) as variant_rank FROM case_sequences GROUP BY activity_sequence ) SELECT el.* FROM event_log el JOIN case_sequences cs ON el.case_id = cs.case_id JOIN variant_counts vc ON cs.activity_sequence = vc.activity_sequence WHERE vc.variant_rank <= K"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "we can use FETCH FIRST K ROWS WITH TIES but note that we are grouping by activity_sequence and then counting. We can do: SELECT activity_sequence, COUNT(*) AS variant_count FROM case_sequences GROUP BY activity_sequence ORDER BY variant_count DESC FETCH FIRST K ROWS WITH TIES This will return the top K rows and any additional rows that are tied with the Kth row."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a sample event_log. Example: event_log: case_id | activity | timestamp 1 | A | 2021-01-01 10:00:00 ... For case_id 1 and 2 and 4, the sequence is [A, B]. For case_id 3, it is [A, C]. So variant [A, B] has 3 cases, [A, C] has 1 case. If K=1, we want the top 1 variant, which is [A, B]. Then we return all events for cases 1,2,4."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "Example: variant_counts: [A, B] | 3 [A, C] | 3 [A, D] | 1 With K=1, we get both [A,B] and [A,C] because they are tied for first. This is correct."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "One more note: the problem says ordered sequence of activities, and we are using list(activity ORDER BY timestamp). This will give a list in the order of the timestamp. But note: if there are multiple activities with the same timestamp for the same case, then the order is not specified."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

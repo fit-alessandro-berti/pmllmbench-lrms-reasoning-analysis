@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to 1 Find cases that have a specific sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order 2 Among these cases we only consider those where the time between Create Order and Confirm Order is more than 5 days 3 Exclude the cases that meet both conditions from the final result"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "a We can use window functions to look at the next two events for each event in a case ordered by timestamp b We want to check for each event in a case if the current activity is Approve Purchase Requisition then the next activity immediately following is Create Order and the one after that is Confirm Order c We also need to check the time difference between the Create Order event and the Confirm Order event"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are only interested in cases that have at least one such sequence with the time condition So we can first find the cases that have the sequence and the time condition then remove those cases from the event log"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Well create a CTE that for each event in a case ordered by timestamp gets current activity and timestamp next activity and timestamp 1 step ahead next next activity and timestamp 2 steps ahead Then we filter for rows where current activity Approve Purchase Requisition AND next activity Create Order AND next next activity Confirm Order"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "the time difference condition is between the Create Order and Confirm Order events We can compute the difference in days between the next timestamp and next next timestamp and check if it 5 But note the condition is more than 5 days so we can use DATEDIFF or extract the day difference Since we are in DuckDB we can use the subtraction of timestamps to get an interval and then extract days Alternatively we can use next next timestamp - next timestamp  INTERVAL 5 days EXTRACT DAY FROM next next timestamp - next timestamp  5"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "next next timestamp - next timestamp  INTERVAL 5 days This will return true if the interval is more than 5 days We are using LEAD which by definition gets the immediate next events"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1 Create a CTE with the lead columns 2 Filter where current activity is Approve Purchase Requisition and next activity is Create Order and next next activity is Confirm Order and next next timestamp - next timestamp  INTERVAL 5 days 3 Select distinct case id from that CTE We only need to know which cases to exclude 4 Then select all from event log where case id not in the set from step 3"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

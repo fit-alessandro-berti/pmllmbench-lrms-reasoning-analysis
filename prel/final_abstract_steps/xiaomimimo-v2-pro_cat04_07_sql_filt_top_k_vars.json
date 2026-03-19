@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are going to break down the problem into steps: Step 1: For each case, we need to get the ordered sequence of activities (by timestamp). We can use string_agg to concatenate the activities in the order of their timestamps. Step 2: Group by this sequence to get the count of cases per variant. Step 3: Rank the variants by their count (descending) and pick the top K. Step 4: Filter the original event log to only include cases that are in the top K variants."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do this in a single query by using common table expressions (CTEs) or subqueries. WITH case_sequences AS ( SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT variant_sequence, COUNT(*) AS frequency, ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS rank FROM case_sequences GROUP BY variant_sequence ) SELECT event_log.* FROM event_log JOIN case_sequences ON event_log.case_id = case_sequences.case_id JOIN variant_counts ON case_sequences.variant_sequence = variant_counts.variant_sequence WHERE variant_counts.rank <= K;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However, note: The above query might be inefficient if the event log is very large because we are joining on the string sequence. The above query does that. However, lets consider: What if two different cases have the same sequence? Then they are the same variant and we count them together."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Also, note: We are using STRING_AGG with a separator. We assume that the separator -> does not appear in the activity names. Well stick with the string representation for simplicity."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Alternatively, we can use an array to represent the sequence. DuckDB supports arrays. We can use ARRAY_AGG(activity ORDER BY timestamp) as variant_array, then group by variant_array. However, grouping by an array might be more expensive and the array comparison might be exact. But in DuckDB, you can group by an array."
+  },
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "Lets write the query with a parameter K. Well use a placeholder :K. In DuckDB, we can use named parameters with :param."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "However, note: What if there are ties? Example: Variant A: frequency 10 Variant B: frequency 9 Variant C: frequency 9 Variant D: frequency 8 If K=2, then with DENSE_RANK we get A (rank1), B and C (both rank2) -> 3 variants. If K=2 and we use ROW_NUMBER, we get A and one of B or C -> 2 variants."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The problem says the top K variants, which could be interpreted as the K most frequent, and if there are ties at the K-th place, we might include all of them or break the tie. Since the problem does not specify, well use DENSE_RANK to be safe."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Our query does exactly that. We are joining the event log with the case_sequences and then with variant_counts. This will include all events for cases that are in the top K variants. The same case_id might appear in multiple rows in the event log, and we want to include all rows for that case. The join is safe."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

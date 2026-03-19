@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "direct succession requirement these three events appear consecutively with no other events of the same case in between Or more robust ensure the order is consecutive in the sorted order of events for the case by timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Simplify Use window functions to assign a row number per case ordered by timestamp Then join events with LEAD to get next activity For three consecutive events use LAG and LEAD Or use LEAD2 Simplify Use subquery with window functions SELECT case_id activity timestamp LEAD activity OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "filter for rows where activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 days Thus we can find case_ids that satisfy this condition Then exclude them WITH sequence_cases AS SELECT DISTINCT case_id FROM sub WHERE activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 days SELECT e FROM event_log e WHERE NOT EXISTS SELECT 1 FROM sequence_cases sc WHERE sc.case_id e.case_id ORDER BY e.case_id e.timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Edge Cases Might be multiple events with same timestamp but ordering by timestamp only If there are ties row_number may be needed to break ties But typical process logs have distinct timestamps per case If not we can use row_number and order by timestamp activity some stable ordering But for simplicity we assume timestamps unique per case"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "refine by using ROW_NUMBER WITH ordered AS SELECT ROW_NUMBER OVER PARTITION BY case_id ORDER BY timestamp activity AS rn FROM event_log sequence_cases AS SELECT DISTINCT o1.case_id FROM ordered o1 JOIN ordered o2 ON o1.case_id o2.case_id AND o2.rn o1.rn 1 JOIN ordered o3 ON o1.case_id o3.case_id AND o3.rn o1.rn 2 WHERE o1.activity Approve Purchase Requisition AND o2.activity Create Order AND o3.activity Confirm Order AND o3.timestamp - o2.timestamp > INTERVAL 5 days SELECT e FROM event_log e WHERE e.case_id NOT IN SELECT case_id FROM sequence_cases ORDER BY e.case_id e.timestamp"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Potential nuance If there are multiple events with same timestamp ordering by timestamp only may cause non-deterministic ordering but it okay for typical scenario Better to use double quotes for case-sensitive column names case_id etc"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "But we can also use LEAD approach with subquery Better to provide simpler LEAD version"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

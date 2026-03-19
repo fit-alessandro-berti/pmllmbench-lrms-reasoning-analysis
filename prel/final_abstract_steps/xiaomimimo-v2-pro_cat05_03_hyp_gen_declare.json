@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First lets recall what each DECLARE constraint means init The first activity in the process must be the specified activity existence The specified activity must occur at least once responded_existence If the first activity occurs then at least one of the activities in the list must occur at some point precedence The first activity must be preceded by at least one of the activities in the list noncoexistence The first activity and at least one of the activities in the list cannot both occur in the same trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Given DECLARE model init R must start existence C must occur responded_existence if E then A precedence C preceded by R noncoexistence E and C cannot both occur"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1 init The process must start with R 2 existence C must occur at least once every trace must have C 3 responded_existence If E occurs then at least one A must occur 4 precedence C must be preceded by R 5 noncoexistence E and C cannot both occur in the same trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "From existence C must occur in every trace From noncoexistence E and C cannot both occur Therefore if C must occur in every trace then E cannot occur in any trace because if E occurs then by noncoexistence C cannot occur which contradicts existence So the model forces that E never occurs"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "But then what about the responded_existence constraint It says that if E occurs then A must occur However if E never occurs then the constraint is vacuously true"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "However note that the intended process flow includes E Evaluate Claim as a step The model by having noncoexistence between E and C and requiring C in every trace effectively eliminates E from the process This is an anomaly because the intended process has an evaluation step Additionally the responded_existence constraint if E then A becomes irrelevant because E never occurs So the main anomaly is that the model forces the absence of E which is a required step in the intended process"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now lets generate hypotheses about why such anomalies might occur 1 Misinterpretation of business requirements Perhaps the noncoexistence constraint was intended to mean something else 2 Incremental changes in policies Maybe the process changed to remove the evaluation step 3 Technical issues or incomplete data Its possible that the data used to mine the DECLARE model did not contain any traces with both E and C 4 Pressure to handle claims quickly Perhaps there was a desire to skip the evaluation step"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now we are to propose SQL verification approaches We want to check if the anomalies occur in practice We are interested in the claim_events table 1 Find claims that were closed without any evaluation claims that have a C event but no E event 2 Find traces where evaluation and closing coexist claims that have both E and C 3 Identify if evaluation steps always correspond with assigned adjusters claims that have E but no A"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 1 Claims that were closed without any evaluation SELECT claim_id FROM claim_events WHERE activity = C GROUP BY claim_id HAVING COUNT CASE WHEN activity = E THEN 1 END = 0 Query 2 Traces where evaluation and closing coexist SELECT claim_id FROM claim_events WHERE activity IN E C GROUP BY claim_id HAVING COUNT DISTINCT activity = 2 Query 3 Claims with evaluation but no assignment SELECT claim_id FROM claim_events WHERE activity = E GROUP BY claim_id HAVING COUNT CASE WHEN activity = A THEN 1 END = 0 These queries will help us verify if the anomalies as defined by the DECLARE model are present in the actual data"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

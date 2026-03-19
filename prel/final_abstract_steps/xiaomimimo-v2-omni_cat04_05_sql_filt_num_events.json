@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log in DuckDB with columns: case_id, activity, timestamp. We need to filter out cases (groups of events by case_id) that have more than 6 events. So, we want to keep only the events that belong to case_ids that have 6 or fewer events."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps: 1. First, we can compute the number of events per case_id. 2. Then, we can use this to filter the original table to only include rows with case_ids that have a count <= 6."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do this in two ways: Option 1 (using a subquery with GROUP BY and HAVING): SELECT * FROM event_log WHERE case_id IN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) Option 2 (using a window function): WITH counts AS ( SELECT *, COUNT(*) OVER (PARTITION BY case_id) as event_count FROM event_log ) SELECT * FROM counts WHERE event_count <= 6"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Both options are valid. However, note that the window function method may be more efficient in some databases if we have an index on case_id, but in DuckDB, it is a columnar database and both might be efficient. However, note that the window function method will scan the table and compute the count for every row, then filter. The subquery method will first compute the aggregate and then filter the original table by the case_ids. Since we are only interested in the original rows, and the condition is on the count of events per case, the subquery method might be more straightforward."
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "We must group by case_id to count, and then use that condition. But wait, what if there are NULL case_ids? We assume case_id is non-null."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively, we can also use a Common Table Expression (CTE) for clarity. WITH case_counts AS ( SELECT case_id, COUNT(*) as event_count FROM event_log GROUP BY case_id ) SELECT el.* FROM event_log el JOIN case_counts cc ON el.case_id = cc.case_id WHERE cc.event_count <= 6 This is also clear and efficient."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "However, the problem does not require a specific method. We can choose one. I will choose the subquery method with IN because it is simple and does not require a join. But note: if there are many case_ids, the IN clause might be less efficient than a join. However, DuckDB is designed for analytical workloads and can handle both."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a simple example: Suppose we have: case_id | activity | timestamp 1 | A | 2021-01-01 1 | B | 2021-01-02 2 | C | 2021-01-03 2 | D | 2021-01-04 2 | E | 2021-01-05 2 | F | 2021-01-06 2 | G | 2021-01-07 3 | H | 2021-01-08 3 | I | 2021-01-09 3 | J | 2021-01-10 3 | K | 2021-01-11 3 | L | 2021-01-12 3 | M | 2021-01-13 3 | N | 2021-01-14 The query should return all events from case_id 1 and 2. Let me run the subquery: SELECT case_id, COUNT(*) FROM event_log GROUP BY case_id case_id | count 1 | 2 2 | 5 3 | 7 Then, the IN clause will include 1 and 2. So, the query is correct."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
