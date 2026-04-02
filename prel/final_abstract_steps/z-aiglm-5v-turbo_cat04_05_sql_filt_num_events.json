@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Understand the Goal: The user wants a DuckDB SQL query based on a specific scenario. Table Name: event_log Columns: case_id, activity, timestamp (plus others implied). Logic: 1. Group events by case_id. 2. Count events per group. 3. Filter (keep) groups where the count is <= 6. 4. Return all original columns/rows for the kept groups."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Identify the Core SQL Concept: This is a classic filter based on an aggregate condition applied to the whole set problem. In SQL, there are two main ways to do this: Subquery / CTE (Common Table Expression): Calculate counts first, join back to the main table, or use IN / EXISTS. Window Functions: Add a count column to every row, then filter by that column in the outer query."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Evaluate Approaches for DuckDB: Approach A: CTE + JOIN (Standard SQL) WITH case_counts AS ( SELECT case_id, COUNT(*) as cnt FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) SELECT e.* FROM event_log e JOIN case_counts c ON e.case_id = c.case_id; Approach B: Window Function + Qualify (DuckDB specific) SELECT * FROM event_log QUALIFY COUNT(*) OVER (PARTITION BY case_id) <= 6; Approach C: Subquery in WHERE clause (Correlated) SELECT * FROM event_log e1 WHERE ( SELECT COUNT(*) FROM event_log e2 WHERE e2.case_id = e1.case_id ) <= 6;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Pros: Very clear, standard SQL, works everywhere. Cons: Slightly verbose. Pros: Concise, performant (DuckDB optimizes this well), easy to read if you know window functions. Cons: Syntax is less portable to older databases. Pros: Intuitive logic. Cons: Can be slow on huge datasets if not optimized well by the engine (though DuckDB is smart)."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Select the Best Solution(s): Since the prompt specifically asks for a solution for DuckDB, I should provide the most idiomatic DuckDB solution first (Window Function + QUALIFY), but perhaps also offer the Standard SQL approach (CTE) for clarity and portability."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Drafting the Response: Option 1 (The Modern/DuckDB way): Use QUALIFY. Its clean. Option 2 (The Standard way): Use a CTE. This explains what is happening step-by-step. Refining Option 1 (QUALIFY): Query: SELECT * FROM event_log QUALIFY COUNT(*) OVER (PARTITION BY case_id) <= 6; Explanation: COUNT(*) OVER ... calculates total rows per case. QUALIFY filters after the window function runs. Refining Option 2 (CTE): Query: WITH filtered_cases AS ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) SELECT e.* FROM event_log e INNER JOIN filtered_cases f ON e.case_id = f.case_id;"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Final Polish: Present the answer clearly with code blocks and brief explanations of why it works. The prompt asks for a query, but providing the idiomatic one is best. Self-Correction during drafting: Make sure to explicitly mention QUALIFY as its a powerful feature of DuckDB that makes this specific task much simpler than generic SQL."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Final Output Structure: Primary Answer: Using QUALIFY (Best for DuckDB). Alternative Answer: Using CTEs (Best for understanding logic/portability)."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

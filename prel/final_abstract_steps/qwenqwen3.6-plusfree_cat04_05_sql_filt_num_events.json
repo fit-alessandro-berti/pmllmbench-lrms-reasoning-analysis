@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Analyze User Input: - Database: DuckDB - Table: event_log - Columns: case_id, activity, timestamp (at least) - Task: Filter out cases with > 6 events. Return only events from cases with 6 events. - Requirements: Identify event count per case_id, exclude cases where count > 6, return full events for remaining cases. Consider correct grouping/filtering."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2. Identify Key SQL Concepts Needed: - Window functions (COUNT() OVER()) OR subquery/CTE with GROUP BY and HAVING - Filtering based on aggregated counts - Returning original rows (not aggregated)"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Evaluate Approaches: - Approach 1: CTE/Subquery with JOIN WITH case_counts AS ( SELECT case_id, COUNT(*) as event_count FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) SELECT e.* FROM event_log e JOIN case_counts c ON e.case_id = c.case_id; - Approach 2: Window Function WITH cte AS ( SELECT *, COUNT(*) OVER(PARTITION BY case_id) as case_event_count FROM event_log ) SELECT case_id, activity, timestamp FROM cte WHERE case_event_count <= 6; - Approach 3: Subquery in WHERE SELECT * FROM event_log WHERE case_id IN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 );"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "4. Consider DuckDB Specifics & Best Practices: - DuckDB handles all these efficiently. - Window functions are often very clean and performant in DuckDB. - IN with a subquery is standard SQL and works well. - CTE with JOIN is also standard. - Ill present a clear, standard solution... Lets go with the CTE + IN approach or Window Function... DuckDB supports QUALIFY, which is perfect for this: SELECT case_id, activity, timestamp FROM event_log QUALIFY COUNT(*) OVER (PARTITION BY case_id) <= 6;"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets verify correctness: - COUNT(*) counts all rows per case. - HAVING COUNT(*) <= 6 keeps cases with 1-6 events. - WHERE case_id IN (...) filters the original table to only those cases. - Returns full events (case_id, activity, timestamp). - Matches prompt exactly."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self-Correction/Refinement during thought: Actually, the QUALIFY approach is so clean... Ill stick with standard first, then DuckDB-specific. Self-Correction/Verification during drafting: Wait, COUNT(*) vs COUNT(case_id)? COUNT(*) is fine... Self-Correction/Note during thought: Actually, in DuckDB, QUALIFY is so elegant... Ill provide the standard CTE/IN as primary, and QUALIFY as the DuckDB-native optimization."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final check of the prompt: filters out any cases containing more than six events... All constraints met."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

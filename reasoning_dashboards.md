@@ -14,7 +14,10 @@
 | moonshotaikimi-k2-thinking                       | **7429**  |  45 |    1 |   0 |  333 |    61 |   12 |
 | stepfunstep-3.5-flashfree                        | **7357**  |  45 |    1 |   0 |  319 |    53 |    9 |
 | z-aiglm-5                                        | **7346**  |  44 |    2 |   0 |  326 |    34 |    4 |
+| arcee-aitrinity-large-thinking                   | **7313**  |  45 |    1 |   0 |  304 |    47 |    4 |
+| qwenqwen3.6-plusfree                             | **7241**  |  45 |    1 |   0 |  290 |    39 |    1 |
 | z-aiglm-4.7                                      | **7233**  |  44 |    2 |   0 |  316 |    47 |    4 |
+| z-aiglm-5v-turbo                                 | **7149**  |  43 |    3 |   0 |  318 |    31 |    0 |
 | deepseek-aiDeepSeek-R1                           | **7133**  |  41 |    5 |   0 |  375 |    57 |    8 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
@@ -97,7 +100,10 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | moonshotaikimi-k2-thinking                       |   15   |   19.7 |    9.6 |    9.4 |   13.8 | 14.5 |  5.7 |    1.5 |    1.2 |    9.6 |
 | stepfunstep-3.5-flashfree                        |   18.9 |   15.5 |    8.7 |    8.4 |   13.6 | 13.1 |  6.6 |    1   |    2.4 |   11.8 |
 | z-aiglm-5                                        |   18.4 |   13.2 |    7.1 |    8.8 |   14.3 | 16.2 |  8   |    1.4 |    1.6 |   11   |
+| arcee-aitrinity-large-thinking                   |   18.6 |   16.3 |   11   |    7.3 |   16.1 | 11.3 |  4.5 |    1.1 |    1.7 |   12.1 |
+| qwenqwen3.6-plusfree                             |   15.5 |   13.3 |    9.4 |    4.8 |   13.3 | 20.6 |  9.4 |    1.5 |    0.9 |   11.2 |
 | z-aiglm-4.7                                      |   16.3 |   13.4 |    9.5 |    7.4 |   11.7 | 17.4 |  9.8 |    1.4 |    2.5 |   10.6 |
+| z-aiglm-5v-turbo                                 |   18.3 |   13.8 |   10   |    7.2 |   13.5 | 17.2 |  6.9 |    1.7 |    1.1 |   10.3 |
 | deepseek-aiDeepSeek-R1                           |   14.5 |   19.5 |   14.1 |    9.1 |   15.9 | 13   |  5.2 |    1.6 |    1.4 |    5.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
@@ -189,7 +195,10 @@ Dictionary of activities:
 | moonshotaikimi-k2-thinking                       |   93.4 |   92.5 |   92.3 |   78.9 |   83.9 | 78   | 56.5 |  100   |   20   |   59   |
 | stepfunstep-3.5-flashfree                        |   95.8 |   93.2 |   93.9 |   75   |   84.6 | 86   | 64   |  100   |   33.3 |   66.7 |
 | z-aiglm-5                                        |   97   |   95.8 |  100   |   96.9 |   84.6 | 89.8 | 75.9 |  100   |   50   |   77.5 |
+| arcee-aitrinity-large-thinking                   |   95.5 |   94.8 |   92.3 |   73.1 |   87.7 | 92.5 | 56.2 |   75   |   33.3 |   69.8 |
+| qwenqwen3.6-plusfree                             |   96.1 |   97.7 |   96.8 |   93.8 |   93.2 | 94.1 | 71   |   80   |    0   |   59.5 |
 | z-aiglm-4.7                                      |   95   |   95.9 |   94.3 |   88.9 |   88.4 | 89.1 | 83.3 |  100   |   33.3 |   56.4 |
+| z-aiglm-5v-turbo                                 |   98.4 |   95.8 |  100   |   88   |   91.5 | 98.3 | 83.3 |  100   |   50   |   61.1 |
 | deepseek-aiDeepSeek-R1                           |   93.8 |   96.5 |   98.4 |   77.5 |   80   | 87.7 | 26.1 |   85.7 |   66.7 |   72   |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |

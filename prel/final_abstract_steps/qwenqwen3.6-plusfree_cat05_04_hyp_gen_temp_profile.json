@@ -1,0 +1,25 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Understand User Input: - Context: PostgreSQL database with claims, adjusters, claim_events tables. - Process Steps: R -> A -> E -> P -> N -> C (Receive, Assign, Evaluate, Approve, Notify, Close) - Temporal Profile Model: Dictionary mapping activity pairs to (avg_seconds, stdev_seconds). - Anomalies Highlighted in Prompt: R->P (low STDEV, ~25h), P->N (long avg 7d, high STDEV 2d), A->C (short avg 2h, possibly skipping steps), E->N (very short 5 min). - Task: 1. Identify anomalies in the temporal profile. 2. Generate hypotheses on why these anomalies might exist. 3. Propose verification approaches using SQL queries. - Constraint: Do not reference the instructions or explanations above. Present independently."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Deconstruct Task 1: Identify Anomalies I need to explicitly list the anomalies based on the provided temporal profile. Ill rephrase and structure them clearly without just copying the prompts text verbatim, but capturing the essence. - R to P: Avg ~1.04 days, STDEV only 1 hour. Unusually low variability for a multi-step process. Suggests a fixed schedule or automated batching. - P to N: Avg 7 days, STDEV 2 days. Long delay with high variability. Indicates bottlenecks, manual backlog, or inconsistent notification processes. - A to C: Avg 2 hours, STDEV 1 hour. Claims closing very quickly after assignment, likely bypassing intermediate steps (E, P, N). - E to N: Avg 5 minutes, STDEV 1 minute. Extremely fast transition, possibly automated or skipping review/communication steps."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Deconstruct Task 2: Generate Hypotheses For each anomaly, Ill propose plausible business/technical reasons: - R->P (Low STDEV): Automated approval rules for low-risk/standard claims, or a batch processing system that runs approvals at fixed intervals. Could also indicate data entry timestamps being manually backdated or system-clocked at a fixed offset. - P->N (Long/High STDEV): Manual notification process dependent on staff availability, weekend/holiday delays, or system queue overflow. High variance suggests some claims are auto-notified while others wait for human intervention. - A->C (Short): Fast-track/cancellation claims, duplicate claims closed immediately, or adjusters mistakenly closing claims without proper evaluation. Could also be test data or system errors logging premature closures. - E->N (Very Short): Fully automated evaluation-to-notification pipeline for straightforward claims, or the Notify step is triggered by the same script that completes Evaluate, causing near-zero latency. Alternatively, Evaluate and Notify might be conflated in logging."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4. Deconstruct Task 3: Propose SQL Verification Queries I need to write PostgreSQL queries that verify these hypotheses. The queries should: - Calculate time differences between specific events per claim. - Filter claims where the difference exceeds thresholds based on avg ± some factor of STDEV, or absolute business rules. - Join with claims and adjusters to find patterns by claim type, adjuster, region, resource. - Handle the fact that claim_events has multiple rows per claim, and we need to pair specific activities. Ill structure the queries to be practical and directly address the anomalies. Ill use CTEs or window functions/self-joins to get timestamps for specific activities per claim. Query Structure Idea: WITH event_times AS (SELECT claim_id, MAX(CASE WHEN activity = R THEN timestamp END) AS ts_R, MAX(CASE WHEN activity = A THEN timestamp END) AS ts_A, ... FROM claim_events GROUP BY claim_id)"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self-Correction/Refinement during thought: - The prompt says Do not reference the instructions or explanations above. I will strictly avoid phrases like As mentioned in the prompt or Based on the provided context. - Ill make sure the SQL uses standard PostgreSQL syntax (EXTRACT(EPOCH FROM ...), INTERVAL, etc.) - Ill structure the queries to be self-contained, using a common CTE for pivoting events per claim to avoid repetitive self-joins, then run specific filters. - Ill explicitly address how to correlate with adjuster/region/customer segments as requested. Self-Correction/Verification of SQL during drafting: PostgreSQL timestamp difference yields an interval. EXTRACT(EPOCH FROM interval) gives seconds. Thats correct. I should handle cases where events might be missing (NULL checks). Ill use WITH pivoted_events AS (...) for clarity. Final check of the prompt: Filter by claims closed immediately after assignment or claims where approval to notification takes excessively long, checking if these patterns align with particular customer or region segments. All set."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. **Understand User Input:** - The user provides a database schema (PostgreSQL) with three tables: order_event_log, orders, and resources. - They provide sample data for all three tables. - They define an Assumed Normal Process Flow with 7 steps in a specific order. - They give a prompt/instruction for a Target LLM to: - Identify anomalies/undesirable behaviors in the event log. - Hypothesize causes. - Propose SQL queries to investigate these hypotheses. - The user is essentially asking me to *act as the Target LLM* and fulfill the prompt based on the provided data and schema."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. **Analyze the Data & Schema against Normal Flow:** Normal Flow: 1. Register Order (Sales) 2. Perform Credit Check (Finance) 3. Validate Stock (Warehouse) 4. Confirm Shipment (Logistics) 5. Ship Goods (Logistics) 6. Issue Invoice (Finance) 7. Receive Payment (Finance) Lets check each case_id: *Case 1001:* - Register Order -> Perform Credit Check -> Validate Stock -> Confirm Shipment -> Ship Goods -> Issue Invoice -> Receive Payment - Matches normal flow exactly. No anomalies. *Case 1002:* - Register Order -> **Confirm Shipment** -> **Ship Goods** -> **Perform Credit Check** -> **Validate Stock** -> Issue Invoice -> Receive Payment - Anomalies: - Shipment confirmed and shipped *before* credit check and stock validation. - Credit check happens after shipping. High risk. - Stock validation happens after shipping. Impossible logically, but data shows it. *Case 1003:* - Register Order -> Perform Credit Check -> **Ship Goods** -> Issue Invoice -> **Confirm Shipment** -> Receive Payment - Anomalies: - Missing Validate Stock entirely. - Ship Goods happens *before* Confirm Shipment and Issue Invoice. - Confirm Shipment happens *after* shipping and invoicing. *Case 1004:* - Register Order -> **Receive Payment** -> Issue Invoice -> Confirm Shipment -> Ship Goods - Anomalies: - Receive Payment happens *before* Issue Invoice. - Missing credit check and stock validation entirely. - shipment_scheduled=N but still shipped."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "3. **Identify Key Anomalies & Hypothesize Causes:** Ill categorize them for clarity: - **Out-of-Sequence Execution:** Cases 1002, 1003, 1004 deviate significantly from the 1-7 flow. - **Missing Mandatory Steps:** Case 1003 missing Validate Stock. Case 1004 missing Perform Credit Check and Validate Stock. - **Logical/Policy Violations:** Shipping before credit/stock checks (1002, 1003). Payment before invoicing (1004). Shipment confirmed as N but still shipped (1004)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses: - *System/Workflow Bypass:* ERP or order management system allows manual overrides or lacks hard constraints. - *Policy Exceptions:* Priority orders (1002) might have expedited workflows, but still risky. - *Data Entry/Timestamp Errors:* Events logged out of order due to batch processing or delayed system updates. - *Training/Compliance Issues:* Staff skipping steps to meet SLAs."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "4. **Formulate SQL Queries to Investigate:** I need to write SQL queries that target these anomalies without hardcoding specific case_ids if possible... *Query 1: Detect Out-of-Sequence Events*... *Query 2: Detect Missing Mandatory Steps*... *Query 3: Detect Payment Before Invoicing*... *Query 4: Check for Contradictory Additional Info*... *Query 5: Correlate with Order Type/Value*..."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. **Structure the Response:**... *Self-Correction/Refinement during thought:* - Check Query 2... - Query 1 & 3 use self-joins... - I should also provide a query that uses LAG()... Actually, keeping it simple... All set. *Self-Correction/Verification during drafting:*... All good."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "*Self-Correction/Note during thought*: The prompt says without any hints... Ill ensure the SQL uses the exact column names... Ill double-check the additional_info column format... Actually, keeping it focused... All good."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
