@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2.  **Analyze the Temporal Profile Model**: *   `('R', 'A'): (3600, 600)` - 1 hr avg, 10 min stdev. (Normal) *   `('R', 'E'): (86400, 28800)` - 1 day avg, 8 hr stdev. (Normal) *   `('R', 'P'): (90000, 3600)` - ~1.04 days avg, 1 hr stdev. (Anomaly: Extremely low STDEV for a process that spans multiple steps, indicating rigid/artificial timing). *   `('A', 'C'): (7200, 3600)` - 2 hr avg, 1 hr stdev. (Anomaly: Very fast close after assign, implying skipped intermediate steps like E or P). *   `('E', 'N'): (300, 60)` - 5 min avg, 1 min stdev. (Anomaly: Extremely fast transition from Evaluate to Notify, skipping Approve or meaning Notify happens before Approve). *   `('E', 'C'): (3600, 3000)` - 1 hr avg, 50 min stdev. (High variance, but fast close after evaluate). *   `('P', 'N'): (604800, 172800)` - 7 days avg, 2 days stdev. (Anomaly: Massive delay from Approve to Notify. If P is approve, why wait 7 days to notify?). *   `('N', 'C'): (1800, 300)` - 30 min avg, 5 min stdev. (Normal)."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "3.  **Identify Anomalies (Task 1)**: *   *Anomaly 1: R to P (Receive to Approve)* - Standard deviation is suspiciously low (1 hour) relative to the average duration (~25 hours). This suggests approvals are happening on a strict, perhaps automated or batch-processed schedule, rather than organically based on claim complexity. *   *Anomaly 2: P to N (Approve to Notify)* - Extremely long average delay (7 days) with high variance (2 days). Notifying the customer should logically follow approval closely; a 7-day delay suggests a severe bottleneck, a disconnected system, or a separate manual batch process for notifications. *   *Anomaly 3: A to C (Assign to Close)* - Quick closure (2 hours) on average after assignment. The standard process requires Evaluation and Approval. This implies a significant portion of claims bypass the core steps and are closed prematurely. *   *Anomaly 4: E to N (Evaluate to Notify)* - Extremely short duration (5 minutes) with low variance. Its suspicious that notification happens almost immediately after evaluation, potentially before the approval step occurs, which could violate business rules (notifying before approval)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4.  **Generate Hypotheses (Task 2)**: *   *For R to P (Low STDEV)*: Batch processing or automated approval for certain claim types. For example, claims under a specific amount might be auto-approved at a specific time of day, creating highly consistent timestamps. *   *For P to N (Long Delay)*: Notifications are handled by a different department or legacy system that runs on a weekly schedule. Alternatively, theres a backlog in the customer communication team. *   *For A to C (Fast Closure)*: Fraudulent fast closures, duplicate claims being instantly rejected/closed, or specific low-value claims being fast-tracked without full evaluation/approval. *   *For E to N (Fast Execution)*: The system automatically sends an interim notification upon evaluation completion, or the Notify step is erroneously triggered by the evaluation system instead of the approval system."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "5.  **Propose Verification SQL Queries (Task 3)**: *   *General note on SQL for temporal profiles*: Need to join `claim_events` to itself (self-join) on `claim_id` to calculate time differences between activities. *   *Query 1: R to P (Identify claims with suspiciously consistent approval times)* *   *Query 2: P to N (Identify claims with excessively long approval-to-notification times)* *   *Query 3: A to C (Identify prematurely closed claims missing E and P)* *   *Query 4: E to N (Identify fast evaluate-to-notify claims)*"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "6.  **Refine SQL Queries for PostgreSQL**: *   Use `EXTRACT(EPOCH FROM (t2.timestamp - t1.timestamp))` to get seconds. *   Ensure proper aliases and clear logic."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "8.  **Self-Correction/Review during drafting**: *   *Did I include all tables?* `claims`, `adjusters`, `claim_events`. Yes, but adjusters is linked via resource? Wait, `claim_events.resource` might be the adjuster name or ID, but the schema doesnt explicitly map `claim_events` to `adjusters` directly unless `resource` = `adjuster_id` or something. I will assume `claim_events.resource` can be joined to `adjusters.adjuster_id` or `adjusters.name` if needed, or join `claims.claim_id` to `claim_events.claim_id`. Wait, theres no explicit `adjuster_id` in `claims`. How do we know the adjuster? The A (Assign) events `resource` column in `claim_events` likely identifies the adjuster. I will use `claim_events.resource` and join to `adjusters.name` or `adjusters.adjuster_id` assuming `resource` holds the ID or Name. To be safe, Ill just use `claim_events.resource` and note the join assumption, or filter by `adjusters.region` by joining `claim_events` (where activity=A) to `adjusters` on `resource = adjuster_id`. *   Lets formulate the SQL carefully. *SQL Draft 1... *SQL Draft 2... etc."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "9.  **Final Polish**: Make sure the writing is crisp, professional, and directly addresses the three tasks. Structure with clear headers. No meta-language about the prompt. Ensure the PostgreSQL syntax is standard and correct. Ensure assumptions (like `resource` mapping to `adjuster_id`) are briefly noted in the SQL comments if necessary, but keep it clean. Actually, `claim_events.resource` might just be an ID. Lets just use it directly in grouping to avoid assumption errors, or use a `LEFT JOIN` to adjusters safely. Lets refine the P to N query to avoid the `::INTEGER` cast assumption: ... This is safer and demonstrates the intent well."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

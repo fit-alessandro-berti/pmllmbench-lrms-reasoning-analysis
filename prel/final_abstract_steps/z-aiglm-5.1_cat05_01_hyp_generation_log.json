@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets analyze the event log data and schema. Normal Process Flow: 1. Register Order Sales 2. Perform Credit Check Finance 3. Validate Stock Warehouse 4. Confirm Shipment Logistics 5. Ship Goods Logistics 6. Issue Invoice Finance 7. Receive Payment Finance Case 1001: 1. Register Order SalesRep01 0815 2. Perform Credit Check CreditOfficer1 0830 3. Validate Stock WarehouseClerk2 0900 4. Confirm Shipment LogisticsMgr1 0915 5. Ship Goods WarehouseClerk3 0945 6. Issue Invoice FinanceTeam01 1000 7. Receive Payment FinanceTeam02 20240205 1500 This follows the normal flow perfectly."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002: 1. Register Order SalesRep02 0820 2. Confirm Shipment LogisticsMgr2 0825 Anomaly out of order before credit check and stock validation 3. Ship Goods WarehouseClerk1 0840 Anomaly out of order 4. Perform Credit Check CreditOfficer2 0910 Out of order 5. Validate Stock WarehouseClerk2 0915 Out of order 6. Issue Invoice FinanceTeam03 0930 7. Receive Payment FinanceTeam02 20240202 1000 Anomaly Skipping steps or executing them in the wrong order Confirm Shipment and Ship Goods happen before Perform Credit Check and Validate Stock."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis The order is a priority order as seen in the orders table. Priority orders might be fast-tracked shipping before credit stock checks which is risky. Or it could be a process violation system bypass."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003: 1. Register Order SalesRep03 0845 2. Perform Credit Check CreditOfficer1 0900 3. Ship Goods WarehouseClerk3 0910 Anomaly before Validate Stock before Confirm Shipment 4. Issue Invoice FinanceTeam01 0930 Anomaly before Confirm Shipment 5. Confirm Shipment LogisticsMgr2 0945 Anomaly happens after Ship Goods additionalinfo lateconfirmationY 6. Receive Payment FinanceTeam02 20240202 1100 Anomaly Validate Stock is completely missing. Ship Goods happens before Confirm Shipment. Confirm Shipment is late. Issue Invoice happens before Confirm Shipment."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Rushed processing leading to skipped steps Validate Stock missing. System lag or manual delay in confirming shipment. Shipping without confirming or validating stock could cause inventory discrepancies."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004: 1. Register Order SalesRep01 0900 2. Receive Payment FinanceTeam02 0905 Anomaly Payment received before Invoice before Credit Check before Stock validation before Shipment 3. Issue Invoice FinanceTeam01 0920 Anomaly Invoice after Payment and before Shipment 4. Confirm Shipment LogisticsMgr1 0925 additionalinfo shipmentscheduledN 5. Ship Goods WarehouseClerk4 0950 Anomaly Perform Credit Check and Validate Stock are missing. Payment received before Invoice is issued. Shipment scheduledN yet goods are shipped."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Prepayment or upfront payment by customer ordervalue3000.00 maybe high value requires upfront payment. However receiving payment before issuing an invoice is a compliance tax issue. Also shipping goods when shipmentscheduledN indicates a severe process violation or system override. Missing credit check and stock validation again."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "General Anomalies Identified 1. Outoforder execution Activities happening in the wrong sequence eg Ship Goods before Confirm Shipment Receive Payment before Issue Invoice. 2. Skipped activities Missing steps like Perform Credit Check Validate Stock Confirm Shipment. 3. Data inconsistencies Shipping goods when shipmentscheduledN Case 1004. 4. Fasttracked highvalue priority orders Case 1002 is a priority order that bypasses the normal sequence. Case 1004 has a high value and receives payment instantly."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses to Investigate 1. Priority HighValue Orders Bypass Controls Priority orders or highvalue orders might be rushed leading to skipped credit checks or stock validations increasing financial inventory risk. 2. Upfront Payments Cause Process Deviations Orders that receive payment early tend to skip invoicing sequences and shipping validations. 3. Late ShippedbeforeConfirmed Orders Lead to Data Corrections Cases where Confirm Shipment happens after Ship Goods might indicate system updates done retroactively. 4. Resource Workarounds Certain resources might be involved in more process deviations than others."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Proposed SQL Queries 1. Find orders where Ship Goods occurred before Validate Stock or Perform Credit Check. 2. Find orders where Receive Payment occurred before Issue Invoice. 3. Identify cases with skipped activities eg no Perform Credit Check event. 4. Analyze if priority orders have more deviations than standard orders. 5. Check for cases where shipment was scheduled as N but goods were shipped. 6. Find resources involved in the most outofsequence activities."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refine the SQL queries for PostgreSQL. Query 1 ... using window functions or aggregations to handle skipped steps. Query 2 Investigate priority order deviations ... Pivot the event log. WITH EventPivot AS ... Query 3 Find cases where payment was received before invoicing. Query 4 Identify data inconsistencies. Query 5 Resources associated with deviations."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Reviewing the SQL queries I drafted. They look solid ... Lets refine the Upfront payments query: WITH EventTimestamps AS ... Refining the Resource involvement in deviations query: WITH CaseSequences AS ..."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypotheses 1. Fasttracking Priority HighValue Orders Bypasses Controls ... 2. Prepayments Lead to Complacency and Skipped Steps ... 3. System Data Entry Lag Retroactive Logging ... 4. System Override for Unverified Shipments ..."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Tables given: Orders Table (order_id, order_date, customer_id, customer_type, sales_person_id, order_priority) Order Lines Table (order_id, item_id, quantity, item_picking_date, picker_id) Delivery Table (delivery_id, order_id, delivery_dispatch_date, delivery_arrival_date, carrier_id, delivery_note) Invoice Table (invoice_id, order_id, invoice_issue_date, invoice_amount, billing_person_id) Payments Table (payment_id, invoice_id, payment_date, payment_method, payment_reference) Products Table (item_id, item_description, item_category) Resources Table (resource_id, resource_name, role) Steps: 1. Extract Order Created events from Orders Table. 2. Extract Item Picked events from Order Lines Table. 3. Extract Order Dispatched and Order Arrived events from Delivery Table. 4. Extract Invoice Issued events from Invoice Table. 5. Extract Payment Received events from Payments Table."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets process each order: Order 1001: Orders: 2024-01-01T09:00:00Z | Order Created | SP-001 Order Lines: 2024-01-02T10:15:00Z | Item Picked | WH-001 | item_id=ITEM-001, qty=2 2024-01-02T11:00:00Z | Item Picked | WH-002 | item_id=ITEM-002, qty=1 Delivery: 2024-01-03T08:30:00Z | Order Dispatched | CR-01 | delivery_id=DLV-5001 2024-01-05T14:45:00Z | Order Arrived | CR-01 | delivery_id=DLV-5001 Invoice: 2024-01-06T09:00:00Z | Invoice Issued | BL-001 | invoice_id=INV-1001, amount=250 Payment: PAY-2001 for INV-1001 (order 1001). 2024-01-10T11:30:00Z | Payment Received | Credit Card | payment_id=PAY-2001 Order 1002: ... Order 1005: ..."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Lets organize the output table columns: Case ID (order_id) Activity Name Timestamp Resource (can use resource_id mapped to name if possible, e.g., Alice Brown, or just ID. Ill use the name and role from Resources table for clarity, e.g., Alice Brown (Sales Person), or keep IDs and add a separate column for clarity. The prompt says include a Resource or Actor column. Ill use Resource ID and map to Resource Name). Other Attributes (e.g., Customer Type, Item ID, Quantity, Delivery Note, Invoice Amount, Payment Method) Lets construct the rows. Ill sort by Case ID and then Timestamp."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets review the chronological order per case: 1001: 01-01 09:00, 01-02 10:15, 01-02 11:00, 01-03 08:30, 01-05 14:45, 01-06 09:00, 01-10 11:30 -> OK 1002: 01-02 12:30, 01-03 09:45, 01-03 10:00, 01-04 07:20, 01-05 07:00, 01-07 16:10, 01-08 10:00, 01-08 10:15, 01-10 11:00, 01-12 14:00, 01-15 09:00 -> OK 1003: 01-03 10:00, 01-05 15:30, 01-05 15:45, 01-06 07:30, 01-07 20:00, 01-09 08:00, 01-11 10:30 -> OK 1004: 01-04 14:15, 01-06 08:00 -> OK 1005: 01-05 08:45, 01-06 09:30, 01-06 09:45, 01-07 10:15, 01-09 11:45, 01-10 09:30, 01-15 12:00 -> OK"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Assumptions to document: 1. Item Picked is treated as a separate event for each order line, retaining the individual picking timestamps and pickers, which allows for granular process mining. 2. Order Dispatched and Order Arrived are separate events derived from the Delivery table, keeping each delivery record distinct to account for split deliveries. 3. Payment Received attributes the action to the Customer since the Payments table lacks an internal resource ID for payees. 4. The resource IDs have been enriched with the resource names and roles from the optional Resources table for better readability, but original IDs are also retained in the attributes. 5. Order 1004 has incomplete process data (no delivery, invoice, or payment recorded). These missing lifecycle steps are simply omitted as there is no data to support them."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Are there any missing links? In Payments table, invoice_id links to Invoice table, which links to order_id. INV-1001 -> 1001 INV-1002 -> 1002 INV-1003 -> 1002 INV-1004 -> 1003 INV-1005 -> 1005 PAY-2001 -> INV-1001 -> 1001 PAY-2002 -> INV-1002 -> 1002 PAY-2003 -> INV-1003 -> 1002 PAY-2004 -> INV-1004 -> 1003 PAY-2005 -> INV-1005 -> 1005 All match correctly. Lets review the requirements again. 1. Identify Cases: Use order_id - Done. 2. Derive Activities: ... 10. Document any assumptions made. - Done."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The objective is to construct an accepting Petri net in Python using the pm4py library based on a specific insurance claim management process. Process steps: 1. Claim Registration (CR) 2. Document Verification (DV) 3. Fraud Check (FC) 4. Claim Assessment (CA) 5. Approval (AP) 6. Payment (P) 7. Notification (N) 8. Closure (CL) Loops/Additional steps: - After DV, if documents are incomplete, Re-Document Submission (RDS) occurs. - After FC, if doubts, In-depth Investigation (II) is performed. This can happen multiple times before proceeding to Claim Assessment (CA)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets define the sequence of places and transitions: source -> C -> p1 -> CR -> p2 -> DV -> p3 From p3: choice between going to RDS or FC. p3 -> RDS -> p2 p3 -> FC -> p5 From p5: p5 -> CA -> p6 p5 -> II -> p4 p4 -> FC."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Wait, if p3 has arcs to both RDS and FC, its a non-deterministic choice. If II returns to p3, after II you would have to do DV again! Thats not right. II is an in-depth investigation, so it should loop back to FC (or before FC). So p5 -> II -> p4 p4 -> FC."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "p2 -> DV -> p3 p3 -> RDS -> p2 p3 -> FC -> p4 p4 -> CA -> p5 p4 -> II -> p3 This perfectly models between DV and RDS and between FC and II! After II, go back to p3 (after DV), from there do FC again."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If we are at p3 (after Document Verification), we can either: - Go to RDS, which takes us back to p2 (before Document Verification). - Go to FC. If we are at p4 (after Fraud Check), we can either: - Go to II, which takes us back to p3. - Go to CA."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The claim must be approved by a senior manager if the amount surpasses a certain threshold. This implies Approval (AP) might be optional? So CA -> p5 -> (AP or skip_AP) -> p6."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In Petri nets, a place with multiple outgoing arcs models XOR split. For AP skip, p5 -> AP -> p6 and p5 -> skip_AP -> p6. For RDS and II, p3 -> RDS and p3 -> FC acts as skip RDS, p4 -> II and p4 -> CA acts as skip II. But for AP, need merge place."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "To strictly isolate loops: use invisible transitions. p_after_DV -> RDS -> p_after_CR p_after_DV -> skip_RDS -> p_before_FC p_before_FC -> FC -> p_after_FC p_after_FC -> II -> p_before_FC p_after_FC -> skip_II -> p_before_CA."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Trace happy path: source -> C -> ... skip_RDS -> FC -> skip_II -> CA -> skip_AP -> P -> N -> CL -> sink. RDS loop, II loop, AP work correctly. No deadlocks."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Use descriptive place names like p_after_DV, p_before_FC. Full activity names as labels, abbreviations as names. Invisible transitions with label=None for skips."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

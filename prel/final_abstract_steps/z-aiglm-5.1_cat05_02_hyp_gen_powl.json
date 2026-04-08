@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Understand the Goal: The user wants me to analyze a given POWL process model for an insurance claim handling process, identify its anomalies, generate hypotheses for why they exist, and propose SQL queries (against the provided PostgreSQL schema) to verify these hypotheses using actual event data. 2. Analyze the Schema: claims: claim_id, customer_id, claim_amount, claim_type, submission_date adjusters: adjuster_id, name, specialization, region claim_events: event_id, claim_id, activity, timestamp, resource, additional_info Ideal Process: R -> A -> E -> P -> N -> C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "3. Analyze the POWL Model & Identify Anomalies (Task 1): loop = OperatorPOWL(operator=Operator.LOOP, children=[E, P]): This means the process does E, then either exits the loop or does P and then goes back to E. So, sequences like E -> P -> E -> P -> E are possible. Anomaly 1: Loop between Evaluate (E) and Approve (P). A claim can be evaluated and approved multiple times. xor = OperatorPOWL(operator=Operator.XOR, children=[N, skip]): Anomaly 2: Customer Notification (N) is optional. root = StrictPartialOrder(nodes=[R, A, loop, xor, C]): Edges: R -> A, A -> loop, loop -> xor, A -> C. Anomaly 3: Premature Closing. The edge A -> C exists, but theres no edge from loop to C or xor to C. Thus, a claim can be closed immediately after being assigned, bypassing evaluation, approval, and notification completely."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4. Generate Hypotheses for Anomalies (Task 2): Loop (E/P rework): Business rule change: Partial approvals or requests for additional information were introduced, requiring multiple evaluation/approval cycles. Miscommunication: The intent was to model rejection as the alternative to approval, but it was modeled as a loop back to evaluation instead. XOR (Skipping Notification): Technical/Tool error: The system allows auto-closing small claims where notification is implicit, but the modeler didnt specify the condition, just made it optional. Inadequate constraints: Notification was deemed nice to have rather than mandatory, or its handled outside this system. Partial Order (Premature Closing): Partial implementation: A new Auto-close duplicate/trivial claims feature was added right after assignment, but the modeler forgot to separate this path from the standard path, resulting in a shortcut for all claims. Error in modeling: The modeler accidentally drew an edge from A to C instead of xor to C, or omitted the necessary edges to enforce the full lifecycle."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. Propose SQL Queries to Verify Hypotheses (Task 3): Anomaly 1: Premature Closing (C happens without E, P, N). Find claims that have A and C, but no E, P, N. Anomaly 2: Multiple Evaluations/Approvals (The Loop). Find claims with >1 E or >1 P events. Anomaly 3: Skipped Notification. Find claims that have P (or E) and C, but no N. Bonus: Check for correlations. Are premature closes linked to specific claim_type or claim_amount? Are loops linked to specific adjusters or specializations?"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "6. Draft the SQL Queries (Iterative refinement): Query 1: Premature Closing (Closed without E or P) SELECT c.claim_id, c.claim_amount, c.claim_type FROM claims c WHERE EXISTS (SELECT 1 FROM claim_events ce WHERE ce.claim_id = c.claim_id AND ce.activity = C) AND NOT EXISTS (SELECT 1 FROM claim_events ce WHERE ce.claim_id = c.claim_id AND ce.activity IN (E, P)); Wait, the model says C can happen after A. So it has A but lacks E, P. Lets find claims with C but without E. Query 2: The Loop (Multiple E or P) SELECT claim_id, COUNT(*) as eval_count FROM claim_events WHERE activity = E GROUP BY claim_id HAVING COUNT(*) > 1; Same for P. Lets also find claims where P is followed by E (the exact loop behavior). SELECT ce1.claim_id FROM claim_events ce1 JOIN claim_events ce2 ON ce1.claim_id = ce2.claim_id AND ce1.timestamp < ce2.timestamp WHERE ce1.activity = P AND ce2.activity = E; Query 3: Skipping Notification (Has P, lacks N) SELECT c.claim_id FROM claims c WHERE EXISTS (SELECT 1 FROM claim_events ce WHERE ce.claim_id = c.claim_id AND ce.activity = P) AND NOT EXISTS (SELECT 1 FROM claim_events ce WHERE ce.claim_id = c.claim_id AND ce.activity = N); Advanced Query: Correlating premature close with claim amount/type Combine Query 1 with claims data to see if small amounts / specific types are auto-closed."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "7. Structure and Refine the Output: Follow the 3-part structure requested. Use clear headings. Explain the anomalies clearly, linking back to the POWL code. Provide logical, realistic business hypotheses. Provide well-commented, robust PostgreSQL queries. Use CTEs if it makes queries more readable, though standard EXISTS/NOT EXISTS is usually very clear for this."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "8. Self-Correction/Review during drafting: POWL Model Check: The loop OperatorPOWL(operator=Operator.LOOP, children=[E, P]) technically means E is the body and P is the redo. So the execution is E, then (exit OR P -> E -> (exit OR P -> E...)). So an execution could be E, or E -> P -> E, or E -> P -> E -> P -> E. This means E must happen at least once, and P is always followed by another E. My query checking for P followed by E is spot on. Partial Order Check: root.order.add_edge(A, C). Because its a partial order, C can happen as soon as A is done. The nodes in the partial order are [R, A, loop, xor, C]. Since theres no edge from xor to C or loop to C, C only strictly requires A (and transitively R) to be completed. This is the definition of premature closing. My Query 1 correctly targets this."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "9. Final Polish: Ensure tone is professional, analytical, and directly addresses the prompt. Ensure SQL uses the exact column names from the schema. (e.g., activity, timestamp, claim_id)."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
