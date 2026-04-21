@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Let me analyze the event log data for each case: Case 1001: Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment This follows the assumed normal process flow perfectly. No anomalies. Case 1002: Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment Anomaly 1: Confirm Shipment happens before Perform Credit Check and Validate Stock."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003: Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment Anomaly 1: Ship Goods happens before Confirm Shipment. The additional_info says late_confirmation=Y. Anomaly 2: Validate Stock is missing entirely from the process."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004: Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods Anomaly 1: Receive Payment happens first, right after Register Order. Anomaly 2: Issue Invoice happens after Receive Payment. Anomaly 3: Confirm Shipment has additional_info = shipment_scheduled=N yet Ship Goods still happens."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Anomalies Identified: 1. Out-of-Sequence Activities (Case 1002 & 1003): Case 1002: Shipment confirmation and shipping occur before credit check and stock validation. attempted_early=Y flag. Case 1003: Shipping occurs before shipment confirmation. late_confirmation=Y flag. Case 1004: Payment received before almost everything else. 2. Missing Activities (Case 1003 & 1004): Case 1003: Missing Validate Stock entirely. Case 1004: Missing Perform Credit Check and Validate Stock entirely."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Ship Goods before Issue Invoice (this might be okay in some processes, but in the assumed flow Invoice comes before Ship? Actually in the assumed flow: Confirm Shipment, Ship Goods, Issue Invoice. So Ship Goods before Issue Invoice is actually normal, but Ship Goods before Confirm Shipment is not."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses: 1. System/Automation Errors: Case 1004s instant payment might be a system timestamp error or pre-paid order incorrectly logged. The shipment_scheduled=N followed by shipping suggests system override or lack of integration. 2. Policy Violations / Workarounds: Case 1002s attempted_early=Y suggests deliberate early shipment, possibly due to priority customer status. 3. Training/Process Adherence Issues: Warehouse staff shipping before confirmation or validation suggests staff may not be following SOPs."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me double-check the data: Case 1002: event 8: Register Order 08:20 event 9: Confirm Shipment 08:25 (attempted_early=Y) event 10: Ship Goods 08:40 event 11: Perform Credit Check 09:10. Case 1003: event 15: Register Order 08:45 event 16: Perform Credit Check 09:00 event 17: Ship Goods 09:10 event 19: Confirm Shipment 09:45 (late_confirmation=Y)."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "I need to write queries to investigate these. Let me think of useful ones: 1. Find all cases with out-of-order activities compared to expected sequence. 2. Find cases missing required activities. 3. Investigate correlation between anomalies and order types/customers. 4. Investigate resource involvement in anomalies. Query: Find cases where Ship Goods timestamp < Perform Credit Check or Validate Stock timestamp."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Actually, a better approach is pairwise comparison: WITH case_events AS (SELECT case_id, MAX(CASE WHEN activity = Register Order THEN timestamp END) as register_time, ... SELECT case_id, CASE WHEN ship_time < credit_time THEN Ship before Credit END, ... WHERE ship_time < credit_time OR ship_time < stock_time OR ..."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Let me refine these to be clean, well-commented, and directly relevant to the hypotheses. I should organize the response clearly: 1. Executive Summary of Anomalies 2. Detailed Anomaly Analysis (by Case) 3. Hypotheses 4. Investigative SQL Queries"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

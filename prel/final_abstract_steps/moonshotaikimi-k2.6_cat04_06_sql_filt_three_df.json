@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "The user wants a DuckDB SQL query that 1 Identifies cases where there is a direct succession of three specific activities Approve Purchase Requisition Create Order Confirm Order no other events in between 2 Among those cases only keep those where the time between Create Order and Confirm Order in that sequence is more than 5 days 3 Exclude those cases entirely from the final result 4 Return all other events from event_log"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "First to find direct succession we can use window functions to look at the next events For each event in a case we can check what the next two events are We need to ensure At position i activity = Approve Purchase Requisition At position i+1 activity = Create Order At position i+2 activity = Confirm Order And these are consecutive in the case which window functions like LEAD ordered by timestamp can help with"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH ordered_events AS SELECT case_id activity timestamp LEAD(activity 1) OVER (PARTITION BY case_id ORDER BY timestamp) as next_activity_1 LEAD(activity 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_activity_2 LEAD(timestamp 1) OVER (PARTITION BY case_id ORDER BY timestamp) as next_timestamp_1 LEAD(timestamp 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_timestamp_2 FROM event_log sequence_matches AS SELECT DISTINCT case_id FROM ordered_events WHERE activity = Approve Purchase Requisition AND next_activity_1 = Create Order AND next_activity_2 = Confirm Order AND next_timestamp_2 - next_timestamp_1 > INTERVAL 5 days SELECT e.* FROM event_log e LEFT JOIN sequence_matches s ON e.case_id = s.case_id WHERE s.case_id IS NULL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The LEAD approach finds any occurrence where an event is followed by those two But does it guarantee that there are no other events in between Yes LEAD(activity 1) is the very next event and LEAD(activity 2) is the event after that So if they match the names they are directly succeeding"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "One edge case what if there are multiple Create Order or Confirm Order events The LEAD approach looks at every position If at some position the pattern starts it will detect it Thats fine"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Refine the query WITH ordered_events AS ... cases_to_exclude AS SELECT DISTINCT case_id FROM ordered_events WHERE activity = Approve Purchase Requisition AND next_activity_1 = Create Order AND next_activity_2 = Confirm Order AND next_timestamp_2 - next_timestamp_1 > INTERVAL 5 days SELECT e.* FROM event_log e WHERE case_id NOT IN (SELECT case_id FROM cases_to_exclude)"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "Another approach self-join Join the table with itself three times e1 activity = Approve Purchase Requisition e2 activity = Create Order same case timestamp > e1.timestamp e3 activity = Confirm Order same case timestamp > e2.timestamp No other events exist between e1 and e3 that are not e2 Window functions are cleaner"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "DuckDBs LEAD with ORDER BY timestamp might not be deterministic if timestamps are identical To ensure robustness ORDER BY timestamp rowid since DuckDB has hidden rowid column"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For time elapsed use next_timestamp_2 - next_timestamp_1 > INTERVAL 5 days DATE_DIFF day next_ts1 next_ts2 > 5 might not match exact elapsed time because day boundaries vs actual hours INTERVAL subtraction is more accurate for more than 5 days"
+  },
+  {
+    "Name": "Ethical or Moral Reasoning - IND",
+    "Text": "If a case has multiple such sequences if any meets >5 days exclude the whole case as prompt identifies cases with the sequence and refines to those with timing condition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "DuckDB supports INTERVAL 5 days timestamp - timestamp = INTERVAL > INTERVAL 5 days works rowid exists Final query uses NOT EXISTS for safety and adds ORDER BY e.case_id e.timestamp for proper ordering"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

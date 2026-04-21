@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Loop between E (Evaluate) and P (Approve): loop = OperatorPOWL(operator=Operator.LOOP, children=[E, P]) XOR between N (Notify) and skip: xor = OperatorPOWL(operator=Operator.XOR, children=[N, skip]) Partial order anomalies: root.order.add_edge(A, C) Missing edge xor -> C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In PM4Py, a LOOP operator with children [E, P] means: execute E, then either exit or execute P and then E again, repeatedly. So it allows sequences like E, E, E... or E, P, E, P, E... or E, P, E. This means evaluation can happen multiple times without approval, or approval can happen multiple times (each followed by another evaluation). This is anomalous because approval should ideally happen once after evaluation."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This allows skipping customer notification entirely, which is anomalous in an ideal process. root.order.add_edge(A, C) - This creates a direct edge from Assign Adjuster to Close Claim, bypassing the loop (Evaluate/Approve), XOR (Notify), etc. Since its a partial order, C can happen after A without waiting for loop or xor to complete. This allows premature closing. Missing edge xor -> C"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Loop between E and P: Business rule change: Iterative review process where claims need re-evaluation after partial approval, but modelled incorrectly as a loop rather than a structured cycle or rework pattern. Miscommunication: Underwriting and claims departments didnt align on whether approval is final or conditional. Technical error: The workflow system doesnt enforce that approval should terminate the evaluation phase."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "XOR skipping notification: Cost-cutting measure: Some claim types dont require notification (e.g., small auto claims), implemented as a skip without proper validation. Regulatory oversight: Notification requirement changed for certain regions/claim types but was globally implemented as optional. System bug: Notification service integration failure led to making it optional to prevent process halts."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Premature closing (A->C, missing xor->C): Partial order misconfiguration: The process modeler forgot to add the dependency xor->C, or the tool didnt validate transitive completeness. Emergency closure pathway: A legitimate fast-track closure (e.g., fraud detection, withdrawal) was added directly from A to C but not properly separated from the standard flow. Tool limitation: The POWL editor might allow multiple parents/edges but the user didnt understand that C needs all predecessors explicitly ordered before it."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Claims closed without evaluation or approval: SELECT c.claim_id FROM claims c JOIN claim_events ce_close ON c.claim_id = ce_close.claim_id AND ce_close.activity = C LEFT JOIN claim_events ce_eval ON c.claim_id = ce_eval.claim_id AND ce_eval.activity = E LEFT JOIN claim_events ce_app ON c.claim_id = ce_app.claim_id AND ce_app.activity = P WHERE ce_eval.event_id IS NULL OR ce_app.event_id IS NULL Multiple approvals: SELECT claim_id, COUNT(*) as approval_count FROM claim_events WHERE activity = P GROUP BY claim_id HAVING COUNT(*) > 1 Skipped notifications: SELECT c.claim_id FROM claims c JOIN claim_events ce_close ON c.claim_id = ce_close.claim_id AND ce_close.activity = C LEFT JOIN claim_events ce_notify ON c.claim_id = ce_notify.claim_id AND ce_notify.activity = N WHERE ce_notify.event_id IS NULL"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Evaluate/Approve loops in practice: WITH ordered_events AS ( SELECT claim_id, activity, timestamp, ROW_NUMBER() OVER (PARTITION BY claim_id ORDER BY timestamp) as rn FROM claim_events WHERE activity IN (E, P) ) SELECT claim_id, STRING_AGG(activity, -> ORDER BY timestamp) as ep_sequence FROM ordered_events GROUP BY claim_id HAVING STRING_AGG(activity, -> ORDER BY timestamp) LIKE %P->E%"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Let me refine the SQL to be robust and accurate. For the loop anomaly: Claims with approval followed by re-evaluation (loop execution) SELECT DISTINCT e1.claim_id FROM claim_events e1 JOIN claim_events e2 ON e1.claim_id = e2.claim_id AND e1.activity = P AND e2.activity = E AND e2.timestamp > e1.timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query set A: Detecting the Loop in Practice -- A1: Claims with multiple approval events ... Query set B: Detecting Skipped Notifications ... Query set C: Detecting Premature Closure ... Query set D: Root Cause / Contextual Hypothesis Testing"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

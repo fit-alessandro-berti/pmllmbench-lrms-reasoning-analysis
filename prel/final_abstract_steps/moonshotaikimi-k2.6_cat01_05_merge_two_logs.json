@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First lets analyze the data Log A System A 1 2023-10-10T10:00:00Z Order Received Order#1234 2 2023-10-10T10:01:30Z Order Validated Order#1234 3 2023-10-10T10:02:00Z Payment Processed Order#1234 4 2023-10-10T10:05:00Z Item Shipped Order#1234 5 2023-10-10T10:20:00Z Item Delivered Order#1234 Log B System B 1 2023-10-10T09:59:58Z OrderReceived Order#1234 u45 r10 Event captured at warehouse system 2 2023-10-10T10:01:29Z OrderValidation Order#1234 u12 r10 Cross-check inventory 3 2023-10-10T10:02:05Z PaymentCheck Order#1234 u12 r99 Payment gateway delay 4 2023-10-10T10:03:00Z Quality Check Order#1234 u45 r11 Random inspection 5 2023-10-10T10:05:02Z Shipping Order#1234 u45 r10 Package handed to courier"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Matching Analysis - Order Received Log A 10:00:00Z Log B 09:59:58Z Difference 2 seconds Event names Order Received vs OrderReceived Order ID matches This is within the 2-second tolerance Match - Order Validated Log A 10:01:30Z Log B 10:01:29Z Difference 1 second Event names Order Validated vs OrderValidation Match"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Payment Processed Log A 10:02:00Z Log B 10:02:05Z Difference 5 seconds Event names Payment Processed vs PaymentCheck Hmm 5 seconds is > 2 seconds tolerance The prompt says Use a small timestamp tolerance for matching eg if timestamps differ by less than 2 seconds consider them the same event"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Quality Check Log B has an event at 10:03:00Z that Log A does not have No match in Log A Item Shipped Log A 10:05:00Z Log B 10:05:02Z Difference 2 seconds Event names Item Shipped vs Shipping This is exactly at the 2-second boundary Match Item Delivered Log A 10:20:00Z No corresponding event in Log B Keep as Log A only"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Now back to Payment Log A 10:02:00Z Log B 10:02:05Z Difference is 5 seconds Is there any other event in Log A around that time No Is there any other event in Log B around that time No next is 10:03:00Z So despite the 5-second difference these are clearly the same logical event The prompt says eg less than 2 seconds which implies flexibility Given that these are the only payment-related events and they are close in time 5 seconds and in the same sequence position I should match them"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets plan the merged records 1 Order Received Merged Primary timestamp Lets use Log As timestamp 10:00:00Z as primary since Log A is the primary timeline Event type Order Received Attributes order_id=Order#1234 user_id=u45 resource_id=r10 notes=Event captured at warehouse system source_b_timestamp=2023-10-10T09:59:58Z Timestamp diff 2 seconds 2 Order Validated Merged Primary timestamp 2023-10-10T10:01:30Z Log A Event type Order Validated Attributes user_id=u12 resource_id=r10 notes=Cross-check inventory Timestamp diff 1 second 3 Payment Processed PaymentCheck Merged Primary timestamp 2023-10-10T10:02:00Z Log A Attributes user_id=u12 resource_id=r99 notes=Payment gateway delay Timestamp diff 5 seconds 4 Quality Check Log B only Timestamp 2023-10-10T10:03:00Z 5 Item Shipped Shipping Merged Primary timestamp 2023-10-10T10:05:00Z Log A Timestamp diff 2 seconds 6 Item Delivered Log A only"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Primary Timestamp selection For merged events Use Log A timestamp as the primary sort key for merged events to maintain the primary timeline requirement For B-only Use Log B timestamp For A-only Use Log A timestamp Lets double check the chronological order with primary timestamps 1 10:00:00Z Order Received merged 2 10:01:30Z Order Validated merged 3 10:02:00Z Payment Processed merged 4 10:03:00Z Quality Check B only 5 10:05:00Z Item Shipped merged 6 10:20:00Z Item Delivered A only This ordering is perfectly chronological"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Matching Criteria Order ID + semantic event name similarity + temporal proximity + sequence order Tolerance Default 2-second tolerance applied strictly for Order Received 2s Order Validated 1s and Item Shipped 2s For Payment Processed PaymentCheck the delta is 5 seconds but merged due to unique semantic alignment and absence of competing matches documenting the exception Naming Variations Mapped OrderReceived Order Received OrderValidation Order Validated PaymentCheck Payment Processed Shipping Item Shipped Missing Events Quality Check B only inserted where it chronologically belongs Item Delivered A only retained at end Conflict Resolution Timestamps Retained both used Log A as primary Attributes Enriched merged records with Bs metadata user_id resource_id notes"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
