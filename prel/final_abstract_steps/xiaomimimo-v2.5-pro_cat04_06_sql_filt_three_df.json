@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log with columns: case_id, activity, timestamp. We need to find cases that have a specific sequence of three activities in direct succession: Approve Purchase Requisition -> Create Order -> Confirm Order And then, in that sequence, the time between Create Order and Confirm Order is more than 5 days."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps: 1. Identify the events that are part of the sequence in direct succession. We can use window functions to get the next activity and the next-next activity within the same case, ordered by timestamp. 2. We then look for a pattern where: activity = Approve Purchase Requisition next_activity = Create Order next_next_activity = Confirm Order 3. For the matched sequence, we also need to check the time between the Create Order and Confirm Order events. Note: We are only interested in the sequence that matches exactly, and then we check the time between the second and third event. 4. We then get the case_ids that have at least one such sequence with the time condition (more than 5 days between Create Order and Confirm Order). 5. Finally, we want to exclude events from these case_ids."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach: We can do: a. Use window functions to assign row numbers and get the next activity and timestamp for the same case. b. Filter for the sequence and then check the time condition. However, note that we are only interested in the exact sequence in direct succession, meaning that there are no other events between them. We can use: LEAD(activity, 1) OVER (PARTITION BY case_id ORDER BY timestamp) as next_activity, LEAD(activity, 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_next_activity, LEAD(timestamp, 1) OVER (PARTITION BY case_id ORDER BY timestamp) as next_timestamp, LEAD(timestamp, 2) OVER (PARTITION BY case_id ORDER BY timestamp) as next_next_timestamp Then, for an event that is the first in the sequence (the Approve Purchase Requisition), we check: next_activity = Create Order and next_next_activity = Confirm Order and then check the time difference between next_timestamp and next_next_timestamp (which are the timestamps of Create Order and Confirm Order)."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively, we can use three self-joins or window functions. But the window function approach is straightforward."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me run a test in my mind: Case 1: Event1: Approve Purchase Requisition (t1) Event2: Create Order (t2) Event3: Confirm Order (t3) For Event1, the window function gives: next_activity = Create Order next_next_activity = Confirm Order next_timestamp = t2 next_next_timestamp = t3 Then we check: DATEDIFF(day, t2, t3) > 5. This is correct."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Example: Event1: Approve Purchase Requisition (t1) Event2: Approve Purchase Requisition (t2) Event3: Create Order (t3) Event4: Confirm Order (t4) For Event1, the window function gives: next_activity = Approve Purchase Requisition (Event2) -> not matching. For Event2, the window function gives: next_activity = Create Order (Event3) next_next_activity = Confirm Order (Event4) So Event2 would be the start of the sequence. This is correct because the sequence must be in direct succession."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me think about edge cases: - What if there are multiple sequences in the same case? We are using DISTINCT, so the case will be excluded. - What if the sequence is at the end of the case? Then the LEAD for the next_next might be NULL for the last two events? We are only interested in the first event of the sequence, and if the sequence is complete, then the next_next is not NULL. So we are safe. - What if the case has less than 3 events? Then the LEAD will return NULL for the next_next, and the condition will fail, so the case wont be excluded."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However, note: The problem says direct succession, meaning that there are no other events between the three. Our window function does exactly that because we are looking at the next two events in the order of timestamps. We are not skipping any events. This should meet the requirements."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

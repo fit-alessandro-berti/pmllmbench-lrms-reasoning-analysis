@@ -1,0 +1,25 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a POWL model and an underlying database. The task is to: 1. Identify anomalies in the given POWL model. 2. Generate hypotheses for why these anomalies exist. 3. Propose database queries to verify these hypotheses. Lets break down the POWL model: We have the following activities: R, A, E, P, N, C. The model is a StrictPartialOrder with nodes [R, A, loop, xor, C]."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The loop is defined as: loop = OperatorPOWL(operator=Operator.LOOP, children=[E, P]) This loop means: do E, then optionally do P and then E again (repeatedly). In other words, its a loop that can do multiple rounds of (E, P) but note that the loop can also exit after any E without doing P. The xor is defined as: xor = OperatorPOWL(operator=Operator.XOR, children=[N, skip]) So it chooses between doing N or skipping (do nothing). The edges in the partial order are: R -> A A -> loop loop -> xor and A -> C We note that there is no edge from xor to C."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "So the anomalies are: 1. Loop Structure: The loop (E, P) is not the intended process. The intended process is a sequence: R -> A -> E -> P -> N -> C. Instead, we have a loop that may evaluate multiple times and approve multiple times. 2. XOR for Notification: The XOR allows skipping the notification (N) entirely. In the intended process, we always notify the customer. 3. Premature Closing of Claim: The edge A -> C allows the claim to be closed after assigning an adjuster, without going through the loop (E, P) and the XOR (N). 4. Concurrency and Lack of Ordering: The partial order does not enforce that the loop must complete before the xor, and the xor must complete before C. 5. The loop structure itself is not following the intended process."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now, lets generate hypotheses: Hypotheses for the anomalies: 1. Loop for Evaluation and Approval: - The business rule might require re-evaluation and re-approval in some cases (e.g., if additional information is needed). - The model might have been intended to capture a sub-process for handling adjustments, but the main process should be linear. 2. Skipping Notification: - There might be cases where the customer does not need to be notified (e.g., internal claims or when the claim is handled automatically). - Alternatively, it might be an oversight. 3. Premature Closing (A->C): - The modeler might have intended to allow the claim to be closed at any stage (e.g., if the customer withdraws the claim). - But the current model does not control when this can happen. 4. Missing Edge from xor to C: - It might be an oversight. The intended model might have been to have the xor connected to C. 5. The model might have been designed to be flexible, but it is too flexible and allows non-standard paths."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Now, we need to propose database queries to verify these anomalies. We have three tables: claims, adjusters, claim_events. The claim_events table has: event_id, claim_id, activity, timestamp, resource, additional_info. We can use the claim_events to trace the actual process for each claim. Lets think about the queries: 1. Claims that were closed without a proper evaluation or approval event: ... 2. Claims that were approved multiple times: ... 3. Claims that skipped notification (N): ... 4. Claims that were closed without going through the intended sequence: ... 5. Claims that were notified without approval (or without evaluation): ... 6. Claims that have multiple cycles of evaluation and approval (loop): ... These queries can help us verify the anomalies in the actual event data."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

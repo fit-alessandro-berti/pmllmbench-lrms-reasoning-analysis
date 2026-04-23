@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a problem that requires several steps. Lets break it down: 1. We need to determine the sequence of activities for each case_id, ordered by timestamp. 2. Group by the complete activity sequence (variant) and count the number of cases per variant. 3. Determine the top K variants by frequency. We dont know K, so we must make the query general. 4. Return all events from the original event_log table that belong to cases (case_id) which are part of these top K variants."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, note that the same case_id might appear in multiple variants? No, because each case_id has one sequence of activities (by sorting its events by timestamp). So each case_id belongs to exactly one variant."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Steps in SQL: Step 1: For each case_id, create the sequence of activities. We can use list(activity ORDER BY timestamp) to get an ordered list of activities for each case. Step 2: Group by this list (variant) and count the number of cases (distinct case_id or just count of rows in the group since each case is one row) to get the frequency. Step 3: Order by the count in descending order and limit to the top K."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_sequences AS ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_sequence, COUNT(*) AS case_count FROM case_sequences GROUP BY activity_sequence ORDER BY case_count DESC LIMIT K ) SELECT el.* FROM event_log el JOIN case_sequences cs ON el.case_id = cs.case_id WHERE cs.activity_sequence IN (SELECT activity_sequence FROM variant_counts);"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "However, note: the activity_sequence in variant_counts is a list. DuckDB can compare lists for equality. But wait: what if K is 0? Then we return nothing. Also, note that the LIMIT clause in DuckDB does not allow parameters? We can use a CTE or a variable if we are in a script. Alternatively, we can use a variable in DuckDB with a SET command, but in a pure SQL query we might not."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Another approach: we can use RANK() or ROW_NUMBER() in a window function to get the top K without a limit on the number of rows in the variant_counts CTE. WITH case_sequences AS ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_sequence, COUNT(*) AS case_count, ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS rn FROM case_sequences GROUP BY activity_sequence ) SELECT el.* FROM event_log el JOIN case_sequences cs ON el.case_id = cs.case_id WHERE cs.activity_sequence IN (SELECT activity_sequence FROM variant_counts WHERE rn <= K);"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "However, note: the problem does not specify if there could be ties. If we use ROW_NUMBER(), we break ties arbitrarily. If we want to include all ties for the K-th place, we might use RANK() or DENSE_RANK(). The problem says top K variants, which typically means the K variants with the highest frequencies, and if there is a tie for the K-th place, we might need to include more. The problem does not specify, so we can choose. Lets use ROW_NUMBER() for simplicity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final query: WITH case_sequences AS ( SELECT case_id, list(activity ORDER BY timestamp) AS activity_sequence FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT activity_sequence, COUNT(*) AS case_count, ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS rn FROM case_sequences GROUP BY activity_sequence ) SELECT el.* FROM event_log el JOIN case_sequences cs ON el.case_id = cs.case_id WHERE cs.activity_sequence IN (SELECT activity_sequence FROM variant_counts WHERE rn <= 10); Replace 10 with the desired K. However, note: the activity_sequence is a list. We are using the list for grouping and comparison. DuckDB supports list equality"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

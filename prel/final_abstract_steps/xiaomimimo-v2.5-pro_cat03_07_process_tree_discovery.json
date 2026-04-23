@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log with three cases. Lets summarize the observed traces sequences of activities for each case: Case 1: RA -> VF -> AE -> RMI -> VF -> AD -> SC -> AC Case 2: RA -> VF -> AE -> AD -> SC -> AC Case 3: RA -> VF -> AE -> RMI -> RMI -> VF -> AD -> SC -> AC"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Observations: All cases start with Receive Application RA and end with Archive Case AC. After RA, we always have Validate Form VF and then Assess Eligibility AE. In cases 1 and 3, after AE, there is a loop involving Request Missing Info RMI and Validate Form VF again. In case 1, it happens once RMI then VF. In case 3, it happens twice RMI, RMI, VF."
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We can think of the loop as first, we do AE which is part of the main sequence before the loop, then we might have a loop that consists of RMI and VF repeated. Alternatively, we can think of the loop as * AE, -> RMI, VF but that would mean we do AE, then either exit or do RMI->VF and then AE again."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But in the traces, we dont see AE again after the loop. We only see AE once at the beginning. So that doesnt fit. Another idea: The process might be RA -> VF -> AE -> * -> RMI, VF , tau ? But note that in case 3, we have two RMI's in a row, so if the loop body is -> RMI, VF, then one repetition would be RMI then VF. For two repetitions, we would have RMI -> VF, then RMI -> VF. But in case 3, we have RMI, RMI, VF. So that doesnt match."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "We see that after AE, we have a block that consists of one or more RMI's followed by exactly one VF. In case 1, that segment is: RMI, VF. In case 3, that segment is: RMI, RMI, VF. In case 2, that segment is absent. So we can model this as after AE, we have X -> * RMI, tau , VF , tau . That means either we do the block one or more RMI's and then VF or we do nothing tau."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In case 1: RA, VF, AE, then in XOR take the block_seq: loop_node does RMI, then exit, then VF. Then AD, SC, AC. Matches. In case 2: take tau branch, silent, then AD, SC, AC. Matches. In case 3: loop_node does RMI, then tau silent, then RMI, exit, then VF, then AD etc. Matches."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can simplify by combining the sequences. The root sequence has RA, VF, AE, XOR, AD, SC, AC. Or group tail as sequence AD, SC, AC. This balances fitness, precision, and simplicity."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

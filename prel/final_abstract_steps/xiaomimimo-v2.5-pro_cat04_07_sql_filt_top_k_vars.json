@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are given an event log in a DuckDB table event_log with columns: case_id, activity, timestamp. Steps: 1. For each case_id, we need to order the activities by timestamp and then aggregate them into a sequence (e.g., a string or array) that represents the variant. 2. Then, we group by this sequence to get the count of cases for each variant. 3. We then determine the top K variants by frequency (count of cases). Lets assume K is a parameter. We can use a variable or just fix it for the example. 4. We then filter the original event_log to only include cases that belong to these top K variants."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach for step 1: We can use STRING_AGG with an ORDER BY inside to create a string of activities for each case. However, note: We are in DuckDB. DuckDB supports STRING_AGG with an ORDER BY clause. Alternatively, we can use ARRAY_AGG and then order, but note that the order in an array is not guaranteed unless we specify it. Lets use: SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Then, we can use this subquery to count variants. Step 2: Count the variants and get the top K. Step 3: Then, we join back to the original table to get the events for the cases that are in the top K variants. We can do: WITH case_variants AS ( SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT variant, COUNT(*) AS case_count FROM case_variants GROUP BY variant ), top_variants AS ( SELECT variant FROM variant_counts ORDER BY case_count DESC LIMIT K )"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "SELECT event_log.* FROM event_log WHERE case_id IN ( SELECT case_id FROM case_variants WHERE variant IN (SELECT variant FROM top_variants) ) However, note: There might be a performance issue with using IN on a subquery that returns many case_ids. Alternatively, we can use a join. Let me rewrite using joins: WITH case_variants AS (...), variant_counts AS (...), top_variants AS (...) SELECT event_log.* FROM event_log INNER JOIN case_variants ON event_log.case_id = case_variants.case_id INNER JOIN top_variants ON case_variants.variant = top_variants.variant This should be more efficient."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively, we can avoid the double join by first getting the case_ids from the top variants and then joining with event_log. Another approach: WITH case_variants AS (...), top_variant_cases AS ( SELECT case_id FROM case_variants WHERE variant IN ( SELECT variant FROM ( SELECT variant, COUNT(*) AS case_count FROM case_variants GROUP BY variant ORDER BY case_count DESC LIMIT 10 ) ) ) SELECT event_log.* FROM event_log INNER JOIN top_variant_cases ON event_log.case_id = top_variant_cases.case_id This might be more efficient because we are not joining on a string (variant) but on an integer (case_id)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_variants AS ( SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id ), top_variants AS ( SELECT variant FROM case_variants GROUP BY variant ORDER BY COUNT(*) DESC LIMIT 10 ), top_variant_cases AS ( SELECT case_id FROM case_variants WHERE variant IN (SELECT variant FROM top_variants) ) SELECT event_log.* FROM event_log INNER JOIN top_variant_cases ON event_log.case_id = top_variant_cases.case_id This is similar to the previous one but without the double join on string."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a sample data. Example: case_id | activity | timestamp 1 | A | 2020-01-01 00:00:00 1 | B | 2020-01-01 01:00:00 2 | A | 2020-01-01 00:00:00 2 | C | 2020-01-01 01:00:00 Then, for case_id=1, variant would be A -> B, for case_id=2, variant would be A -> C. Then, we count the variants: A -> B appears once, A -> C appears once. So top 1 would be one of them."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "The problem does not specify how to break ties. We are using ORDER BY COUNT(*) DESC and then LIMIT 1. If there are ties, the result is non-deterministic. Alternatively, we can break ties by the variant string (alphabetical) to have a deterministic result. Let me adjust: ORDER BY COUNT(*) DESC, variant ASC But the problem does not specify, so we can leave it as non-deterministic or add a deterministic tie-breaker. Let me assume we want deterministic results and break ties by the variant string."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

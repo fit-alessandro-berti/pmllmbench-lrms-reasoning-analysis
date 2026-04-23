@@ -1,0 +1,29 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are building a POWL model step by step according to the scenario. Steps: 1. Verify Service Request (SR) -> This is the starting activity. 2. Contract Setup (CS) must be done after SR and before technical configuration. 3. After CS, two tasks in parallel: Datacenter Allocation (DA) and Access Control Initialization (ACI). 4. Once both DA and ACI are completed, we enter a looped configuration phase: A base configuration activity Base Network Configuration (BNC) and then optionally Debug & Reconfigure (DR). This (BNC followed by optional DR) repeats until the configuration is stable. 5. After the loop, we have an exclusive choice (XOR) between Containerized Deployment (CD) and Monolithic Deployment (MD). 6. Then, we have two tasks in partial order (concurrent) for QA and SA, but note that QA and SA are independent and both must be completed before GLA. 7. Finally, GLA."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, note: The loop node in POWL (LOOP operator) expects two children: A and B, and the semantics is that we execute A, then either you exit the loop, or execute B and then A again. In our case, A is BNC and B is DR. But note that after the loop we have the deployment step. So we need to model the loop as a node that, when exited, leads to the next step."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However, note that the loop node (LOOP operator) in POWL does not have an explicit exit. The loop node itself is a POWL node, and we can have an edge from the loop node to the next node (the XOR choice). The loop nodes execution semantics: it will run BNC and then optionally DR and BNC again until it decides to exit (which is built into the loop node). So the loop node as a whole is executed, and then the next node (XOR) can start."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets break down the steps and define the POWL nodes: Well create: SR, CS, DA, ACI, BNC, DR, CD, MD, QA, SA, GLA as Transition nodes. We need to define the loop node as: loop = OperatorPOWL(operator=Operator.LOOP, children=[BNC, DR]) The XOR node: xor = OperatorPOWL(operator=Operator.XOR, children=[CD, MD])"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets list all nodes in the root partial order: SR, CS, DA, ACI, loop, xor, QA, SA, GLA And the edges (order) are: SR -> CS CS -> DA CS -> ACI DA -> loop ACI -> loop loop -> xor xor -> QA xor -> SA QA -> GLA SA -> GLA"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Steps: 1. SR -> CS (order: SR -> CS) 2. CS -> DA and CS -> ACI (so CS must be before both DA and ACI, and DA and ACI are independent) 3. DA and ACI -> loop node (so the loop node starts only after both DA and ACI are done) 4. Loop node -> XOR (so after the loop, we choose between CD and MD) 5. XOR -> QA and XOR -> SA (so QA and SA start after the deployment method is chosen, and they are independent) 6. QA -> GLA and SA -> GLA (so GLA starts after both QA and SA are done) But note: The scenario says that after DA and ACI are both completed, the loop starts. So we have DA->loop and ACI->loop. Also, note that the scenario does not require a silent transition for the loop exit because the loop operator in POWL handles the exit internally."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

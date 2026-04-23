@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 1: Identify cases that have the sequence of activities Approve Purchase Requisition Create Order Confirm Order in direct succession. We can use the LEAD and LAG window functions to look at the next and previous activities for each event. We can assign a row number to each event in a case ordered by timestamp and then check for three consecutive rows with the required activities. Alternatively we can use the LEAD function to look at the next activity and the one after that. For each event in a case we want to check if the current activity is Approve Purchase Requisition the next activity by timestamp is Create Order and the activity after that is Confirm Order. We can do this by using LEAD twice."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2: Among the cases identified in Step 1 we want to exclude those where the time between Create Order event and the Confirm Order event is more than 5 days. We can compute the time difference between the Create Order event and the Confirm Order event for the same case and sequence. We can do this by using the same row numbering and then checking the time difference between the Create Order event and the next event which is Confirm Order for that row. We are only considering the sequence where they are direct succession. So we can compute the time difference for the row where the activity is Create Order and the next activity is Confirm Order in the same case."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 3: Exclude the cases that meet both the sequence and the timing condition. We are to return all events from cases that do not meet both conditions."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Implementation: WITH consecutive_events AS SELECT LEAD(activity 1) OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD(activity 2) OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity LEAD(timestamp 1) OVER PARTITION BY case_id ORDER BY timestamp AS next_timestamp LEAD(timestamp 2) OVER PARTITION BY case_id ORDER BY timestamp AS next_next_timestamp FROM event_log Then identify the cases that have the sequence and the time condition: SELECT DISTINCT case_id FROM consecutive_events WHERE activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5 Then exclude these case_ids from the final result using NOT IN or LEFT JOIN."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The NOT IN might have performance issues if the event_log is large. We can use a LEFT JOIN with a distinct list of case_ids to exclude. This is often more efficient."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a sample data: case_id=1 Approve Purchase Requisition 2023-01-01 Create Order 2023-01-02 Confirm Order 2023-01-08 more than 5 days excluded. case_id=2 same sequence but Confirm Order 2023-01-06 4 days not excluded."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "The LEAD function will look at the next two events by timestamp. This assumes no two events with the same timestamp for the same case. If there are we might get non-deterministic results."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use ROW_NUMBER OVER PARTITION BY case_id ORDER BY timestamp activity AS row_num Then self join on row_num row_num+1 row_num+2 to get three consecutive events. This is more explicit and safer for ties."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The self-join is safer for correctness but LEAD method is more efficient if dataset large."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively use LEAD with ORDER BY timestamp activity to break ties. Rewrite using LEAD with timestamp activity ordering."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me test with a sample in DuckDB CREATE TABLE event_log INSERT VALUES case1 sequence >5 days excluded case2 4 days included case3 no sequence included. The query should return events from case2 and case3."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
