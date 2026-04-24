@@ -1,0 +1,25 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to analyze the given underfitting process tree. It has a sequence: create_req, approve_req, then a parallel block containing create_po, receive_goods, receive_invoice, match_invoice, pay_invoice, then close_case. The parallel block allows all those activities to be interleaved arbitrarily."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "In a proper Procure-to-Pay process, there are dependencies: after approval, you create PO. Then you receive goods and receive invoice (these can happen in any order? Actually, goods receipt and invoice receipt are independent? But typically, you receive goods, then later receive invoice. However, they can be in parallel? In reality, the invoice may arrive before goods, but the matching process requires both. But the model should enforce that matching happens after both goods and invoice are received. Also paying should happen after matching."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So the correct order is: create PO, then (receive goods and receive invoice can be in any order relative to each other (parallel or choice? Actually, they both must happen, so its a parallel (AND) of receive_goods and receive_invoice? But then after that, match, then pay."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The underfitting models parallel block allows paying before receiving goods, etc. Thats unwanted. Thus, we need to replace the parallel block with a sequence that enforces dependencies. The corrected model should be a sequence: create_req, approve_req, create_po, then a block that ensures receive_goods and receive_invoice both occur before match, but they can be in any order relative to each other (parallel or choice? Actually, they both must happen, so its a parallel (AND) of receive_goods and receive_invoice? Then matching, then payment. Then close case."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So we can have: create_po, then a parallel of receive_goods and receive_invoice, then match_invoice, then pay_invoice, then close_case. But is it allowed for receive_invoice to happen after match? No, match needs invoice. So the parallel must be before match. Thats fine. But what about the fact that sometimes you might receive invoice before goods? Thats allowed in reality, but the process still requires both. So parallel is fine. Alternatively, we could use a sequence with a loop? But no, its a straight process. Thus, the corrected process tree: Sequence: create_req approve_req create_po Parallel (AND): receive_goods receive_invoice match_invoice pay_invoice close_case But we need to ensure that match only happens after both, so sequence after parallel. Now, is there any need for choices? No, because all activities must happen exactly once. So the model is a strict sequence with one parallel block. The underfitting model had parallel block including create_po, receive_goods, receive_invoice, match_invoice, pay_invoice. That allowed paying before receiving, etc. So fixing it."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

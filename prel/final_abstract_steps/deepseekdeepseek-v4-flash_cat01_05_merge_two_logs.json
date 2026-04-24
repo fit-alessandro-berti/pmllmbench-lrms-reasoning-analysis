@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to merge Log A and Log B for Order#1234 Lets list events from each log with timestamps and details Log A 1 2023-10-10T10:00:00Z Order Received Order#1234 2 2023-10-10T10:01:30Z Order Validated Order#1234 3 2023-10-10T10:02:00Z Payment Processed Order#1234 4 2023-10-10T10:05:00Z Item Shipped Order#1234 5 2023-10-10T10:20:00Z Item Delivered Order#1234 Log B 1 2023-10-10T09:59:58Z OrderReceived u45 r10 Event captured at warehouse system 2 2023-10-10T10:01:29Z OrderValidation u12 r10 Cross-check inventory"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to match based on order_id and timing with tolerance ~2 seconds Lets analyze each pair Log A Order Received at 10:00:00 Log B OrderReceived at 09:59:58 Difference 2 seconds Thats within tolerance So match them Log A Order Validated at 10:01:30 Log B OrderValidation at 10:01:29 Difference 1 second Match Log A Payment Processed at 10:02:00 Log B PaymentCheck at 10:02:05 Difference 5 seconds Thats more than 2 seconds"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Option Match Payment Processed with PaymentCheck if we relax tolerance The instruction says if timestamps differ by less than 2 seconds consider them the same event So 5 seconds is not less than 2 So they are not considered the same event based on that rule However we could consider the possibility that they represent the same activity but with a larger offset"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Names similar Payment Processed vs PaymentCheck note in B Payment gateway delay so maybe its the same step but Bs timestamp is later due to delay Log As timestamps are when received not when they started Bs might be when started Could be same Given the explicit tolerance of 2 seconds I think we should stick to that So we treat them as separate events"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Shipping B at 10:05:02 Item Shipped A at 10:05:00 Difference 2 seconds so match Log As Item Delivered at 10:20:00 has no counterpart in B Log Bs Quality Check at 10:03:00 has no counterpart in A Thus Matched Order Received OrderReceived Order Validated OrderValidation Item Shipped Shipping Unmatched Payment Processed A PaymentCheck B Quality Check B Item Delivered A"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For matched events keep the timestamp from Log A as primary because its considered primary timeline but also include Bs timestamp For unmatched use their own timestamp Order events chronologically using a single timestamp say the one from the log we consider as representative primary_timestamp from A if available else from B secondary_timestamp if both event_type from A event_name from B user_id resource_id notes from B source A only B only A+B"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Alternatively we could argue to merge with Payment Processed but then the Quality Check would be between Payment and Shipping Given the tolerance rule we stick to 2s Note The event names in B Shipping is similar to Item Shipped OrderReceived and OrderValidation are exact matches We merged them PaymentCheck we left separate because 5s difference"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

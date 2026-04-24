@@ -19,6 +19,7 @@
 | qwenqwen3.6-plusfree                             | **7241**  |  45 |    1 |   0 |  290 |    39 |    1 |
 | z-aiglm-4.7                                      | **7233**  |  44 |    2 |   0 |  316 |    47 |    4 |
 | z-aiglm-5v-turbo                                 | **7149**  |  43 |    3 |   0 |  318 |    31 |    0 |
+| deepseekdeepseek-v4-pro                          | **7143**  |  44 |    2 |   0 |  304 |    37 |    3 |
 | deepseek-aiDeepSeek-R1                           | **7133**  |  41 |    5 |   0 |  375 |    57 |    8 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
@@ -40,6 +41,7 @@
 | z-aiglm-4.6                                      | **6683**  |  44 |    2 |   0 |  252 |    37 |    0 |
 | minimaxminimax-m2.5                              | **6681**  |  42 |    4 |   0 |  302 |    39 |    5 |
 | mistral-small-2603-thinkhigh                     | **6676**  |  41 |    3 |   1 |  330 |    44 |    9 |
+| deepseekdeepseek-v4-flash                        | **6623**  |  43 |    3 |   0 |  271 |    47 |    2 |
 | allenaiolmo-3-32b-think                          | **6622**  |  41 |    4 |   1 |  338 |    58 |   10 |
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         | **6619**  |  41 |    5 |   0 |  320 |    61 |    6 |
 | grok-3-mini-low                                  | **6616**  |  43 |    2 |   1 |  289 |    54 |    6 |
@@ -109,6 +111,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | qwenqwen3.6-plusfree                             |   15.5 |   13.3 |    9.4 |    4.8 |   13.3 | 20.6 |  9.4 |    1.5 |    0.9 |   11.2 |
 | z-aiglm-4.7                                      |   16.3 |   13.4 |    9.5 |    7.4 |   11.7 | 17.4 |  9.8 |    1.4 |    2.5 |   10.6 |
 | z-aiglm-5v-turbo                                 |   18.3 |   13.8 |   10   |    7.2 |   13.5 | 17.2 |  6.9 |    1.7 |    1.1 |   10.3 |
+| deepseekdeepseek-v4-pro                          |   23.3 |   16   |   11   |    7.8 |   14.2 | 12.5 |  3.5 |    1.7 |    0.6 |    9.3 |
 | deepseek-aiDeepSeek-R1                           |   14.5 |   19.5 |   14.1 |    9.1 |   15.9 | 13   |  5.2 |    1.6 |    1.4 |    5.7 |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
@@ -130,6 +133,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | z-aiglm-4.6                                      |   15.2 |   19.4 |   11.8 |    8.7 |   12.8 | 16.3 |  3.5 |    2.4 |    0.3 |    9.7 |
 | minimaxminimax-m2.5                              |   18.8 |   17.1 |   11.6 |    6.6 |   16.5 | 11.3 |  2.6 |    2   |    1.4 |   12.1 |
 | mistral-small-2603-thinkhigh                     |   23.5 |   14.9 |    8.9 |    6   |   15.9 | 14.9 |  4.7 |    2.3 |    0.8 |    8.1 |
+| deepseekdeepseek-v4-flash                        |   21.6 |   24.1 |   10.6 |    7.5 |   12.8 |  9.1 |  2.8 |    1.2 |    1.2 |    9.1 |
 | allenaiolmo-3-32b-think                          |   17.5 |   16.3 |    8.6 |    7.9 |   17.7 | 13.5 |  7.9 |    1.7 |    2   |    6.9 |
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         |   18.1 |   21.7 |   14.2 |    6.2 |   16.5 | 10.9 |  2.8 |    2.6 |    0.8 |    6.2 |
 | grok-3-mini-low                                  |   19.2 |   19.5 |   12.3 |   10.3 |   14.3 |  8.9 |  1.7 |    1.7 |    0.3 |   11.7 |
@@ -208,6 +212,7 @@ Dictionary of activities:
 | qwenqwen3.6-plusfree                             |   96.1 |   97.7 |   96.8 |   93.8 |   93.2 | 94.1 | 71   |   80   |    0   |   59.5 |
 | z-aiglm-4.7                                      |   95   |   95.9 |   94.3 |   88.9 |   88.4 | 89.1 | 83.3 |  100   |   33.3 |   56.4 |
 | z-aiglm-5v-turbo                                 |   98.4 |   95.8 |  100   |   88   |   91.5 | 98.3 | 83.3 |  100   |   50   |   61.1 |
+| deepseekdeepseek-v4-pro                          |   97.5 |   94.5 |   94.7 |   88.9 |   87.8 | 83.7 | 75   |  100   |    0   |   62.5 |
 | deepseek-aiDeepSeek-R1                           |   93.8 |   96.5 |   98.4 |   77.5 |   80   | 87.7 | 26.1 |   85.7 |   66.7 |   72   |
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |
@@ -229,6 +234,7 @@ Dictionary of activities:
 | z-aiglm-4.6                                      |   93.2 |   98.2 |   82.4 |   88   |   91.9 | 91.5 | 70   |  100   |    0   |   53.6 |
 | minimaxminimax-m2.5                              |   93.8 |   98.3 |   90   |   73.9 |   89.5 | 87.2 | 66.7 |   71.4 |   60   |   73.8 |
 | mistral-small-2603-thinkhigh                     |   92.2 |   93   |   94.1 |   87   |   78.7 | 89.5 | 61.1 |  100   |   66.7 |   67.7 |
+| deepseekdeepseek-v4-flash                        |   94.2 |   90.9 |  100   |   66.7 |   85.4 | 86.2 | 55.6 |  100   |   50   |   51.7 |
 | allenaiolmo-3-32b-think                          |   93   |   97   |   94.3 |   84.4 |   69.4 | 85.5 | 53.1 |  100   |   62.5 |   78.6 |
 | deepseek-aiDeepSeek-R1-Distill-Llama-70B         |   84.3 |   94   |   92.7 |   66.7 |   79.7 | 81   | 36.4 |   90   |   66.7 |   62.5 |
 | grok-3-mini-low                                  |   79.1 |   88.2 |   93   |   94.4 |   84   | 80.6 | 66.7 |  100   |  100   |   58.5 |

@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to analyze the event log data for anomalies and undesirable behaviors. The user wants us to identify anomalies, hypothesize causes, and propose SQL queries to investigate. We must not provide hints or guidance; we need to output our analysis. First, look at the normal flow: 1. Register Order (Sales) 2. Perform Credit Check (Finance) 3. Validate Stock (Warehouse) 4. Confirm Shipment (Logistics) 5. Ship Goods (Logistics) 6. Issue Invoice (Finance) 7. Receive Payment (Finance) Compare with actual events per case_id."
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Case 1001: follows normal flow exactly. No anomaly."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Case 1002: events: Register Order (8:20), Confirm Shipment (8:25), Ship Goods (8:40), Perform Credit Check (9:10), Validate Stock (9:15), Issue Invoice (9:30), Receive Payment (10:00 next day). Anomalies: Confirm Shipment and Ship Goods happen before Credit Check and Stock Validation. This is a violation of normal process order. Also, Credit Check and Stock Validation occur after shipment, which is risky. Possible causes: system error allowing premature shipment, policy violation, perhaps priority order? But order_type is priority (from orders table). Still, credit check should be performed before shipment."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Case 1003: events: Register Order (8:45), Perform Credit Check (9:00), Ship Goods (9:10), Issue Invoice (9:30), Confirm Shipment (9:45), Receive Payment (11:00 next day). Anomalies: Ship Goods happens before Confirm Shipment (should be after). Also, Confirm Shipment occurs after Ship Goods, which is illogical. Additionally, there is no Validate Stock event. Missing activity. Also, ordering: Credit Check is fine, but Ship Goods before Confirm Shipment is anomalous. Also, Invoice issued before Confirm Shipment? Actually Invoice at 9:30, Confirm Shipment at 9:45. So Invoice before shipment confirmation. Possible causes: system logging order wrong, human error, or process bypass."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Case 1004: events: Register Order (9:00), Receive Payment (9:05), Issue Invoice (9:20), Confirm Shipment (9:25), Ship Goods (9:50). Anomalies: Receive Payment before Issue Invoice (normal is Invoice then Payment). Also, Receive Payment is the second activity, way too early. Also, no Credit Check, no Validate Stock. Confirm Shipment has additional_info shipment_scheduled=N which might indicate cancellation? But Ship Goods still happens later. So payment received before invoice and before any processing. Also missing activities. Possible causes: fraud? system error? Payment maybe for something else? Order value 3000.00, additional_info amount=3000.00 matches. Could be a prepayment scenario? But normal process doesnt include that. Also, Credit Check missing."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Other anomalies: In case 1002, resource LogisticsMgr_2 does Confirm Shipment early. In case 1003, LogisticsMgr_2 does Confirm Shipment late. Could be same person causing issues."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses: 1. Process order violations (sequence errors) - need to identify cases where activities occur out of order. 2. Missing required activities - e.g., missing Credit Check or Validate Stock. 3. Activities performed by wrong role - e.g., confirming shipment before credit check by Logistics. 4. Temporal anomalies - activities happening too quickly or too slowly. 5. Resource behavior - certain resources repeatedly causing anomalies. 6. Order type correlation - priority orders might have different flow."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We need to propose SQL queries to investigate hypotheses. Should include joins to resources and orders. Hypotheses: ... Well write several SQL queries to detect these anomalies. One query: find cases where Confirm Shipment occurs before Perform Credit Check (like case 1002). Use self-joins on event log with different activities. Another: find cases where Ship Goods occurs before Confirm Shipment. Another: find cases missing Validate Stock or Perform Credit Check. Another: find cases where Receive Payment occurs before Issue Invoice. Also, check for duplicate activities? Not seen. Query to find resources involved in anomalies. We can also compute time gaps between activities. Well produce a response that lists anomalies observed, then hypotheses, then SQL queries."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

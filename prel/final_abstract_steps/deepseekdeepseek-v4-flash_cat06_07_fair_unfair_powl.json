@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to produce two POWL models based on the description. The first model includes potential unfairness via an XOR branch after skill assessment: one branch is standard cultural fit check, the other is a community affiliation check that gives advantage. The second model removes that XOR, making all applicants go through the same cultural fit check."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to label activities accordingly: ReceiveApplication, DataCompletenessCheck (with loop for missing info), RequestMoreInfo (inside loop), SkillAssessment, CulturalFitCheck, CommunityAffiliationCheck, ManagerialReview, FinalDecision. Also maybe initial resume parsing? The description: Resume Parsing & Initial Data Check - then loop for missing info."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So we can have a sequence: ReceiveApplication -> DataCompletenessCheck (loop: if incomplete, RequestMoreInfo, then back to DataCompletenessCheck). After that, SkillAssessment -> then XOR (for unfair model) or direct (for fair). Then ManagerialReview, FinalDecision."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The description says Managerial Review & Final Decision as a step that examines borderline candidates. But its a final step. We can model ManagerialReview as an activity, then FinalDecision. Or combine? Better to separate."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So for unfair model: start with ReceiveApplication, then a loop for data completeness (DataCompletenessCheck as the do part, RequestMoreInfo as the redo part). Then SkillAssessment. Then XOR between CulturalFitCheck and CommunityAffiliationCheck. Then ManagerialReview, then FinalDecision. For fair model: same except no XOR; after SkillAssessment, directly CulturalFitCheck, then ManagerialReview, FinalDecision."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Actually loop in POWL: * (A, B) means do A, then either exit or do B then A again. So the A is the initial part that must complete, then if condition is true, B then back to A. In our case, DataCompletenessCheck is the activity that checks; if incomplete, we RequestMoreInfo, then redo DataCompletenessCheck. So loops children: first child = DataCompletenessCheck, second child = RequestMoreInfo. That works."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But we also need to model the initial data check as part of loop? Actually the description: Any missing information triggers a loop process where the applicant is asked to provide additional details before proceeding. So the loop is after the resume parsing? We have ReceiveApplication then DataCompletenessCheck (which includes parsing?) We can label DataCompletenessCheck as the activity that checks completeness; then loop includes RequestMoreInfo as the back part."
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So lets define transitions: A = Transition(label=ReceiveApplication) B = Transition(label=DataCompletenessCheck) C = Transition(label=RequestMoreInfo) D = Transition(label=SkillAssessment) E = Transition(label=CulturalFitCheck) F = Transition(label=CommunityAffiliationCheck) G = Transition(label=ManagerialReview) H = Transition(label=FinalDecision)"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For unfair model: loop = OperatorPOWL(operator=Operator.LOOP, children=[B, C])   (B is first, then C is redo). Then xor = OperatorPOWL(operator=Operator.XOR, children=[E, F])   (E standard cultural fit, F community check). Then root = StrictPartialOrder(nodes=[A, loop, D, xor, G, H]). Order edges: A->loop, loop->D, D->xor, xor->G, G->H. Thats fine. For fair model: no xor, just E. So root nodes: [A, loop, D, E, G, H] with order A->loop, loop->D, D->E, E->G, G->H."
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "But we might also consider a silent transition for the XOR? No, we have two real activities. In the unfair model, one path is community check, the other is standard cultural fit. Thats fine."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

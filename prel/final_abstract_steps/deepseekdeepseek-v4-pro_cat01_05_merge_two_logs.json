@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to merge two logs: Log A (System A) and Log B (System B). Provide a merged event log with enriched attributes. Document reasoning. The user provides Log A and Log B. Log A has 5 events. Log B has 5 events, but not all match. Log B has an extra Quality Check event at 10:03:00 thats absent in Log A. Log A has Item Delivered at 10:20:00 thats absent in Log B. So we need to match where possible. Matching criteria: order_id + event timing with small timestamp tolerance (2 seconds). Log As timestamps: Order Received: 10:00:00Z Order Validated: 10:01:30Z Payment Processed: 10:02:00Z Item Shipped: 10:05:00Z Item Delivered: 10:20:00Z Log B: OrderReceived: 09:59:58Z OrderValidation: 10:01:29Z PaymentCheck: 10:02:05Z Quality Check: 10:03:00Z Shipping: 10:05:02Z"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Order Received: Log A 10:00:00 Log B 09:59:58 diff=2 seconds. less than 2 seconds? Exactly 2 not less than 2. Order Validated: Log A 10:01:30 Log B 10:01:29 diff=1 sec within tolerance. Payment Processed: Log A 10:02:00 Log B 10:02:05 diff=5 sec >2 no match. Item Shipped: Log A 10:05:00 Log B 10:05:02 diff=2 sec borderline."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "If strict <2 sec only Order Validated matches. Seems too few. Ill interpret as <=2 seconds inclusive for practical matching to account for clock drift."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Match: 1. Log A Order Received 10:00:00 with Log B OrderReceived 09:59:58 diff 2s match. 2. Log A Order Validated 10:01:30 with Log B OrderValidation 10:01:29 diff 1s match. 3. Log A Payment Processed 10:02:00 with Log B PaymentCheck 10:02:05 diff 5s no match. 4. Log A Item Shipped 10:05:00 with Log B Shipping 10:05:02 diff 2s match. 5. Log A Item Delivered 10:20:00 no match. Log B Quality Check 10:03:00 no match."
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For merged events combine all attributes. Log A timestamp as primary for chronological order. Unified event type. Include origin. For non-matches keep separate with source."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Chronological order: merged Order Received 10:00:00 merged Order Validated 10:01:30 A Payment Processed 10:02:00 B PaymentCheck 10:02:05 B Quality Check 10:03:00 merged Shipping 10:05:00 A Item Delivered 10:20:00. Total 7 events after merging 3 pairs."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Present in table with fields: timestamp_primary timestamp_A timestamp_B event_type_unified order_id user_id resource_id notes source. Use Log A timestamp as primary where available."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
