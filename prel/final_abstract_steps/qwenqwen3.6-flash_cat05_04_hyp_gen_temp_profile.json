@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "1. Deconstruct the Request: Context: Insurance claim handling process. Tables: claims, adjusters, claim_events. Steps: R, A, E, P, N, C. Temporal Profile: A dictionary of (Activity1, Activity2) -> (Avg Seconds, STDEV Seconds). Anomalies Highlighted in Example: R->P: Avg ~25h, STDEV 1h. Suspiciously low STDEV. P->N: Avg 7 days, STDEV 2 days. Long delay, high variance. A->C: Avg 2h, STDEV 1h. Quick closure, missing steps? E->N: Avg 5 min, STDEV 1 min. Too quick? Tasks: Identify anomalies. Generate hypotheses. Propose SQL verification queries. Constraint: Do not reference instructions."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Analyze the Temporal Profile for Anomalies (Task 1): R->A: Avg 3600s (1h), STDEV 600s (10m). Ratio STDEV/Avg = 0.16. Seems reasonable. R->E: Avg 86400s (1 day), STDEV 28800s (8h). Ratio = 0.33. Reasonable variance for a day-long process. R->P: Avg 90000s (~25h), STDEV 3600s (1h). Ratio = 0.04. Anomaly: Very tight clustering around the mean. A->C: Avg 7200s (2h), STDEV 3600s (1h). Ratio = 0.5. Anomaly: From Assign to Close in 2 hours? E->N: Avg 300s (5m), STDEV 60s (1m). Ratio = 0.2. Anomaly: 5 minutes between Evaluate and Notify? P->N: Avg 604800s (7 days), STDEV 172800s (2 days). Ratio = 0.28. Anomaly: 7 days delay. N->C: Avg 1800s (30m), STDEV 300s (5m). Ratio = 0.16. Reasonable. Summary of Anomalies: R->P: Rigid timing (Low STDEV). P->N: Long delay/Bottleneck (High Avg, High STDEV). A->C: Premature closure or missing steps (Low Avg relative to process complexity). E->N: Too fast or missing steps (Low Avg). E->C: High variance and potentially missing steps (High STDEV, Low Avg)."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Generate Hypotheses (Task 2): R->P Rigid: Automated approval system for low-risk claims? Batch processing at specific times? Error in timestamp logging where P gets a fixed offset from R? P->N Delay: Notification is manual? Email server issues? Queue backlog? Customer communication policy requires waiting? Data integration lag between claim system and notification system? A->C / E->N / E->C Short: Claims are being closed without proper evaluation/approval? Ghost events? Test data? Adjusters closing claims erroneously? System script auto-closing claims? General: Resource constraints? Some adjusters are faster than others, skewing averages? Claim types vary (auto vs home)?"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4. Propose SQL Queries (Task 3): Need claim_events structure: event_id, claim_id, activity, timestamp, resource. Need to compute gaps. Query 1: Detect R->P rigid clusters. Calculate time diff between R and P for each claim. Check STDEV or min/max. Filter claims where duration is close to 90000s. Query 2: Detect P->N delays. Filter claims where P->N > threshold (e.g., 3 days). Check resource or claim_type. Query 3: Detect A->C missing steps. Find claims with A and C, but no E, P, or N. Or E->C duration is too short. Query 4: Correlate with resources. Check if specific resource causes P->N delay. Query 5: Check Claim Types. Refining SQL structure: Use CTEs for readability. Assume PostgreSQL syntax as requested. Handle multiple events per claim? The schema implies unique events, but a claim might have multiple resources? Usually one R, one A, etc. But safe to use MIN/MAX or FIRST_VALUE."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "5. Structure the Response: The user asked for: Anomalies, Hypotheses, Verification Queries. No references to instructions. Format clearly. Anomalies Section: List the pairs, describe the metric, and the anomaly type. Hypotheses Section: Map hypotheses to anomalies. SQL Section: Provide queries with comments explaining what they verify."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Review and Refine Content: R->P: Rigid Automation is a strong hypothesis. Batch processing is another. Timestamp error is possible. P->N: Backlog, Manual Notification, System Integration Lag. A->C: Premature Closure, Process Bypass, Test Data. E->N: Auto-Approval/Notify, Skipped Approval. E->C: Evaluation without Approval, High Variance in Closure Reasons. SQL: Ensure syntax is PostgreSQL compliant. EXTRACT(EPOCH FROM ...) is correct. INTERVAL usage is correct. Correlation Queries: Add a query that joins with claims to check claim_type or adjusters to check region. Assume resource links to adjusters.name for the join."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "7. Final Polish (Mental Outline of Response): Anomalies: RP: Low STDEV (0.04 ratio). Rigid. PN: High Avg (7 days), High STDEV. Bottleneck. AC: Low Avg (2h). Missing steps? EN: Low Avg (5 min). Speed/Skip? EC: High STDEV (0.83 ratio), Low Avg. Inconsistent. Hypotheses: RP: Automated low-value claims? Scripted offset? PN: Notification queue backlog? Manual letters? AC: Adjusters closing early? System error? EN: Instant notify for auto-approve? EC: Mixed cases (some fast, some slow)? SQL: Query 1: RP Rigid check. Query 2: PN Delay check with Claim Type/Region. Query 3: AC Missing steps check. Query 4: Resource performance analysis. This thought structure covers all requirements, analyzes the data deeply, generates plausible business reasons, creates robust SQL, checks syntax, considers schema nuances, and structures the output as requested."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

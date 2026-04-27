@@ -24,6 +24,7 @@
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  | **7126**  |  42 |    4 |   0 |  346 |    74 |    3 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **7112**  |  41 |    5 |   0 |  379 |    78 |   10 |
 | qwenqwen3.5-27b                                  | **7108**  |  43 |    2 |   1 |  334 |    32 |    5 |
+| qwenqwen3.6-27b                                  | **7087**  |  44 |    2 |   0 |  297 |    43 |    2 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab | **7052**  |  41 |    5 |   0 |  359 |    58 |    4 |
 | qwenqwen3.5-35b-a3b                              | **7046**  |  43 |    2 |   1 |  334 |    34 |    8 |
 | qwenqwen3-next-80b-a3b-thinking                  | **7021**  |  41 |    5 |   0 |  370 |    59 |   11 |
@@ -35,6 +36,8 @@
 | deepseekdeepseek-v3.2-thinking                   | **6965**  |  43 |    3 |   0 |  312 |    35 |    6 |
 | moonshotaikimi-k2.5                              | **6955**  |  42 |    4 |   0 |  331 |    35 |    6 |
 | xiaomimimo-v2.5-pro                              | **6951**  |  45 |    0 |   1 |  280 |    29 |    6 |
+| qwenqwen3.6-max-preview                          | **6939**  |  44 |    2 |   0 |  283 |    31 |    3 |
+| qwenqwen3.6-flash                                | **6861**  |  44 |    1 |   1 |  283 |    49 |    1 |
 | sonar-reasoning-pro                              | **6747**  |  40 |    6 |   0 |  353 |    63 |    6 |
 | magistral-medium-2509                            | **6728**  |  41 |    5 |   0 |  322 |    52 |    2 |
 | magistral-small-2509                             | **6689**  |  41 |    5 |   0 |  318 |    31 |    3 |
@@ -116,6 +119,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   17.5 |   19.4 |   12.5 |    9.5 |   14.2 | 13.9 |  4.3 |    2.1 |    0.5 |    6.1 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   15.4 |   19.7 |    9.6 |    9.6 |   13.7 | 15.2 |  5.8 |    2.8 |    1.1 |    7.1 |
 | qwenqwen3.5-27b                                  |   17.3 |   10.8 |    8.1 |    5.9 |   12.9 | 18.1 | 12.9 |    1.6 |    0.8 |   11.6 |
+| qwenqwen3.6-27b                                  |   15.5 |   14.3 |    9.1 |    5   |   11.1 | 19   | 10.2 |    1.5 |    0.9 |   13.5 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   14.3 |   19.7 |   12.8 |    7.1 |   20   | 12.4 |  3.8 |    2.9 |    1.2 |    5.9 |
 | qwenqwen3.5-35b-a3b                              |   16.5 |   15.7 |    8   |    5.1 |   11.4 | 17.3 | 12.5 |    2.4 |    1.3 |    9.8 |
 | qwenqwen3-next-80b-a3b-thinking                  |   15   |   14.5 |   11.1 |    7.5 |   18   | 16.4 |  6.8 |    2   |    1.4 |    7.3 |
@@ -127,6 +131,8 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | deepseekdeepseek-v3.2-thinking                   |   19.8 |   19.8 |    9.3 |    9.9 |   14.7 | 11.3 |  3.7 |    1.1 |    0.8 |    9.3 |
 | moonshotaikimi-k2.5                              |   19.4 |   17.5 |    9.9 |    6.7 |   13.4 | 15.1 |  7   |    1.6 |    1.1 |    8.3 |
 | xiaomimimo-v2.5-pro                              |   20.3 |   19.4 |   11.1 |    6.3 |   16.8 | 10.2 |  3.2 |    1.6 |    0   |   11.1 |
+| qwenqwen3.6-max-preview                          |   16.4 |   14.2 |    6.6 |    5.4 |   12.3 | 18.9 | 10.1 |    0.9 |    1.3 |   13.9 |
+| qwenqwen3.6-flash                                |   15.6 |   14.1 |    9   |    6.9 |   12.3 | 17.7 |  7.5 |    0.9 |    0.9 |   15   |
 | sonar-reasoning-pro                              |   16.6 |   19.4 |   13   |    8.8 |   16.4 | 13.5 |  3.8 |    0.7 |    0.9 |    6.9 |
 | magistral-medium-2509                            |   21   |   18.9 |   10.4 |    6.9 |   13.6 | 13   |  6.9 |    1.9 |    1.1 |    6.4 |
 | magistral-small-2509                             |   18.8 |   19   |   11.1 |    6.2 |   15.9 | 14.5 |  4.8 |    1.4 |    0.9 |    7.4 |
@@ -217,6 +223,7 @@ Dictionary of activities:
 | nvidiallama-3.3-nemotron-super-49b-v1-thinkenab  |   87.8 |   91.5 |   88.7 |   77.5 |   66.7 | 88.1 | 50   |   88.9 |   50   |   69.2 |
 | nvidiallama-3.3-nemotron-super-49b-v1.5-thinking |   87.5 |   93.5 |   95.6 |   73.3 |   81.2 | 85.9 | 22.2 |   76.9 |   80   |   63.6 |
 | qwenqwen3.5-27b                                  |  100   |   95   |  100   |   90.9 |   83.3 | 95.5 | 89.6 |  100   |    0   |   67.4 |
+| qwenqwen3.6-27b                                  |   94.3 |   98   |   96.8 |   82.4 |   89.5 | 96.9 | 74.3 |  100   |   66.7 |   54.3 |
 | nvidiallama-3.1-nemotron-ultra-253b-v1-thinkenab |   88.3 |   92.8 |   88.9 |   66.7 |   85.7 | 94.2 | 50   |   91.7 |   40   |   76   |
 | qwenqwen3.5-35b-a3b                              |   96.8 |   98.3 |   86.7 |   78.9 |   81.4 | 93.8 | 74.5 |  100   |   60   |   86.5 |
 | qwenqwen3-next-80b-a3b-thinking                  |   80.3 |   92.2 |   95.9 |   87.9 |   86.1 | 86.1 | 50   |   88.9 |   50   |   81.2 |
@@ -228,6 +235,8 @@ Dictionary of activities:
 | deepseekdeepseek-v3.2-thinking                   |   95.7 |   98.6 |   93.9 |   80   |   84.6 | 90   | 61.5 |  100   |   33.3 |   72.7 |
 | moonshotaikimi-k2.5                              |   97.2 |   90.8 |  100   |   92   |   90   | 91.1 | 69.2 |   83.3 |   50   |   67.7 |
 | xiaomimimo-v2.5-pro                              |   95.3 |   96.7 |  100   |   90   |   86.8 | 90.6 | 70   |  100   |    0   |   57.1 |
+| qwenqwen3.6-max-preview                          |   96.2 |   97.8 |  100   |  100   |   97.4 | 96.7 | 71.9 |  100   |   50   |   61.4 |
+| qwenqwen3.6-flash                                |   98.1 |   95.7 |   90   |   91.3 |   90.2 | 98.3 | 64   |  100   |   33.3 |   48   |
 | sonar-reasoning-pro                              |   85.7 |   95.1 |   85.5 |   81.1 |   84.1 | 82.5 | 43.8 |   66.7 |   75   |   72.4 |
 | magistral-medium-2509                            |   91.1 |   94.4 |   89.7 |   76.9 |   82.4 | 91.8 | 65.4 |  100   |   75   |   58.3 |
 | magistral-small-2509                             |   95.5 |  100   |   92.3 |   81.8 |   91.1 | 94.1 | 64.7 |  100   |   66.7 |   65.4 |

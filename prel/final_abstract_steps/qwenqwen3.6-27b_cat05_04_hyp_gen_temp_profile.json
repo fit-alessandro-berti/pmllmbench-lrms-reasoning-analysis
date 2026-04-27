@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1.  **Deconstruct the Request:** *   **Context:** PostgreSQL database with tables `claims`, `adjusters`, `claim_events`. *   **Process:** R -> A -> E -> P -> N -> C. *   **Temporal Profile Model:** Provided as a dictionary with `(AVG, STDEV)` for pairs. *   **Anomalies Highlighted in Model:** *   `R` to `P`: Avg ~25h, STDEV 1h (Low STDEV, rigid timing). *   `P` to `N`: Avg 7 days, STDEV 2 days (Long delay, high variance). *   `A` to `C`: Avg 2h, STDEV 1h (Too fast, might skip steps). *   `E` to `N`: Avg 5 min, STDEV 1 min (Too fast, might skip steps). *   **Tasks:** 1.  Identify anomalies. 2.  Generate hypotheses. 3.  Propose SQL verification queries. *   **Constraint:** Do not reference instructions/explanations. Present independently."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2.  **Task 1: Identify Anomalies:** *   I need to list the anomalies based on the provided model. *   *R->P:* Average 90,000 seconds (~1.04 days). STDEV 3,600 seconds (1 hour). *   *Analysis:* The process usually goes R->A->E->P. If R->P is ~1 day, and R->E is 1 day, and R->A is 1 hour, this implies E->P is almost instantaneous or the timing is locked. The STDEV is very low compared to the mean. This suggests a fixed delay or a system constraint forcing P to happen exactly ~25 hours after R, regardless of intermediate steps. *   *P->N:* Average 604,800 seconds (7 days). STDEV 172,800 seconds (2 days). *   *Analysis:* 7 days is a long time to wait between Approval and Notification. High STDEV means inconsistency. Some might be fast, some slow. *   *A->C:* Average 7,200 seconds (2 hours). STDEV 3,600 seconds (1 hour). *   *Analysis:* A is Assign, C is Close. Normal flow is A->E->P->N->C. If A->C is only 2 hours, this is impossibly fast for a full process. It suggests claims are closing right after assignment, skipping E, P, N."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "*   *E->N:* Average 300 seconds (5 mins). STDEV 60 seconds (1 min). *   *Analysis:* E is Evaluate, N is Notify. Normal flow is E->P->N. If E->N is 5 mins, P is likely skipped or instantaneous. 5 mins is very fast for a human to evaluate and then notify, especially if P is involved. Low STDEV suggests automation or a rigid skip."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3.  **Task 2: Generate Hypotheses:** *   *R->P Anomaly:* *   *Hypothesis 1:* Automated approval rule triggers exactly 24 hours after submission for specific claim types. *   *Hypothesis 2:* System bug where `timestamp` for P is set to `submission_date + 1 day` if not updated. *   *Hypothesis 3:* \"Approve\" activity is logged automatically by a cron job regardless of actual evaluation. *   *P->N Anomaly:* *   *Hypothesis 1:* Notification batch process runs weekly, causing a lag up to 7 days. *   *Hypothesis 2:* High volume of approvals overwhelms the notification queue. *   *Hypothesis 3:* Manual review required before notification, causing delays and variance."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "*   *A->C Anomaly:* *   *Hypothesis 1:* Claims are being rejected/closed immediately after assignment due to fraud detection or invalid data. *   *Hypothesis 2:* Data entry error where \"Close\" is logged prematurely. *   *Hypothesis 3:* Specific adjusters have a \"fast track\" or \"immediate deny\" workflow. *   *E->N Anomaly:* *   *Hypothesis 1:* Evaluation triggers an automated notification script instantly, skipping the formal \"Approve\" step in the log. *   *Hypothesis 2:* \"Notify\" is actually a system status update that happens right after evaluation, not a customer notification. *   *Hypothesis 3:* Process bypass where E leads directly to N for low-value claims."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "4.  **Task 3: Propose SQL Verification Queries:** *   *Goal:* Verify hypotheses using `claim_events`, `claims`, `adjusters`. *   *Query Structure:* Need to join `claim_events` to get pairs, calculate time differences, and filter. *   *Key SQL Patterns:* *   Self-join on `claim_events` for pairs. *   `EXTRACT(EPOCH FROM ...)` for seconds. *   Window functions or LAG/LEAD if checking sequence, but pairs are safer with self-join for arbitrary pairs. *   Join with `claims` for `claim_type`, `claim_amount`. *   Join with `adjusters` via `resource` ... *   *Query 1: R->P Rigid Timing.* ... *   *Query 2: P->N Long Delay.* ... *   *Query 3: A->C Fast Close / Skipping.* ... *   *Query 4: E->N Fast Transition.* ... *   *Query 5: Correlation with Adjusters/Regions.* ..."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "5.  **Review and Refine:** *   *Structure:* The output should be clean. Anomalies, Hypotheses, SQL Queries. *   *SQL Dialect:* PostgreSQL. Use `EXTRACT(EPOCH FROM ...)`, `::int` casts, correct syntax. *   *Refinement on R->P:* The model says R->P STDEV is 1 hour. This is suspiciously low. The hypothesis should mention \"Artificial scheduling\" or \"System-generated timestamps\". *   *Refinement on A->C:* The model mentions A->C avg 2 hours. If the process is R->A->E->P->N->C, A->C should be the sum of A->E + E->P + P->N + N->C. *   A->E isnt given, but R->E is 1 day, R->A is 1 hour, so A->E is ~23 hours. *   So A->C should be ~23h + ... > 24 hours. *   A->C being 2 hours confirms massive skipping. *   *Refinement on E->N:* ... confirms P is skipped or P->N is skipped."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "6.  **Final Polish (Mental Outline of Response):** *   *Anomalies:* *   RP: Mean ~25h, SD 1h. Rigid timing. *   PN: Mean 7d, SD 2d. Long, variable delay. *   AC: Mean 2h. Implies skipping E, P, N. *   EN: Mean 5m. Implies skipping P or instant auto-notify. *   *Hypotheses:* *   RP: Automated batch approval at T+24h? Timestamp injection? *   PN: Weekly notification batch? Queue backlog? Manual hold? *   AC: Immediate rejection? Fraud flag? Data error? *   EN: Auto-notify script? Low-value bypass? *   *SQL:* *   Query 1: RP distribution and claim attributes. *   Query 2: PN outliers and resource analysis. *   Query 3: AC claims and missing steps check. *   Query 4: EN claims and P existence check. *   Query 5: Adjuster/Region breakdown for AC."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "1. Understand the Users Goal: The user wants a DuckDB SQL query that filters out cases from an event_log table based on two conditions: - The case contains a specific sequence of three activities in direct succession: Approve Purchase Requisition -> Create Order -> Confirm Order. - In that sequence, the time between Create Order and Confirm Order is > 5 days. - The final result should return all events from cases that do not match these criteria."
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "2. Deconstruct the Requirements: - Input table: event_log with columns case_id, activity, timestamp. - Condition 1: Direct succession of three specific activities. This means for a given case_id, if we order events by timestamp, there should be three consecutive rows where activity matches the sequence exactly. - Condition 2: Time difference between the 2nd and 3rd activity in that sequence > 5 days. - Condition 3: Exclude cases matching both conditions. Return all events from non-matching cases. - Output: All columns from event_log for the remaining cases, properly ordered."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "3. Identify Key SQL Concepts Needed: - Window functions: LAG() or LEAD() to check consecutive activities within a case ordered by timestamp. - Time difference calculation: timestamp_diff or date arithmetic in DuckDB. - Filtering/Exclusion: NOT IN or EXCEPT or LEFT JOIN ... IS NULL or NOT EXISTS. - Grouping/Aggregation: To identify cases that meet the criteria. - DuckDB specifics: DuckDB supports standard SQL window functions, INTERVAL 5 days, and date_diff or direct timestamp subtraction."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4. Step-by-Step Query Construction: Step 1: Identify consecutive sequences per case. Using LAG() and LAG() twice: WITH ordered_events AS ( SELECT case_id, activity, timestamp, LAG(activity, 1) OVER (PARTITION BY case_id ORDER BY timestamp) AS prev_act1, LAG(activity, 2) OVER (PARTITION BY case_id ORDER BY timestamp) AS prev_act2, LAG(timestamp, 1) OVER (PARTITION BY case_id ORDER BY timestamp) AS prev_ts1 FROM event_log ) ... condition for a match on the current row (which is Confirm Order) would be: activity = Confirm Order prev_act1 = Create Order prev_act2 = Approve Purchase Requisition And time difference: timestamp - prev_ts1 > INTERVAL 5 days. Step 2: Identify cases to exclude. cases_to_exclude AS ( SELECT DISTINCT case_id FROM ordered_events WHERE activity = Confirm Order AND prev_act1 = Create Order AND prev_act2 = Approve Purchase Requisition AND timestamp - prev_ts1 > INTERVAL 5 days ) Step 3: Filter the original table."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "5. Refine and Check Edge Cases: - Direct succession: The LAG approach correctly checks direct succession because it looks at the immediately preceding rows ordered by timestamp. If theres any other event in between, the LAG values wont match the required activities. - Timestamp ties: What if two events have the exact same timestamp? ... Ill stick to ORDER BY timestamp. - Time difference: more than 5 days. timestamp - prev_ts1 > INTERVAL 5 days handles this correctly. - Multiple matches per case: SELECT DISTINCT case_id handles it. - Final output: return all events from event_log except those that belong to cases matching both... The query does exactly that."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Self-Correction/Verification: - Check LAG offsets: LAG(activity, 1) is the immediate predecessor. LAG(activity, 2) is the one before that. So for the current row Confirm Order, prev1 is Create Order, prev2 is Approve Purchase Requisition. This matches the sequence: Approve -> Create -> Confirm. Correct. - Check timestamp difference: ... correct. - Check interval syntax: DuckDB accepts INTERVAL 5 days. - Check exclusion logic: NOT IN works. - Ordering: order by case_id, timestamp. - Potential issue with ties: ... - Alternative approach: Could use MATCH_RECOGNIZE? DuckDB doesnt natively support MATCH_RECOGNIZE yet ... Window functions are safer."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "Potential edge case: What if a case has multiple sequences, and only one meets the time condition? The case is still excluded. ... yes, if any instance matches both, the whole case is excluded. What about LAG behavior with NULLs? If a case has fewer than 3 events, prev_act_2 will be NULL, and the WHERE clause will filter it out correctly."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

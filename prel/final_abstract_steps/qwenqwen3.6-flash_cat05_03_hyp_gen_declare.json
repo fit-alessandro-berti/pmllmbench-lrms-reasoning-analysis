@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Thinking Process: 1. Deconstruct the Input: Database Schema: claims, adjusters, claim_events. claim_events has activity codes: R, A, E, P, N, C. resource links to adjusters (likely). Ideal Flow: R -> A -> E -> P -> N -> C. DECLARE Model: init: R: support: 1.0, confidence: 1.0 -> Every trace starts with R. existence: C: support: 1.0, confidence: 1.0 -> Every trace contains C. responded_existence: E: support: 1.0, confidence: 1.0, activities: [A] -> If E occurs, A must have occurred earlier. precedence: C: support: 1.0, confidence: 1.0, activities: [R] -> R must occur before C. noncoexistence: E: support: 1.0, confidence: 1.0, activities: [C] -> E and C cannot coexist in the same trace."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2. Analyze Anomalies (Conflict Detection): Ideal Flow vs. Model: Ideal: R, A, E, P, N, C. Model noncoexistence between E and C: This is the biggest red flag. The ideal flow has both E and C. The model says they cant coexist. This contradicts the business logic completely. Internal Model Conflicts: responded_existence E -> A: This seems okay. precedence C -> R: This seems okay. init R: Good. existence C: Ends with C. Conflict: noncoexistence E/C vs Ideal Flow. Conflict: noncoexistence E/C vs responded_existence E->A? No. Critical Conflict: existence C requires C to be present. noncoexistence E/C says E and C cannot both be present. Result: If a trace has E, it cannot have C. But C must exist. Therefore, a trace with E is impossible. So the model forces traces to never have E. But responded_existence E->A is conditional. So the model effectively forces E to never happen. This contradicts the ideal flow where E is a mandatory step. Conclusion: The model forbids the evaluation step entirely because it conflicts with the mandatory closing step and the mutual exclusion of E and C. Other potential issues: init R: Good. precedence C->R: Redundant. responded_existence E->A: Good but dormant. Missing constraints: No constraint for P, N, A existence. Anomaly Summary: 1. noncoexistence E/C contradicts Ideal Flow. 2. noncoexistence E/C contradicts existence C. 3. Model allows traces without E, which breaks the process. 4. Model allows traces with E, which breaks existence C. 5. Model is logically inconsistent regarding the coexistence of E and C given the mandatory nature of C."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3. Generate Hypotheses: Why E/C noncoexistence? Maybe Close means something different? No. Hypothesis 1: Data error. extraction algorithm confused Close with Reject or Cancel? Hypothesis 2: Misinterpretation of Responded Existence or Noncoexistence. Hypothesis 3: Process variation. Some claims closed without evaluation? Algorithm over-generalized. Hypothesis 4: Technical glitch. activity codes mapping error. Hypothesis 5: Inconsistent updates. Policy changed to allow Direct Close, removing E. Hypothesis 6: Noncoexistence might be a typo for Precedence? Refinement: The strongest hypotheses are Policy Change (Direct Close allowed) or Data Extraction Error (C mapped to a state that excludes E)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "4. Propose Verification Approaches (SQL): Goal: Check anomalies in data. Check 1: Coexistence of E and C. SQL: SELECT claim_id FROM claim_events WHERE activity=E INTERSECT SELECT claim_id FROM claim_events WHERE activity=C; Or GROUP BY with HAVING. Check 2: Existence of C. SQL: SELECT claim_id FROM claims WHERE claim_id NOT IN (SELECT DISTINCT claim_id FROM claim_events WHERE activity=C); Check 3: Existence of E. SQL: SELECT claim_id FROM claim_events WHERE activity=E AND claim_id NOT IN (SELECT DISTINCT claim_id FROM claim_events WHERE activity=C); Check 4: Responded Existence E->A. SQL: SELECT ce.claim_id FROM claim_events ce WHERE ce.activity=E AND NOT EXISTS (SELECT 1 FROM claim_events sub WHERE sub.claim_id=ce.claim_id AND sub.activity=A AND sub.timestamp < ce.timestamp); Check 5: Ideal Flow violations. Check P, N existence. Check order R->A->E->P->N->C. SQL for order: Min timestamps comparison."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "5. Structure the Response: The user asked for: Anomalies, Hypotheses, Verification Approaches. No hints from explanation in final response. Format clearly. Anomalies Section: Conflict 1: noncoexistence E/C vs Ideal Flow. Conflict 2: noncoexistence E/C vs existence C. Conflict 3: Model allows traces without E. Conflict 4: Missing constraints for P, N, A. Hypotheses Section: Policy change (Direct Close). Data quality (C mapped to Cancel/Reject). Algorithm overfitting. Mislabeling of activities. SQL Section: Query for E+C coexistence. Query for missing C. Query for E without A. Query for R before C. Query for missing steps in ideal flow."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Review SQL Syntax (PostgreSQL): INTERSECT is valid. NOT EXISTS is valid. MIN/MAX for ordering checks. Example SQL for E+C: SELECT claim_id FROM claim_events WHERE activity IN (E, C) GROUP BY claim_id HAVING COUNT(DISTINCT activity) = 2; Example SQL for E without A: SELECT ce.claim_id FROM claim_events ce WHERE ce.activity = E AND NOT EXISTS ( SELECT 1 FROM claim_events sub WHERE sub.claim_id = ce.claim_id AND sub.activity = A AND sub.timestamp < ce.timestamp ); This looks correct."
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "7. Final Polish: Ensure tone is professional. Ensure all constraints from the prompt are met. Output the response."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Input Tables: - Orders: order_id, order_date, customer_id, customer_type, sales_person_id, order_priority - Order Lines: order_id, item_id, quantity, item_picking_date, picker_id - Delivery: delivery_id, order_id, delivery_dispatch_date, delivery_arrival_date, carrier_id, delivery_note - Invoice: invoice_id, order_id, invoice_issue_date, invoice_amount, billing_person_id - Payments: payment_id, invoice_id, payment_date, payment_method, payment_reference - Products (Optional): item_id, item_description, item_category - Resources (Optional): resource_id, resource_name, role"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Map Tables to Activities: - Orders -> Order Created (1 event per order) - Order Lines -> Item Picked (1 event per line item, or aggregate? ... Ill create one event per line item since each has a distinct picking date and picker) - Delivery -> Order Dispatched & Order Delivered (2 events per delivery record) - Invoice -> Invoice Issued (1 event per invoice) - Payments -> Payment Received (1 event per payment)"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For Order Lines produce one event per line item ... named Item Picked and include item details in attributes. For Delivery each delivery record creates two events: Order Dispatched and Order Delivered. Append a suffix like _DLV-5001 to case ID or activity to distinguish multiple shipments ... or just keep case ID as order_id"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets verify chronological order and logic: - Order Created -> Item Picked(s) -> Order Dispatched -> Order Delivered -> Invoice Issued -> Payment Received - Note: Invoices can be issued before, during, or after delivery ... but Ill just use the actual timestamps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Process Each Table & Generate Events: Orders Table: 1001: 2024-01-01T09:00:00Z ... Sales: Alice Brown (SP-001) ... Order Lines Table: 1001, ITEM-001, qty 2, 2024-01-02T10:15:00Z, picker David Lin (WH-001) ... Note: Order 1004 has no delivery record ... Ill only generate events for data provided"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Construct the Event Log Table: sort by case_id then timestamp for clarity ... or group by case ... but sorting globally by timestamp is fine too. Ill sort by case_id then timestamp ... actually sort the entire table by timestamp. format attributes as a JSON-like or key-value string ... use key=value pairs separated by ;"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Self-Correction/Verification during drafting: - Check order_id 1002: Has 2 deliveries, 2 invoices, 2 payments. All accounted for. - Check order_id 1004: Only Order Created and Item Picked. Correct. ... One minor point: ... Payment resource is inferred as Payment System ... Ill use Payment System for simplicity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Verify timestamps order: 01-01 09:00 (1001) 01-02 10:15 (1001) ... 01-15 12:00 (1005) This looks correct and chronologically sorted. rows count: 1001:7 1002:11 1003:7 1004:2 1005:7 Total:34 rows. Matches my list"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

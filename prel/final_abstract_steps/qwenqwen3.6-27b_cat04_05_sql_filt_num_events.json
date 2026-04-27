@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "1. Analyze User Input: - Input: A draft prompt for a benchmark. - Task: The prompt asks for a DuckDB SQL query to filter out cases with more than 6 events, keeping only events from cases with 6 events. - Table: event_log - Columns: case_id, activity, timestamp (at least these) - Logic: Count events per case_id, filter case_ids where count > 6, return all events for the remaining case_ids. - Goal: Evaluate the draft prompt. Is it clear? Does it need improvement? Should I provide the expected answer/query? The user just provided the draft prompt, likely wanting feedback, refinement, or the actual SQL query that would be the answer to this benchmark question."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2. Identify Key Components of the Prompt: - Context: DuckDB, event log table - Columns: case_id, activity, timestamp - Task: Filter cases with >6 events, keep 6 - Output: Full events for qualifying cases - Constraints: Correct grouping and filtering"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "3. Evaluate the Draft Prompt: - Clarity: Very clear. States the table, columns, task, and expected logic explicitly. - Precision: Specifies more than six events vs six or fewer. Matches standard SQL HAVING COUNT(*) <= 6. - Context: Appropriate for a SQL benchmark. - Potential Issues: Could be slightly more concise. Doesnt specify if ties or edge cases matter (not really relevant here). Could explicitly ask for the query only, or specify output format. Might benefit from a note about window functions vs joins/subqueries, but its open-ended which is good for benchmarks. - Overall: Its a solid draft. I should provide feedback, suggest minor improvements, and provide the reference solution."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4. Formulate Reference Solution (Mental): There are multiple valid ways to write this in SQL: - Window Function (Modern & Efficient): SELECT * FROM ( SELECT *, COUNT(*) OVER (PARTITION BY case_id) as case_count FROM event_log ) WHERE case_count <= 6; - Subquery/JOIN: SELECT e.* FROM event_log e JOIN ( SELECT case_id FROM event_log GROUP BY case_id HAVING COUNT(*) <= 6 ) c ON e.case_id = c.case_id; - EXISTS: SELECT * FROM event_log e WHERE EXISTS ( SELECT 1 FROM event_log e2 WHERE e2.case_id = e.case_id GROUP BY case_id HAVING COUNT(*) <= 6 ); DuckDB supports all of these. The window function approach is often preferred for readability and performance in modern SQL. Ill note that multiple valid answers exist."
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "5. Draft Feedback/Refinement: - Acknowledge the prompt is well-structured. - Suggest minor tweaks for benchmark rigor: specify expected output format, clarify if * is acceptable, mention that multiple syntactically valid approaches exist. - Provide the reference solution(s). - Suggest adding a scoring rubric or acceptance criteria for automated evaluation. - Check for potential ambiguities: more than six vs six or fewer is clear. full set of events implies SELECT * or at least the original columns. Structure of response: - Praise/Validation - Minor refinements (bullet points) - Reference solution(s) with explanation - Benchmark evaluation tips (how to score/verify) - Final polished version of the prompt (optional but helpful)"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "6. Self-Correction/Refinement during thought: - Check: Does the prompt specify DuckDB specifically? Yes. DuckDB handles window functions efficiently, so thats fine. - Check: Should I warn about COUNT(*) vs COUNT(case_id)? Both work here since case_id is grouped/partitioned. COUNT(*) is standard. - Benchmark context: For automated evaluation, I should suggest using exact match on sorted results or set equality, since column order/row order might vary. - Prompt polish: Ill provide a slightly tightened version thats benchmark-ready, plus evaluation criteria. Draft structure: - Strengths: Clear, unambiguous, specifies DB, columns, logic. - Suggestions: Add output specification, note acceptable approaches, provide reference query. - Reference Solution: Show window function & join approaches. - Evaluation Criteria: How to automatically grade it. - Revised Prompt: Ready-to-use version."
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "Self-Correction/Verification during drafting: - Wait, the prompt says filters out any cases containing more than six events, and returns only the events from cases that have six or fewer events in total. This is exactly COUNT(*) <= 6. - DuckDB specific: No special syntax needed, standard SQL works. - Benchmark tip: Emphasize that row order doesnt matter, but set equality does. Suggest using ORDER BY case_id, timestamp for deterministic comparison. - Ill make sure the reference solution includes ORDER BY for reproducibility, though its not strictly required by the prompt. Ready. Output matches the refined response. Structure: - Assessment - Reference Solution - Benchmark Evaluation Tips - Polished Prompt Version - All concise and actionable. Proceeds. Self-Correction/Note during thought: I should make sure the SQL uses standard DuckDB-compatible syntax. Window functions are perfect. Ill provide the window function as primary, JOIN as alternative. Ill also note that COUNT(*) is fine. Ill add a note about handling NULLs if case_id can be NULL, but the prompt implies its a grouping key, so its fine. Ill keep it simple. All good. Output matches response."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
