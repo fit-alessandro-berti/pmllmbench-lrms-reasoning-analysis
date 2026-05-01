@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First, the main goal is to exclude cases that have a sequence of three activities in order: Approve Purchase Requisition, then Create Order, then Confirm Order with no other events in between. Additionally, for that sequence, the time between Create Order and Confirm Order must be more than 5 days."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "In SQL, to find sequences, window functions like LAG and LEAD are useful. For each event, we can check the previous and next events in the same case. For a Confirm Order event, check if the previous event in the same case is Create Order, and the one before that is Approve Purchase Requisition."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Using window functions with PARTITION BY case_id and ORDER BY timestamp. For a given event, if its activity is Confirm Order, then LAG(activity, 1) is Create Order, and LAG(activity, 2) is Approve Purchase Requisition, then those three are consecutive."
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The first step is to find all cases where there exists a Confirm Order event such that the prior two events in the case are the required activities, and the time since Create Order >5 days."
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the Confirm Order event, the previous event is Create Order, so timestamp - prev_timestamp > INTERVAL 5 DAYS."
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "Create a CTE or subquery that lists the bad case_ids, then final query SELECT * FROM event_log WHERE case_id NOT IN (bad case_ids)."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The LAG method works for consecutive triplets, as in A, B, C: for C, prev is B, prev_prev is A."
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "Edge cases: if A, X, B, C then for C prev is B prev_prev X not A. If A B X C then prev is X not B. Multiple sequences: if one meets condition, case excluded."
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Refine condition to timestamp > prev_timestamp + INTERVAL 5 DAY for clarity and reliability."
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Mental testing with sample cases: Case 1 A B C with 6 days excluded; Case 2 with interruption not; exactly 5 days not excluded; multiple sequences if one bad then excluded."
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
