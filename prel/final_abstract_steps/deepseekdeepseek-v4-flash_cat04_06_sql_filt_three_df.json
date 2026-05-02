@@ -1,11 +1,11 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "We need to write a DuckDB SQL query that filters out cases that have a specific three-event sequence Approve Purchase Requisition Create Order Confirm Order in direct succession and where the time between Create Order and Confirm Order in that sequence is more than 5 days Then return all events from cases that are NOT filtered out"
+    "Text": "We need to write a DuckDB SQL query that filters out cases that have a specific three event sequence Approve Purchase Requisition Create Order Confirm Order in direct succession and where the time between Create Order and Confirm Order in that sequence is more than 5 days Then return all events from cases that are NOT filtered out"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Interpretation Direct succession means no other events in between for that case So we need to find cases where these three activities occur consecutively in order Then among those check if the duration between the second and third Create Order to Confirm Order exceeds 5 days Then exclude those cases entirely We need to return all events from all other cases The query should use DuckDB syntax"
+    "Text": "Interpretation Direct succession means no other events in between for that case So we need to find cases where these three activities occur consecutively in order Then among those check if the duration between the second and third Create Order to Confirm Order exceeds 5 days Then exclude those cases entirely"
   },
   {
     "Name": "Hypothesis Generation - PE",
@@ -13,19 +13,31 @@
   },
   {
     "Name": "Heuristic Reasoning - IND",
-    "Text": "Alternatively we can use array_agg or listagg to form a sequence and search for pattern but thats more complex Window functions are straightforward"
+    "Text": "Alternatively we can use array agg or listagg to form a sequence and search for pattern but that is more complex Window functions are straightforward"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Steps 1 For each case order by timestamp 2 Use LAG activity1 OVER PARTITION BY case_id ORDER BY timestamp as prev_activity 3 Use LEAD activity1 OVER PARTITION BY case_id ORDER BY timestamp as next_activity 4 Also use LEAD timestamp1 to get next timestamp 5 Filter rows where activity Create Order AND prev_activity Approve Purchase Requisition AND next_activity Confirm Order 6 Compute duration next_timestamp timestamp should be days In DuckDB timestamp subtraction gives an interval To get days use EXTRACT day from interval or cast to days Simpler next_timestamp DATE timestamp DATE 5 But careful if time difference includes hours we need more than 5 days ie more than 5 24 hours Using date difference might round down Better to use interval comparison next_timestamp timestamp INTERVAL 5 days DuckDB supports interval literals 7 Then get distinct case_ids that satisfy this condition 8 Then select all events from event_log where case_id NOT IN those case_ids"
+    "Text": "Steps 1 For each case order by timestamp 2 Use LAG activity 1 OVER PARTITION BY case id ORDER BY timestamp as prev activity 3 Use LEAD activity 1 OVER PARTITION BY case id ORDER BY timestamp as next activity 4 Also use LEAD timestamp 1 to get next timestamp 5 Filter rows where activity equals Create Order AND prev activity equals Approve Purchase Requisition AND next activity equals Confirm Order 6 Compute duration equals next timestamp minus timestamp"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Edge cases There could be multiple sequences in same case The condition says contains the following sequence so if any such sequence exists the whole case is excluded So we just need to detect at least one occurrence Also note The sequence must be in direct succession Our window approach checks consecutive events But what if the same case has multiple events We need to ensure that the Approve Purchase Requisition is immediately before and Confirm Order immediately after Thats correct But what if the sequence appears multiple times Still case is flagged"
+    "Text": "In DuckDB timestamp subtraction gives an interval Better to use interval comparison next timestamp minus timestamp greater than INTERVAL 5 days DuckDB supports interval literals"
   },
   {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Implementation Use CTE to get flagged case_ids Potential performance Use indexes Not needed Now write the final SQL Well include comments Note DuckDBs SQL dialect standard Use WITH clause Lets produce answer"
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then get distinct case ids that satisfy this condition Then select all events from event log where case id NOT IN those case ids"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Edge cases There could be multiple sequences in same case The condition says contains the following sequence so if any such sequence exists the whole case is excluded So we just need to detect at least one occurrence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Our window approach checks consecutive events However we need to ensure that the Approve Purchase Requisition is immediately before and Confirm Order immediately after That is correct"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Implementation Use CTE to get flagged case ids Then write the final SQL with a WITH clause"
   },
   {
     "Name": "Conclusion - C"

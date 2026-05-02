@@ -1,39 +1,67 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "We need to produce a POWL model for a telecom service provisioning process. The scenario has multiple steps, loops, exclusive choice, partial orders, concurrent tasks. We need to define the model with correct structure. Use pm4py objects. The code should import needed classes, define all transitions with labels as per the description."
+    "Text": "We need to produce a POWL model for a telecom service provisioning process The scenario has multiple steps loops exclusive choice partial orders concurrent tasks"
   },
   {
-    "Name": "Abductive Reasoning - PE",
-    "Text": "The steps: 1. Start: verify Service Request SR. Thats not described as a node? The description says the process starts by verifying the initial Service Request SR submitted by the client. Once the request is verified, Contract Setup CS must be done. Probably we need a transition for SR verification that leads to CS. Thus we need to define a root StrictPartialOrder that includes a node for Verify Service Request then CS."
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The code should import needed classes define all transitions activities with labels as per the description"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The process starts by verifying the initial Service Request submitted by the client Once the request is verified Contract Setup must be done So we need a partial order sequential from SR verification to CS"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Probably we need a transition for Verify Service Request that leads to CS"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "After CS DA and ACI can be done in parallel no ordering constraints So we need edges from CS to DA and from CS to ACI and no edge between DA and ACI"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Both DA and ACI must be done before the loop So we need edges from both DA and ACI to the loop"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The loop is described as BNC followed by optional D and R repeats until stable The loop operator in POWL means execute A then either exit or execute B and then A again"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So we need to define the loop node with children BNC and DR"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "After the loop the exclusive choice between CD and MD So exclusive choice equals XOR with CD and MD"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "After exclusive choice QA and SA both must be completed before final sign off and they can be concurrent So we define QA SA GLA with edges QA to GLA and SA to GLA and no edge between QA and SA"
   },
   {
     "Name": "Hypothesis Generation - PE",
-    "Text": "Simplify: root = StrictPartialOrder nodes = verify_sr, cs, da, aci, loop, xor, qa, sa, gla. Add edges: verify_sr to cs, cs to da, cs to aci, da to loop, aci to loop, loop to xor, xor to qa, xor to sa, qa to gla, sa to gla."
-  },
-  {
-    "Name": "Deductive Reasoning - PE",
-    "Text": "The loop is described as: A base configuration activity Base Network Configuration BNC sets initial routing. After the base configuration, if there are issues detected, a Debug and Reconfigure DR step is performed. This BNC followed by optional DR repeats until the configuration is stable. The loop operator in POWL: * A B means execute A, then either you exit the loop, or execute B and then A again. So loop = OperatorPOWL operator=Operator.LOOP, children=[BNC, DR]."
-  },
-  {
-    "Name": "Deductive Reasoning - PE",
-    "Text": "After the network is successfully configured, there is an exclusive choice on how to deploy the application layer: Either perform a Containerized Deployment CD for a microservices architecture, or Execute a Monolithic Deployment MD for a legacy application environment. Only one of these deployments will be chosen. So exclusive_choice = OperatorPOWL operator=Operator.XOR, children=[CD, MD]."
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Once the deployment method has been chosen and completed, there are some final tasks that must happen in a partial order: Quality Assurance QA tests must be performed. Security Audit SA must run. Both QA and SA must be completed before final sign-off, but they can be done in any order or even concurrently. So StrictPartialOrder nodes = QA, SA, GLA and add edges QA to GLA, SA to GLA."
+    "Text": "Overall root can be a StrictPartialOrder that includes SR verification CS DA ACI loop exclusive choice QA SA GLA Then we add edges to enforce ordering"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Thus this code implements the scenario. QA and SA can be concurrent since no edge between QA and SA, unconnected nodes are concurrent. Edges from DA and ACI to loop ensure both completed before loop starts. XOR node finishes after one child executed, edges from xor to qa and sa ensure deployment before QA and SA."
-  },
-  {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Now we might want to add silent transitions where appropriate? The scenario mentions that after exclusive choice between CD and MD, there may be an implicit silent transition for skip? Not needed. Silent transition for skip in loops optional DR? Not needed because loop operator inherently models optional execution of B."
+    "Text": "Since there is no edge between QA and SA they can run concurrently This is allowed by the partial order semantics unconnected nodes are concurrent"
   },
   {
     "Name": "Validation - PE",
-    "Text": "The root StrictPartialOrder nodes list includes all, order edges enforce all dependencies. pm4py uses networkx DiGraph for order. Constructor StrictPartialOrder nodes=list works, .order.add_edge works. Model faithfully represents scenario."
+    "Text": "The loop includes optional D and R so we do not need explicit edges or a silent transition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We do not need a silent transition for the exclusive choice either"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Add ordering constraints verify SR to CS CS to DA CS to ACI DA to loop ACI to loop loop to XOR XOR to QA XOR to SA QA to GLA SA to GLA"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This code implements the scenario"
   },
   {
     "Name": "Conclusion - C"

@@ -1,31 +1,99 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "First, I need to understand the given POWL model. The ideal process is R -> A -> E -> P -> N -> C. But the actual model has: - A loop between E and P (so E then P can repeat) - An XOR between N and skip (so notification might be skipped) - Partial ordering that allows C to happen after A directly (bypassing loop and xor)"
-  },
-  {
-    "Name": "Pattern Recognition - PE",
-    "Text": "Hmm... so the anomalies I can spot are: 1. The loop: In the ideal process, E and P should happen once each. But here, the loop means you could do E, then P, then E again, then P again... which doesnt make logical sense for claims. Why would you evaluate after approving? That seems backwards. 2. The XOR skip: The model explicitly allows skipping notification (N). Thats a problem because the ideal process requires notification. 3. The partial order anomaly: Theres a direct edge from A to C, meaning you could close the claim right after assignment without doing E, P, or N. Thats definitely premature."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Now for hypotheses... why would these exist? Possible reasons: - Business rule changes: Maybe they started allowing multiple evaluations for complex claims (the loop), but forgot to remove the old requirement for single evaluation. - Miscommunication: The notification skip might be because customer service said sometimes we dont need to notify but legal says we always must. - Technical errors: Maybe the workflow tool defaulted to allowing skips, or the modeler didnt understand POWL semantics. - Inadequate constraints: The modeler might not have realized that adding A->C creates a shortcut."
-  },
-  {
-    "Name": "Abductive Reasoning - PE",
-    "Text": "For the loop (E,P) might exist because: Hypothesis 1: Business rule changed to allow re-evaluation after initial approval for complex claims, but the model wasnt updated to restrict it to specific cases. For XOR skip for N: Hypothesis 2: Miscommunication - customer service team sometimes skips notification for minor claims, but policy requires it always. For Partial order A->C: Hypothesis 3: Technical error - when the model was built, the constraint was accidentally omitted, or the tool defaulted to allowing all possible orders."
+    "Text": "First I need to understand the given POWL model The ideal process is R to A to E to P to N to C But the actual model has A loop between E and P so E then P can repeat An XOR between N and skip so notification might be skipped Partial ordering that allows C to happen after A directly bypassing loop and xor"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "For verification via database: I need to look at claim_events table. Each event has claim_id, activity, timestamp, resource. To check premature closure: Find claims where theres a C event but no E or P event before it. For multiple approvals: Claims with multiple P events. For skipped notifications: Claims with P but no N before C."
+    "Text": "The anomalies I can spot are The loop In the ideal process E and P should happen once each But here the loop means you could do E then P then E again then P again which does not make logical sense for claims"
   },
   {
-    "Name": "Backtracking - IND",
-    "Text": "Better: SELECT DISTINCT c.claim_id FROM claims c JOIN claim_events ce ON c.claim_id = ce.claim_id WHERE ce.activity = C AND NOT EXISTS ( SELECT 1 FROM claim_events ce2 WHERE ce2.claim_id = c.claim_id AND ce2.activity IN (E, P) AND ce2.timestamp < ce.timestamp ); Wait, but a claim might have multiple C events? Actually, for each claim, if theres a C event, and the maximum timestamp of E/P is before the C, but we want cases where there are NO E/P at all before C."
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The XOR skip The model explicitly allows skipping notification That is a problem because the ideal process requires notification"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The partial order anomaly There is a direct edge from A to C meaning you could close the claim right after assignment without doing E P or N That is definitely premature"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "In POWL StrictPartialOrder means some activities can be concurrent or out of order if not constrained"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Possible reasons Business rule changes Maybe they started allowing multiple evaluations for complex claims the loop but forgot to remove the old requirement for single evaluation"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Miscommunication The notification skip might be because customer service said sometimes we do not need to notify but legal says we always must"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Technical errors Maybe the workflow tool defaulted to allowing skips or the modeler did not understand POWL semantics"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Inadequate constraints The modeler might not have realized that adding A to C creates a shortcut"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "To check premature closure Find claims where there is a C event but no E or P event before it Or where C happens before E or P"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For multiple approvals Claims with multiple P events"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For skipped notifications Claims with P but no N before C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The loop is E then P meaning E then P and can repeat So sequence could be E P E P but in reality you should not evaluate after approving So in data we might see claims with E after P"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "The ideal is E then P once So multiple Es or Ps would be anomalies"
   },
   {
     "Name": "Validation - PE",
-    "Text": "For multiple approvals: SELECT c.claim_id, COUNT(*) as approval_count FROM claim_events ce JOIN claims c ON ce.claim_id = c.claim_id WHERE ce.activity = P GROUP BY c.claim_id HAVING COUNT(*) > 1; For the loop anomaly: E after P. In ideal, E should be before P. So: SELECT DISTINCT c.claim_id FROM claims c JOIN claim_events ce_e ON c.claim_id = ce_e.claim_id AND ce_e.activity = E JOIN claim_events ce_p ON c.claim_id = ce_p.claim_id AND ce_p.activity = P WHERE ce_e.timestamp > ce_p.timestamp;"
+    "Text": "This finds claims closed without evaluation or without approval"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This finds claims where evaluation happened after approval which the loop allows but is illogical"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Business rule changed to allow re evaluation after initial approval for complex claims but the model was not updated to restrict it to specific cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check if claims with E after P have higher amounts or specific types"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Miscommunication customer service team sometimes skips notification for minor claims but policy requires it always"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query skipped notifications and see if they correlate with claim amount below a threshold"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Technical error when the model was built the constraint was accidentally omitted or the tool defaulted to allowing all possible orders"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check how many claims were closed prematurely if it is a small number might be accidental If many might be intentional but undocumented"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Perhaps it is a modeling error and they meant to have a loop around E only or something else"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The A to C edge is explicit which is a big anomaly"
   },
   {
     "Name": "Conclusion - C"

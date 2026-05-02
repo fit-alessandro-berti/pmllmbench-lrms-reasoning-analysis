@@ -1,35 +1,47 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "We are given a POWL model that represents a variant of an Order-to-Cash process. The model includes the following activities: Receive_Order (R), Check_Credit (C), Approve_Order (A), Issue_Invoice (I), Receive_Payment (P), and Close_Order (O). Additionally, there is a silent transition (skip) and two operators: an XOR for credit check and a LOOP for approve and invoice. Standard Order-to-Cash process typically includes: - Receiving an order (R) - Checking credit (C) - Approving the order (A) - Issuing an invoice (I) - Receiving payment (P) - Closing the order (O)"
+    "Text": "We are given a POWL model that represents a variant of an Order to Cash process The model includes the following activities Receive Order R Check Credit C Approve Order A Issue Invoice I Receive Payment P and Close Order O Additionally there is a silent transition skip and two operators an XOR for credit check and a LOOP for approve and invoice"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Standard Order to Cash process typically includes Receiving an order R Checking credit C Approving the order A Issuing an invoice I Receiving payment P Closing the order O"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "In the provided model: - The credit check (C) is optional because it is inside an XOR with a silent transition (skip). This means we can either check credit or skip it. - The approve (A) and issue invoice (I) are in a LOOP. This means we can have zero or more iterations of the sequence [A, I]."
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Anomalies: 1. Optional credit check: Skipping the credit check might lead to orders being processed without evaluating the customers creditworthiness, which is a risk. 2. Loop of approve and invoice: This could mean that we can approve an order and issue an invoice multiple times. In a standard process, we would approve once and then issue an invoice once."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "The loop structure in POWL: LOOP(children=[A, I]) means: - First, we execute A (the first child). Then, we have a choice: either we exit the loop, or we execute I (the second child) and then restart the loop by executing A again. This means that we must do at least one A, and then we can optionally do I and then another A, and so on."
-  },
-  {
-    "Name": "Validation - PE",
-    "Text": "So, the loop allows for sequences like: A A, I, A A, I, A, I, A ... We cannot have I without an A preceding it. Additionally, note that the loop does not require that we do I. We can exit the loop after the first A without doing I. But then we would never issue an invoice?"
+    "Text": "In the provided model The credit check C is optional because it is inside an XOR with a silent transition skip This means we can either check credit or skip it The approve A and issue invoice I are in a LOOP This means we can have zero or more iterations of the sequence A I"
   },
   {
     "Name": "Abductive Reasoning - PE",
-    "Text": "However, the loop is followed by P (Receive_Payment) and then O (Close_Order). So, if we exit the loop without doing I, then we go to P and O without having issued an invoice. This might be another anomaly. R -> (C or skip) -> A -> P -> O [without invoice] This is a major anomaly because we are receiving payment without issuing an invoice."
+    "Text": "Anomalies Optional credit check Skipping the credit check might lead to orders being processed without evaluating the customers creditworthiness which is a risk Loop of approve and invoice This could mean that we can approve an order and issue an invoice multiple times In a standard process we would approve once and then issue an invoice once However the loop allows for multiple approvals and invoice issuances for the same order which is unusual and might indicate a workaround for order modifications or errors"
   },
   {
-    "Name": "Backtracking - PE",
-    "Text": "So, the anomalies are: 1. Credit check is optional. 2. The approval and invoice steps are in a loop, which allows for multiple approvals and invoices for the same order. 3. The loop also allows for the possibility of skipping the invoice step entirely (if we exit the loop after the first A)."
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The model starts with R Receive Order Then we go to an XOR that either does C Check Credit or skips it After the credit check or skipping we enter a loop that does A Approve Order and then I Issue Invoice The loop can be entered multiple times meaning we can do A I repeatedly After the loop we do P Receive Payment and then O Close Order"
   },
   {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "In a real-world scenario, these anomalies can lead to: - Skipping credit check: Increased risk of bad debt. - Multiple approvals and invoices: Could indicate that the order is being modified or that the process is not efficient. It might also lead to confusion about which invoice is the final one. - Skipping the invoice: Then we are receiving payment without an invoice, which is not compliant with standard accounting practices."
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The loop structure in POWL LOOP children A I means First we execute A the first child Then we have a choice either we exit the loop or we execute I the second child and then restart the loop by executing A again This means that we must do at least one A"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the loop allows for sequences like A A I A A I A I A But note we cannot have I without an A preceding it"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Additionally note that the loop does not require that we do I We can exit the loop after the first A without doing I However the loop is followed by P Receive Payment and then O Close Order So if we exit the loop without doing I then we go to P and O without having issued an invoice This might be another anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "This is a third anomaly the ability to skip the invoice step"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the model allows for R to C or skip to A to P to O without invoice This is a major anomaly because we are receiving payment without issuing an invoice"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "In a real world scenario these anomalies can lead to Skipping credit check Increased risk of bad debt Multiple approvals and invoices Could indicate that the order is being modified or that the process is not efficient It might also lead to confusion about which invoice is the final one Skipping the invoice Then we are receiving payment without an invoice which is not compliant with standard accounting practices"
   },
   {
     "Name": "Conclusion - C"

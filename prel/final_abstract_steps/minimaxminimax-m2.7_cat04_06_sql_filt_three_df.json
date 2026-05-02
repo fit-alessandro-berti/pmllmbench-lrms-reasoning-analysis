@@ -1,31 +1,63 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "direct succession requirement these three events appear consecutively with no other events of the same case in between Or more robust ensure the order is consecutive in the sorted order of events for the case by timestamp"
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Simplify Use window functions to assign a row number per case ordered by timestamp Then join events with LEAD to get next activity For three consecutive events use LAG and LEAD Or use LEAD2 Simplify Use subquery with window functions SELECT case_id activity timestamp LEAD activity OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity"
+    "Text": "We need to answer Provide a DuckDB SQL query that selects events from the table event_log excluding cases that meet the criteria containing the specific three activity sequence in direct succession Approve Purchase Requisition Create Order Confirm Order with the time between Create Order and Confirm Order greater than 5 days"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "filter for rows where activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 days Thus we can find case_ids that satisfy this condition Then exclude them WITH sequence_cases AS SELECT DISTINCT case_id FROM sub WHERE activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp - next_timestamp > INTERVAL 5 days SELECT e FROM event_log e WHERE NOT EXISTS SELECT 1 FROM sequence_cases sc WHERE sc.case_id e.case_id ORDER BY e.case_id e.timestamp"
+    "Text": "We need to produce a final result set of all events from the cases that do NOT match the criteria The query must be written in DuckDB SQL"
   },
   {
-    "Name": "Validation - PE",
-    "Text": "Edge Cases Might be multiple events with same timestamp but ordering by timestamp only If there are ties row_number may be needed to break ties But typical process logs have distinct timestamps per case If not we can use row_number and order by timestamp activity some stable ordering But for simplicity we assume timestamps unique per case"
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We must consider the direct succession requirement these three events appear consecutively with no other events of the same case in between"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Simplify Use window functions to assign a row number per case ordered by timestamp Then join events with LEAD to get next activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For three consecutive events we need e1 e2 e3 consecutive Use LAG and LEAD to get activity of previous and next events Or use LEAD2"
   },
   {
     "Name": "Hypothesis Generation - PE",
-    "Text": "refine by using ROW_NUMBER WITH ordered AS SELECT ROW_NUMBER OVER PARTITION BY case_id ORDER BY timestamp activity AS rn FROM event_log sequence_cases AS SELECT DISTINCT o1.case_id FROM ordered o1 JOIN ordered o2 ON o1.case_id o2.case_id AND o2.rn o1.rn 1 JOIN ordered o3 ON o1.case_id o3.case_id AND o3.rn o1.rn 2 WHERE o1.activity Approve Purchase Requisition AND o2.activity Create Order AND o3.activity Confirm Order AND o3.timestamp - o2.timestamp > INTERVAL 5 days SELECT e FROM event_log e WHERE e.case_id NOT IN SELECT case_id FROM sequence_cases ORDER BY e.case_id e.timestamp"
+    "Text": "Use subquery with window functions SELECT case_id activity timestamp LEAD activity OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity LEAD timestamp OVER PARTITION BY case_id ORDER BY timestamp AS next_timestamp LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_timestamp FROM event_log"
   },
   {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Potential nuance If there are multiple events with same timestamp ordering by timestamp only may cause non-deterministic ordering but it okay for typical scenario Better to use double quotes for case-sensitive column names case_id etc"
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we can filter for rows where activity Approve Purchase Requisition AND next_activity Create Order AND next_next_activity Confirm Order AND next_next_timestamp minus next_timestamp greater than interval 5 days"
   },
   {
-    "Name": "Backtracking - IND",
-    "Text": "But we can also use LEAD approach with subquery Better to provide simpler LEAD version"
+    "Name": "Validation - PE",
+    "Text": "But careful The time elapsed between the Create Order event and the Confirm Order event is the difference between the timestamps of those two events next_timestamp and next_next_timestamp So we need to compute next_next_timestamp minus next_timestamp greater than interval 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Thus we can find case_ids that satisfy this condition Then exclude them"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "With sequence_cases as select distinct case_id from subquery where activity Approve Purchase Requisition and next_activity Create Order and next_next_activity Confirm Order and next_next_timestamp minus next_timestamp greater than interval 5 days Then select all from event_log where not exists matching case_id order by case_id timestamp"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Alternatively use NOT IN"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Edge Cases Might be multiple events with same timestamp but ordering by timestamp only If there are ties row_number may be needed to break ties But typical process logs have distinct timestamps per event"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We can refine by using ROW_NUMBER with ordered as select all and row_number over partition by case_id order by timestamp activity as rn from event_log then join ordered rows rn rn plus 1 and rn plus 2 and filter on the three activities and timestamp difference greater than interval 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Using DISTINCT case_id ensures that if any occurrence meets criteria the whole case is excluded"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Better to provide simpler LEAD version"
   },
   {
     "Name": "Conclusion - C"

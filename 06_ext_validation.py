@@ -61,7 +61,7 @@ def evaluate_file(file_path, output_folder, api_key):
             )
 
             print(f"Evaluating file: {os.path.basename(file_path)}")
-            response = pm4py.llm.openai_query(prompt, api_key=api_key, openai_model="gpt-5-nano")
+            response = pm4py.llm.openai_query(prompt, api_key=api_key, api_url="https://api.x.ai/v1", openai_model="grok-4-1-fast-non-reasoning")
             json_str = extract_json_from_response(response)
             evaluation_list = json.loads(json_str)
             evaluation_list = [x for x in evaluation_list if x in ["Y", "P", "N"]]
@@ -80,7 +80,7 @@ def evaluate_file(file_path, output_folder, api_key):
 
 def main(input_folder, output_folder):
     # Read API key (adjust the path to your API key file as needed)
-    api_key_path = "../api_openai.txt"
+    api_key_path = "../api_grok.txt"
     with open(api_key_path, "r") as f:
         api_key = f.read().strip()
 

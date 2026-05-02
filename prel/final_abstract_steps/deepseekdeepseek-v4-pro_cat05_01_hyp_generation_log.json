@@ -1,31 +1,111 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "Ill examine the event log: Case 1001: activities in correct order: Register Order Sales, Perform Credit Check Finance, Validate Stock Warehouse, Confirm Shipment Logistics, Ship Goods Logistics, Issue Invoice Finance, Receive Payment Finance. Fine."
-  },
-  {
-    "Name": "Pattern Recognition - PE",
-    "Text": "Case 1002: activities: Register Order 820, Confirm Shipment 825 early before credit check and stock validation, Ship Goods 840, Perform Credit Check 910, Validate Stock 915, Issue Invoice 930, Receive Payment 221000. Anomalies: Confirm Shipment and Ship Goods happen before credit check and stock validation."
-  },
-  {
-    "Name": "Pattern Recognition - PE",
-    "Text": "Case 1003: activities: Register Order 845, Perform Credit Check 900, Ship Goods 910, Issue Invoice 930, Confirm Shipment 945 late, Receive Payment 221100. Anomalies: Ship Goods before Confirm Shipment. Validate Stock is missing entirely."
-  },
-  {
-    "Name": "Pattern Recognition - PE",
-    "Text": "Case 1004: activities: Register Order 900, Receive Payment 905, Issue Invoice 920, Confirm Shipment 925, Ship Goods 950. Missing: Perform Credit Check, Validate Stock. Anomalies: Payment received before invoice issued."
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Overall anomalies across cases: out-of-order execution shipment before credit check, payment before invoice, etc., missing activities credit check, stock validation, and attempted_early and late_confirmation flags."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Hypotheses: Deliberate policy violation maverick behavior resources bypassing checks to expedite shipment. System error or UI issues allowing actions before dependencies. Training issues where employees not following correct sequence. Fraud case 1004 payment before invoice might be fraudulent pre-collection."
+    "Text": "We need to generate a response that identifies anomalies in the event log data and proposes SQL queries to investigate"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "To investigate propose SQL queries: 1. Detect cases where activity order deviates compare timestamps of specific activities per case. 2. Find cases missing mandatory activities. 3. Look for patterns with attempted_early or late_confirmation in additional_info and correlate with resource role. Specific queries like for Ship Goods before Perform Credit Check using MIN timestamp comparison."
+    "Text": "The user gave a schema sample data and a prompt The prompt says The target model should be encouraged to Identify anomalies and undesirable behaviors in the given event log Hypothesize why these anomalies might occur and Propose relevant SQL queries So I need to act as the target LLM and output a response that does that"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1001 activities in correct order Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Fine"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 activities Register Order Confirm Shipment early before credit check and stock validation Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies Confirm Shipment and Ship Goods happen before credit check and stock validation That is a major out of order execution likely policy violation"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Additional info for Confirm Shipment attempted early Y indicating someone attempted early shipment Possibly a deliberate bypass"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 activities Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies Ship Goods before Confirm Shipment Normal flow expects Confirm Shipment before Ship Goods Also Validate Stock is missing entirely"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 activities Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Missing Perform Credit Check Validate Stock Payment received before invoice issued Normally issue invoice then receive payment"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Could be a prepayment scenario but still deviations from normal process"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Overall anomalies across cases out of order execution shipment before credit check payment before invoice missing activities credit check stock validation and attempted early and late confirmation flags"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "These could indicate process violations system workarounds fraud or training issues"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Deliberate policy violation maverick behavior resources bypassing checks to expedite shipment for example LogisticsMgr 2 in case 1002 confirmed shipment early with attempted early Y This might be to meet delivery KPIs"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "System error or UI issues allowing actions before dependencies"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Training issues where employees not following correct sequence"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Fraud case 1004 payment before invoice might be fraudulent pre collection or missing credit check could indicate collusion"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Missing stock validation in cases 1003 and 1004 might be due to known stock levels or override but still deviation"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Case 1002 is priority order maybe they allow early shipment But still should perform credit check Yet shipment happened before credit check"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "They did credit check later so it was not skipped just late So it is still anomalous"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "To investigate I will propose SQL queries Detect cases where activity order deviates from normal sequence Check cases missing mandatory activities Look for patterns with attempted early or late confirmation and correlate with resource role Check if certain resources are repeatedly involved in out of order activities Check order type priority versus standard"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "For each case get the minimum timestamps of certain activities and compare those where timestamp of a later expected step is earlier than an earlier step"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Cases missing mandatory activities like Perform Credit Check Validate Stock and others can be checked by seeing whether activity entries exist per case"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Resources involved in early shipment confirmations can be investigated using additional info fields and joined to resources for role and department"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Cases with payment before invoice can be found by comparing earliest Receive Payment and Issue Invoice timestamps per case"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Frequency of missing steps by order type or by resource might be interesting"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The prompt does not require actual SQL results just proposed SQL queries"
   },
   {
     "Name": "Conclusion - C"

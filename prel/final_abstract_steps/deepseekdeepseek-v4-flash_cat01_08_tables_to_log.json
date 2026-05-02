@@ -1,39 +1,75 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "We need to create an event log from the given tables. Each order_id is a case. We have multiple tables: Orders, Order Lines, Delivery, Invoice, Payments. Also optional Products and Resources tables for enrichment."
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Activities derived: Order Created from the Orders table with order_date Items Picked from Order Lines each pick event per item since multiple items with possibly different times we should create one event per item pick since each pick is a separate activity"
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "We need to define activity names clearly For example Order Created Item Picked Order Dispatched Order Arrived Invoice Issued Payment Received"
+    "Text": "We need to create an event log from the given tables Each order_id is a case We have multiple tables Orders Order Lines Delivery Invoice Payments Also optional Products and Resources tables for enrichment"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Now build all events for each order sort by timestamp Lets list all events for each order Order 1001 Order Created timestamp 2024-01-01T09:00:00Z actor SP-001 Item Picked for ITEM-001 2024-01-02T10:15:00Z picker WH-001 quantity 2 Item Picked for ITEM-002 2024-01-02T11:00:00Z picker WH-002 Order Dispatched DLV-5001 2024-01-03T08:30:00Z carrier CR-01"
+    "Text": "Activities derived Order Created from Orders table with order_date Items Picked from Order Lines each pick event per item since multiple items with possibly different times Order Dispatched from Delivery delivery_dispatch_date each delivery record gives a dispatch event Order Arrived from Delivery delivery_arrival_date each delivery record gives an arrival event Invoice Issued from Invoice invoice_issue_date each invoice gives an event Payment Received from Payments payment_date each payment gives an event"
   },
   {
-    "Name": "Pattern Recognition - IND",
-    "Text": "order 1004 It has order created only one item picked ITEM-001 and no delivery no invoice no payment Thats fine we include events for what exists"
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Since multiple items with possibly different times we should create one event per item pick since each pick is a separate activity The prompt says Items Picked events so multiple events per order if multiple items"
   },
   {
-    "Name": "Backtracking - PE",
-    "Text": "For order 1002 Order Arrived DLV-5003 2024-01-08T10:00:00Z which is before the invoice of 10:15 Actually time arrival 10:00 invoice 10:15 So we need to order correctly after DLV-5002 arrival then DLV-5003 arrival then invoice"
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For Order Created the sales_person_id is the actor For Items Picked picker_id For Dispatch and Arrival carrier_id For Invoice billing_person_id For Payment no specific actor given so we can use payment method or leave blank"
   },
   {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Decide on columns Case ID Activity Name Timestamp Actor Details where Details is a string like Item ITEM-001 Qty 2 or Delivery DLV-5001 Carrier GlobalTransport Note Normal route"
-  },
-  {
-    "Name": "Pattern Recognition - PE",
-    "Text": "Now map resource names SP-001 Alice Brown SP-002 Bob Smith WH-001 David Lin WH-002 Eva Johnson WH-003 Frank Miller CR-01 GlobalTransport CR-02 FastShip CR-03 AirExpress BL-001 Gina Carter Now item descriptions ITEM-001 Widget A ITEM-002 Widget B"
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to ensure chronological order Also include optional attributes Resource Actor and order_priority customer_type item_id quantity delivery_id invoice_id payment_id and other relevant fields"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Ensure all rows are sorted by Case ID then timestamp ascending within case Maintain chronological correctness"
+    "Text": "We also need to consider order 1004 It has order created only one item picked and no delivery no invoice no payment So it stops after picking Thats fine we include events for what exists"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1001 Order Created timestamp 2024 01 01T09 00 00Z actor SP 001 Item Picked for ITEM 001 2024 01 02T10 15 00Z picker WH 001 quantity 2 Item Picked for ITEM 002 2024 01 02T11 00 00Z picker WH 002 quantity 1 Order Dispatched DLV 5001 2024 01 03T08 30 00Z carrier CR 01 Order Arrived DLV 5001 2024 01 05T14 45 00Z carrier CR 01 Invoice Issued INV 1001 2024 01 06T09 00 00Z billing clerk BL 001 amount 250 00 Payment Received PAY 2001 2024 01 10T11 30 00Z method Credit Card ref REF CC 123"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1002 Order Created 2024 01 02T12 30 00Z SP 002 Item Picked ITEM 003 2024 01 03T09 45 00Z WH 002 quantity 4 Item Picked ITEM 005 2024 01 03T10 00 00Z WH 001 quantity 2 Order Dispatched DLV 5002 2024 01 04T07 20 00Z CR 02 Order Dispatched DLV 5003 2024 01 05T07 00 00Z CR 01 Order Arrived DLV 5002 2024 01 07T16 10 00Z CR 02 Order Arrived DLV 5003 2024 01 08T10 00 00Z CR 01 Invoice Issued INV 1002 2024 01 08T10 15 00Z BL 002 amount 400 Invoice Issued INV 1003 2024 01 10T11 00 00Z BL 002 amount 100 Payment Received PAY 2002 2024 01 12T14 00 00Z Wire Transfer Payment Received PAY 2003 2024 01 15T09 00 00Z Check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Invoice INV 1002 issued after second arrival Actually arrival 10 00 invoice 10 15 So we need to order correctly after DLV 5002 arrival then DLV 5003 arrival then invoice"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Order 1002 Invoice Issued 2024 01 08T10 15 00Z Harry Lee Order Arrived 2024 01 08T10 00 00Z Wait arrival of DLV 5003 is 2024 01 08T10 00 00Z which is before the invoice of 10 15 Actually time arrival 10 00 invoice 10 15 So we need to order correctly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1003 Order Created 2024 01 03T10 00 00Z SP 002 Item Picked ITEM 002 2024 01 05T15 30 00Z WH 003 quantity 1 Item Picked ITEM 006 2024 01 05T15 45 00Z WH 001 quantity 3 Order Dispatched DLV 5004 2024 01 06T07 30 00Z CR 03 Order Arrived DLV 5004 2024 01 07T20 00 00Z CR 03 Invoice Issued INV 1004 2024 01 09T08 00 00Z BL 001 amount 150 Payment Received PAY 2004 2024 01 11T10 30 00Z Credit Card"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1004 Order Created 2024 01 04T14 15 00Z SP 003 Item Picked ITEM 001 2024 01 06T08 00 00Z WH 002 quantity 5"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1005 Order Created 2024 01 05T08 45 00Z SP 001 Item Picked ITEM 007 2024 01 06T09 30 00Z WH 003 quantity 10 Item Picked ITEM 002 2024 01 06T09 45 00Z WH 002 quantity 2 Order Dispatched DLV 5005 2024 01 07T10 15 00Z CR 02 Order Arrived DLV 5005 2024 01 09T11 45 00Z CR 02 Invoice Issued INV 1005 2024 01 10T09 30 00Z BL 003 amount 500 Payment Received PAY 2005 2024 01 15T12 00 00Z Credit Card"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Now map resource names SP 001 Alice Brown SP 002 Bob Smith SP 003 Charlie Kim WH 001 David Lin WH 002 Eva Johnson WH 003 Frank Miller CR 01 GlobalTransport CR 02 FastShip CR 03 AirExpress BL 001 Gina Carter BL 002 Harry Lee BL 003 Irene Park"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Now item descriptions ITEM 001 Widget A ITEM 002 Widget B ITEM 003 Gadget X ITEM 005 Gadget Y ITEM 006 Part P ITEM 007 Special Widget Deluxe"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Lets define columns Case ID Activity Name Timestamp Actor Details For Order Created Details Customer ID Customer Type Order Priority For Item Picked Item and Quantity For Dispatch Arrival Delivery ID Carrier and Note For Invoice Invoice ID and Amount For Payment Payment ID Payment Method and Payment Reference"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "We should also include the actor name for payment No actor given Could we use Customer But not in tables Leave blank"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now output as Markdown table with columns Case ID Activity Name Timestamp Actor Additional Details sorted by Case ID then timestamp"
   },
   {
     "Name": "Conclusion - C"

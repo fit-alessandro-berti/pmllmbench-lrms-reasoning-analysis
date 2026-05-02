@@ -1,31 +1,75 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "Deconstruct and Analyze the Input Database Schema order event log orders resources Key relationships Normal Process Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Event Log Data Four cases Reference Data Orders table Resources table"
+    "Text": "Deconstruct and Analyze the Input Database Schema order_event_log orders resources Key relationships order_event_log case_id to orders case_id order_event_log resource to resources resource_id Normal Process Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Event Log Data Four cases 1001 1002 1003 1004 with varying activities timestamps and resources Reference Data Orders table links case_id to customer order details Resources table links resource names to roles departments"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Analyze Each Case against the Normal Flow Case 1001 Events Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Matches normal flow perfectly Case 1002 Events Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment Anomaly 1 Confirm Shipment immediately after Register Order Anomaly 2 Ship Goods before Credit Check and Validate Stock Anomaly 3 Perform Credit Check after shipping Case 1003 Events Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment Anomaly 1 Ship Goods before Confirm Shipment Anomaly 3 Validate Stock missing Case 1004 Events Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods Anomaly 1 Receive Payment immediately after registration Anomaly 2 Issue Invoice after payment Anomaly 3 Perform Credit Check and Validate Stock missing"
+    "Text": "Analyze Each Case against the Normal Flow Case 1001 Events Register Order 0815 Perform Credit Check 0830 Validate Stock 0900 Confirm Shipment 0915 Ship Goods 0945 Issue Invoice 1000 Receive Payment Feb 5 1500 Comparison Matches normal flow perfectly Conclusion Normal case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1002 Events Register Order 0820 Confirm Shipment 0825 Ship Goods 0840 Perform Credit Check 0910 Validate Stock 0915 Issue Invoice 0930 Receive Payment Feb 2 1000 Comparison Anomaly 1 Confirm Shipment happens immediately after Register Order In normal flow Credit Check and Validate Stock come first Anomaly 2 Ship Goods happens before Credit Check and Validate Stock Anomaly 3 Perform Credit Check happens after shipping additional_info shows credit_score 650 orders table shows order_type priority Conclusion Significant deviation Out of order execution Shipped before checks"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis Priority order might have bypassed checks Or system error Or manual override The credit score is 650 which might be low but the order shipped anyway This suggests a policy violation or exception handling where priority orders skip checks or checks are done retroactively"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1003 Events Register Order 0845 Perform Credit Check 0900 Ship Goods 0910 Issue Invoice 0930 Confirm Shipment 0945 Receive Payment Feb 2 1100 Comparison Anomaly 1 Ship Goods happens before Confirm Shipment Normal flow requires confirmation before shipping Anomaly 2 additional_info on Confirm Shipment says late_confirmation Y This confirms the anomaly Anomaly 3 Validate Stock is missing entirely orders table shows order_type standard Conclusion Missing step Validate Stock Out of order Ship before Confirm Explicit late confirmation flag"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis Missing step System bug Or maybe Validate Stock is implicit But Ship Goods happened so stock must have been validated somehow or it shipped without validation The late_confirmation suggests a process deviation where shipping happened without proper confirmation"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1004 Events Register Order 0900 Receive Payment 0905 Issue Invoice 0920 Confirm Shipment 0925 Ship Goods 0950 Comparison Anomaly 1 Receive Payment happens almost immediately after registration Normal flow has payment last Anomaly 2 Issue Invoice happens after payment Usually you invoice before payment Anomaly 3 Perform Credit Check and Validate Stock are missing orders table shows order_type standard Anomaly 4 additional_info on Receive Payment shows amount 300000 which matches order_value Conclusion Severe deviation Payment first missing checks invoice after payment"
   },
   {
     "Name": "Hypothesis Generation - PE",
-    "Text": "Case 1002 Hypothesis Priority order might have bypassed checks Or system error Or manual override credit score low but shipped anyway Case 1003 Hypothesis Missing step System bug Or shipped without validation late confirmation Case 1004 Hypothesis Pre payment Or system error Missing checks on standard order Synthesize Anomalies and Hypotheses Hypotheses H1 Priority Bypass H2 System Glitch H3 Human Error Override H4 Missing Validation H5 Invoice Payment Logic"
+    "Text": "Hypothesis Pre payment Maybe a deposit Or system error Missing checks on a standard order is dangerous Payment before invoice is unusual but possible proforma but combined with missing checks it looks like a severe process breakdown or a specific Pre paid exception not documented in the normal flow Or perhaps the order was cancelled No shipment happened"
   },
   {
     "Name": "Inductive Reasoning - PE",
-    "Text": "Anomaly Categories Out of order execution Case 1002 Case 1003 Missing activities Case 1003 Case 1004 Early Late activities Case 1004 Case 1002 Explicit flags Case 1003 late confirmation Case 1002 attempted early Order Type correlation Case 1002 priority"
+    "Text": "Synthesize Anomalies and Hypotheses Anomaly Categories Out of order execution Case 1002 Credit check after ship Case 1003 Ship before confirm Missing activities Case 1003 No Validate Stock Case 1004 No Credit Check No Validate Stock Early Late activities Case 1004 Payment before invoice ship Case 1002 Credit check after ship Explicit flags Case 1003 late_confirmation Y Case 1002 attempted_early Y on Confirm Shipment Resource Role anomalies Resources seem consistent with roles but the timing is weird Order Type correlation Case 1002 is priority This might explain deviations Case 1003 1004 are standard Deviations on standard orders are more suspicious"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses H1 Priority Bypass Case 1002 is priority and has deviations Maybe priority orders skip credit stock checks or do them later H2 System Glitch Case 1004 payment before invoice and missing checks might be a system bug triggering auto payment or auto ship H3 Human Error Override Case 1003 late_confirmation Y suggests a human forgot to confirm or shipped first and confirmed later H4 Missing Validation Case 1003 and 1004 missing Validate Stock Credit Check on standard orders risks bad orders H5 Invoice Payment Logic Case 1004 payment before invoice needs investigation Is it a pre payment"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Formulate SQL Queries The prompt asks for SQL queries to investigate hypotheses I need to generate queries that check these anomalies Query 1 Check Process Adherence Compare actual sequence to expected sequence Idea Get min timestamp for each activity per case Order activities by min timestamp Compare to list Refinement This is good for finding out of order"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 2 Missing Activities Idea Count distinct activities per case Check if count less than 7"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 3 Payment Timing Idea Find cases where Payment happens before Invoice or Ship"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 4 Credit Check Timing vs Order Type Idea Check if Credit Check is after Ship and correlate with Order Type"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 5 Late Confirmation Flag Idea Query additional_info"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 6 Resource Department Analysis Idea Who is doing the weird things Join resources to see if specific departments are causing issues"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Formulate SQL Queries Query 1 Check Process Adherence WITH case activities SELECT case id activity MIN timestamp GROUP BY case id activity ordered activities string agg activity ORDER BY first occurrence Query 2 Missing Activities SELECT case id COUNT DISTINCT activity HAVING COUNT less than 7 Query 3 Payment Timing WITH timings pay time MAX CASE WHEN Receive Payment inv time MAX CASE WHEN Issue Invoice WHERE pay time less than inv time Query 4 Credit Check Timing vs Order Type SELECT case id order type cc time ship time HAVING cc time greater than ship time Query 5 Late Confirmation Flag SELECT additional info LIKE late confirmation Query 6 Resource Department Analysis"
-  },
-  {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Structure the Response Anomaly Identification Group by case or type Hypotheses Link anomalies to potential causes SQL Queries Provide executable SQL snippets Review against constraints without any hints Drafting the Content Case 1002 1003 1004 anomalies and hypotheses"
+    "Text": "Structure the Response The prompt asks the LLM to identify anomalies hypothesize and propose queries I should structure the output clearly Anomaly Identification Group by case or type Hypotheses Link anomalies to potential causes SQL Queries Provide executable SQL snippets to verify hypotheses Review against constraints Identify anomalies Hypothesize Propose SQL Result A comprehensive analysis"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Final Polish Anomalies 1002 Sequence violation Credit check after shipment 1003 Missing activity Validate Stock Sequence violation Ship before Confirm Explicit flag late confirmation 1004 Sequence violation Payment before Invoice Shipment Missing activities Credit Check Validate Stock Hypotheses Priority orders Fast Track mode Case 1003 1004 missing checks control failure Case 1004 payment flow pre payment or data entry error Case 1003 late confirmation human error SQL Query to detect sequence violations missing activities correlate anomalies with order type find specific flags analyze payment vs invoice timing"
+    "Text": "Final Polish Mental Representation of Output Anomalies 1002 Sequence violation Credit check after shipment 1003 Missing activity Validate Stock Sequence violation Ship before Confirm Explicit flag late_confirmation Y 1004 Sequence violation Payment before Invoice Shipment Missing activities Credit Check Validate Stock Hypotheses Priority orders 1002 may have a Fast Track mode skipping checks Case 1003 1004 missing checks on Standard orders indicate a control failure Case 1004 payment flow suggests a potential pre payment mechanism or data entry error Case 1003 late_confirmation suggests human error or system lag SQL Query to detect sequence violations Query to detect missing activities Query to correlate anomalies with order_type Query to find specific flags in additional_info Query to analyze payment vs invoice timing"
   },
   {
     "Name": "Conclusion - C"

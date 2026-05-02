@@ -1,35 +1,87 @@
 [
   {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log in a DuckDB table event log with columns case id activity timestamp"
+  },
+  {
     "Name": "Deductive Reasoning - PE",
-    "Text": "We are given an event log in a DuckDB table event_log with columns: case_id, activity, timestamp. Steps: 1. For each case_id, we need to order the activities by timestamp and then aggregate them into a sequence (e.g., a string or array) that represents the variant. 2. Then, we group by this sequence to get the count of cases for each variant. 3. We then determine the top K variants by frequency (count of cases). Lets assume K is a parameter. We can use a variable or just fix it for the example. 4. We then filter the original event_log to only include cases that belong to these top K variants."
+    "Text": "For each case id we need to order the activities by timestamp and then aggregate them into a sequence that represents the variant Then we group by this sequence to get the count of cases for each variant We then determine the top K variants by frequency count of cases We then filter the original event log to only include cases that belong to these top K variants"
   },
   {
     "Name": "Hypothesis Generation - PE",
-    "Text": "Approach for step 1: We can use STRING_AGG with an ORDER BY inside to create a string of activities for each case. However, note: We are in DuckDB. DuckDB supports STRING_AGG with an ORDER BY clause. Alternatively, we can use ARRAY_AGG and then order, but note that the order in an array is not guaranteed unless we specify it. Lets use: SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id"
+    "Text": "Approach for step 1 We can use string agg with an order by inside to create a string of activities for each case"
   },
   {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Then, we can use this subquery to count variants. Step 2: Count the variants and get the top K. Step 3: Then, we join back to the original table to get the events for the cases that are in the top K variants. We can do: WITH case_variants AS ( SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id ), variant_counts AS ( SELECT variant, COUNT(*) AS case_count FROM case_variants GROUP BY variant ), top_variants AS ( SELECT variant FROM variant_counts ORDER BY case_count DESC LIMIT K )"
-  },
-  {
-    "Name": "Backtracking - PE",
-    "Text": "SELECT event_log.* FROM event_log WHERE case_id IN ( SELECT case_id FROM case_variants WHERE variant IN (SELECT variant FROM top_variants) ) However, note: There might be a performance issue with using IN on a subquery that returns many case_ids. Alternatively, we can use a join. Let me rewrite using joins: WITH case_variants AS (...), variant_counts AS (...), top_variants AS (...) SELECT event_log.* FROM event_log INNER JOIN case_variants ON event_log.case_id = case_variants.case_id INNER JOIN top_variants ON case_variants.variant = top_variants.variant This should be more efficient."
-  },
-  {
-    "Name": "Heuristic Reasoning - PE",
-    "Text": "Alternatively, we can avoid the double join by first getting the case_ids from the top variants and then joining with event_log. Another approach: WITH case_variants AS (...), top_variant_cases AS ( SELECT case_id FROM case_variants WHERE variant IN ( SELECT variant FROM ( SELECT variant, COUNT(*) AS case_count FROM case_variants GROUP BY variant ORDER BY case_count DESC LIMIT 10 ) ) ) SELECT event_log.* FROM event_log INNER JOIN top_variant_cases ON event_log.case_id = top_variant_cases.case_id This might be more efficient because we are not joining on a string (variant) but on an integer (case_id)."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "WITH case_variants AS ( SELECT case_id, STRING_AGG(activity, -> ORDER BY timestamp) AS variant FROM event_log GROUP BY case_id ), top_variants AS ( SELECT variant FROM case_variants GROUP BY variant ORDER BY COUNT(*) DESC LIMIT 10 ), top_variant_cases AS ( SELECT case_id FROM case_variants WHERE variant IN (SELECT variant FROM top_variants) ) SELECT event_log.* FROM event_log INNER JOIN top_variant_cases ON event_log.case_id = top_variant_cases.case_id This is similar to the previous one but without the double join on string."
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Alternatively we can use array agg and then order but note that the order in an array is not guaranteed unless we specify it"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Let me test with a sample data. Example: case_id | activity | timestamp 1 | A | 2020-01-01 00:00:00 1 | B | 2020-01-01 01:00:00 2 | A | 2020-01-01 00:00:00 2 | C | 2020-01-01 01:00:00 Then, for case_id=1, variant would be A -> B, for case_id=2, variant would be A -> C. Then, we count the variants: A -> B appears once, A -> C appears once. So top 1 would be one of them."
+    "Text": "However note We are in DuckDB DuckDB supports string agg with an order by clause"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we can use this subquery to count variants Step 2 Count the variants and get the top K Step 3 Then we join back to the original table to get the events for the cases that are in the top K variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note We are to return all events from the original event log for cases that are in the top K variants"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do select event log all from event log where case id in select case id from case variants where variant in select variant from top variants"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But wait we have the variant in the case variants and we have the top variants We can also do select event log all from event log inner join case variants on event log case id equals case variants case id inner join top variants on case variants variant equals top variants variant"
   },
   {
     "Name": "Heuristic Reasoning - PE",
-    "Text": "The problem does not specify how to break ties. We are using ORDER BY COUNT(*) DESC and then LIMIT 1. If there are ties, the result is non-deterministic. Alternatively, we can break ties by the variant string (alphabetical) to have a deterministic result. Let me adjust: ORDER BY COUNT(*) DESC, variant ASC But the problem does not specify, so we can leave it as non-deterministic or add a deterministic tie-breaker. Let me assume we want deterministic results and break ties by the variant string."
+    "Text": "This should be more efficient"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note The same case id appears multiple times in event log We are joining on case id so we will get all the events for that case"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we can avoid the double join by first getting the case ids from the top variants and then joining with event log"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Another approach with case variants top variant cases and then select event log all from event log inner join top variant cases on event log case id equals top variant cases case id"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "This might be more efficient because we are not joining on a string variant but on an integer case id However note that the string comparison might be heavy"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can do with case variants as select case id string agg activity order by timestamp as variant from event log group by case id top variants as select variant from case variants group by variant order by count all desc limit 10 top variant cases as select case id from case variants where variant in select variant from top variants select event log all from event log inner join top variant cases on event log case id equals top variant cases case id"
+  },
+  {
+    "Name": "Backtracking - IND",
+    "Text": "But wait we are only asked for the top K variants We are using 10 as an example We can make it a parameter"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are returning all the original columns for the events that belong to the top K variants"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We might want to order by case id and timestamp to have a natural order"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "The problem does not specify tie breaking We can leave it as is which means that if there are ties the result is non deterministic Alternatively we can break ties by the variant string alphabetical to have a deterministic result"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Let me adjust order by count all desc variant asc"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This should meet the requirements"
   },
   {
     "Name": "Conclusion - C"

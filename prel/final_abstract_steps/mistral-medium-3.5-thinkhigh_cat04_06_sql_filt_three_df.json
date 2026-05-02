@@ -1,43 +1,59 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "First, the main goal is to exclude cases that have a sequence of three activities in order: Approve Purchase Requisition, then Create Order, then Confirm Order with no other events in between. Additionally, for that sequence, the time between Create Order and Confirm Order must be more than 5 days."
+    "Text": "the main goal is to exclude cases that have a sequence of three activities in order Approve Purchase Requisition then Create Order then Confirm Order with no other events in between Additionally for that sequence the time between Create Order and Confirm Order must be more than 5 days"
   },
   {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "In SQL, to find sequences, window functions like LAG and LEAD are useful. For each event, we can check the previous and next events in the same case. For a Confirm Order event, check if the previous event in the same case is Create Order, and the one before that is Approve Purchase Requisition."
-  },
-  {
-    "Name": "Deductive Reasoning - PE",
-    "Text": "Using window functions with PARTITION BY case_id and ORDER BY timestamp. For a given event, if its activity is Confirm Order, then LAG(activity, 1) is Create Order, and LAG(activity, 2) is Approve Purchase Requisition, then those three are consecutive."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "The first step is to find all cases where there exists a Confirm Order event such that the prior two events in the case are the required activities, and the time since Create Order >5 days."
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "the plan is identify the cases that have the bad sequence with the time condition then select all events not in those cases"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "For the Confirm Order event, the previous event is Create Order, so timestamp - prev_timestamp > INTERVAL 5 DAYS."
+    "Text": "for a case if we order the events by timestamp then there exists a triplet where activity1 Approve Purchase Requisition activity2 Create Order activity3 Confirm Order and they are consecutive"
   },
   {
-    "Name": "Inductive Reasoning - IND",
-    "Text": "Create a CTE or subquery that lists the bad case_ids, then final query SELECT * FROM event_log WHERE case_id NOT IN (bad case_ids)."
+    "Name": "Hypothesis Generation - PE",
+    "Text": "one approach is to for each Confirm Order event check if the previous event in the same case is Create Order and the one before that is Approve Purchase Requisition"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "using window functions with partition by case id and order by timestamp for a given event if its activity is Confirm Order then check if the previous event lag activity 1 is Create Order and the one before that lag activity 2 is Approve Purchase Requisition"
   },
   {
     "Name": "Validation - PE",
-    "Text": "The LAG method works for consecutive triplets, as in A, B, C: for C, prev is B, prev_prev is A."
+    "Text": "if for a Confirm Order event lag activity 1 is Create Order and lag activity 2 is Approve Purchase Requisition then those three are consecutive"
   },
   {
-    "Name": "Counterfactual Reasoning - PE",
-    "Text": "Edge cases: if A, X, B, C then for C prev is B prev_prev X not A. If A B X C then prev is X not B. Multiple sequences: if one meets condition, case excluded."
+    "Name": "Deductive Reasoning - PE",
+    "Text": "the time condition is between Create Order and Confirm Order being more than 5 days so for the Confirm Order event the time since the Create Order which is the previous event should be greater than 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "create a query that selects case id activity timestamp lag activity 1 lag activity 2 and lag timestamp 1 over partition by case id order by timestamp from event log"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "filter rows where activity Confirm Order prev activity Create Order prev prev activity Approve Purchase Requisition and timestamp minus prev timestamp is more than interval 5 day"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "once we have those case ids we need to exclude all events from those cases in the final result select all events from event log where case id is not in that list"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "if a case has multiple instances of the sequence then if at least one of those instances has create order to confirm order time greater than 5 days the case should be excluded the query above uses distinct case id so even if multiple sequences meet the condition the case is included once"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "the lag method works for consecutive triplets if events are A X B C then prev prev for C is X so it would not trigger only when A B C are consecutive"
   },
   {
     "Name": "Backtracking - PE",
-    "Text": "Refine condition to timestamp > prev_timestamp + INTERVAL 5 DAY for clarity and reliability."
+    "Text": "instead of timestamp minus prev timestamp greater than interval 5 day it may be better to write timestamp greater than prev timestamp plus interval 5 day this is more straightforward"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Mental testing with sample cases: Case 1 A B C with 6 days excluded; Case 2 with interruption not; exactly 5 days not excluded; multiple sequences if one bad then excluded."
+    "Text": "this condition correctly captures more than 5 days because prev timestamp plus interval 5 day gives the exact threshold and the confirm timestamp must be greater than that"
   },
   {
     "Name": "Conclusion - C"

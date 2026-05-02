@@ -1,35 +1,95 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "Understand User Input Database Schema PostgreSQL with three tables order_event_log orders resources Normal Process Flow 7 steps Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Sample Data 4 cases Goal Identify anomalies Hypothesize causes Propose SQL queries"
+    "Text": "Understand User Input Database Schema PostgreSQL with three tables order event log orders resources Normal Process Flow 7 steps in a specific order Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Sample Data 4 cases 1001 1002 1003 1004 with event logs showing activities timestamps resources and additional info Goal The target LLM needs to Identify anomalies undesirable behaviors in the event log Hypothesize causes for these anomalies Propose SQL queries to investigate further"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Analyze the Data vs Normal Flow Check each case against expected sequence Case 1001 follows perfectly Case 1002 Confirm Shipment Ship Goods before Credit Check Validate Stock Case 1003 Ship Goods before Validate Stock Confirm Shipment Confirm after Ship Case 1004 Receive Payment before Invoice checks shipping Verdict sequence violations"
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Identify Anomalies Sequence Violations Cases 1002 1003 1004 Missing Steps Credit Check Validate Stock Temporal Anomalies Payment before invoice late confirmation fast processing"
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Hypotheses Process Bypass Override System UI Flaws Data Entry Logging Errors Policy Violations Pre payment Advance Payment Handling Staff skipping checks system allows progression without prerequisites"
-  },
-  {
-    "Name": "Abductive Reasoning - PE",
-    "Text": "Formulate SQL Queries Detect sequence violations using LAG Identify missing steps Analyze timing durations between steps Correlate anomalies with order type resources departments roles"
+    "Text": "Analyze the Data vs Normal Flow Lets check each case against the expected sequence Expected Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment"
   },
   {
     "Name": "Validation - PE",
-    "Text": "Self Correction Refinement Check Query logic refine conditions for out of order skipped steps PostgreSQL features window functions CASE LAG generate series array agg Ensure detects anomalies in sample data"
+    "Text": "Case 1001 Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Verdict Follows the expected sequence perfectly Timing seems reasonable"
   },
   {
-    "Name": "Backtracking - IND",
-    "Text": "Refine queries iteratively improve missing steps query simplify verbose parts adjust conditions for violations add comments test mentally for syntax and logic"
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Register Order Confirm Shipment Anomaly Skipped Credit Check and Validate Stock Happened immediately after registration Ship Goods Anomaly Shipped before credit check and stock validation Perform Credit Check Anomaly Credit check done AFTER shipping Validate Stock Anomaly Stock validated AFTER shipping Verdict Major sequence violation attempted early Y This looks like a process bypass or emergency override"
   },
   {
-    "Name": "Heuristic Reasoning - IND",
-    "Text": "Structure the Response Anomalies case by case Hypotheses categorized SQL queries with explanations professional concise aligned with prompt"
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Register Order Perform Credit Check Ship Goods Anomaly Skipped Validate Stock and Confirm Shipment Shipped immediately after credit check Issue Invoice Confirm Shipment Anomaly Confirmed shipment AFTER shipping late confirmation Y Verdict Sequence violation Missing Validate Stock entirely Confirm Shipment happened after Ship Goods"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Register Order Receive Payment Anomaly Payment received immediately after registration before credit check shipping or even invoice Issue Invoice Anomaly Invoice issued AFTER payment received Confirm Shipment shipment scheduled N Ship Goods Verdict Extreme sequence violation Payment before invoice Missing Perform Credit Check and Validate Stock"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Identify Anomalies and Hypothesize Causes Sequence Violations Cases 1002 1003 1004 deviate significantly from the standard 7 step flow Missing Steps Credit Check and Validate Stock are missing or out of order in multiple cases Temporal Anomalies Payment before invoice 1004 late shipment confirmation 1003 extremely fast processing times 1002 1004"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses Process Bypass Override Staff skipping mandatory checks for priority orders or due to pressure System UI Flaws The system might allow next step progression without completing prerequisites or event logging is misordered Data Entry Logging Errors Manual logging after the fact or automated triggers firing out of sync Policy Violations attempted early or late confirmation flags suggest ad hoc decisions not aligned with standard operating procedures Pre payment Advance Payment Handling Case 1004 might be an advance payment scenario not properly mapped to the standard flow"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Formulate SQL Queries for Investigation Need queries that Detect sequence violations Identify missing steps Analyze timing duration between steps Correlate with order type customer resource to find patterns Use PostgreSQL features window functions and keep it standard"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 1 Detect Sequence Violations Activity Order easier assign a step number to each activity then check if step number is strictly increasing per case id If not flag it"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait the condition for violation is simpler if expected step is not strictly increasing by 1 or if any step is out of order Actually just checking expected step less than prev step catches out of order To catch skipped steps check expected step greater than prev step plus 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This will flag out of order and skipped steps"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 2 Identify Missing Steps per Case Compare expected steps 1 to 7 with actual steps per case"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Better approach for missing steps This works but is a bit verbose Ill simplify it for the final output"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 3 Analyze Timing Duration for Specific Transitions Check time between Issue Invoice and Receive Payment or Register Order and Ship Goods focus on Payment before Invoice and Shipment before Credit Check Stock Validation as key temporal anomalies"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 4 Correlate Anomalies with Order Type and Resources Join with orders and resources to see if priority orders or specific staff cause bypasses"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Structure the Response I need to generate the response as if I am the target LLM Structure Identified Anomalies and Undesirable Behaviors Hypothesized Root Causes Investigative SQL Queries Keep it concise professional and directly aligned with PostgreSQL syntax"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Self Correction Refinement during thought Check Query 1 logic step num less than prev step catches out of order step num greater than prev step plus 1 catches skipped steps This is solid Check Query 2 Missing steps Check Query 3 Timing I should ensure the SQL is strictly PostgreSQL compatible I will add comments to explain each querys purpose I will make sure the hypotheses directly tie to the observed anomalies"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomalies Case 1002 Steps 4 and 5 happened before 2 and 3 attempted early Y Case 1003 Step 5 before 3 and 4 Step 4 after 5 late confirmation Y Step 3 missing Case 1004 Step 7 before 2 3 4 5 6 Step 6 after 7 Steps 2 and 3 missing shipment scheduled N General Missing mandatory controls Credit Check Stock Validation in 3 of 4 cases Temporal Extremely short durations between non sequential steps"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses System allows unguarded navigation no hard stops prerequisites Manual overrides for priority or VIP customers without proper logging Event logging mechanism is event driven but lacks sequence validation leading to race conditions or manual backfilling Staff training process awareness gaps relying on verbal approvals instead of system checks"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is clean Works Good This ties it all together"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "I will now structure the final response clearly matching the prompts requirements Ill present the anomalies hypotheses and SQL queries with brief explanations Ill ensure the tone is analytical and the SQL is production ready for PostgreSQL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check PostgreSQL syntax generate series LAG CASE array agg INTERVAL are all valid The logic correctly identifies the exact anomalies in the sample data Hypotheses are grounded in process mining principles Queries are modular and can be run independently"
   },
   {
     "Name": "Conclusion - C"

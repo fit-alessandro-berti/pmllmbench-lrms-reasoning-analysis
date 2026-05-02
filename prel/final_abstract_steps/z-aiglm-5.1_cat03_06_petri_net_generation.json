@@ -1,43 +1,103 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "The objective is to construct an accepting Petri net in Python using the pm4py library based on a specific insurance claim management process. Process steps: 1. Claim Registration (CR) 2. Document Verification (DV) 3. Fraud Check (FC) 4. Claim Assessment (CA) 5. Approval (AP) 6. Payment (P) 7. Notification (N) 8. Closure (CL) Loops/Additional steps: - After DV, if documents are incomplete, Re-Document Submission (RDS) occurs. - After FC, if doubts, In-depth Investigation (II) is performed. This can happen multiple times before proceeding to Claim Assessment (CA)."
+    "Text": "The objective is to construct an accepting Petri net in Python using the pm4py library based on a specific insurance claim management process"
   },
   {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "Lets define the sequence of places and transitions: source -> C -> p1 -> CR -> p2 -> DV -> p3 From p3: choice between going to RDS or FC. p3 -> RDS -> p2 p3 -> FC -> p5 From p5: p5 -> CA -> p6 p5 -> II -> p4 p4 -> FC."
+    "Name": "Pattern Recognition - PE",
+    "Text": "Process steps 1 Claim Registration CR 2 Document Verification DV 3 Fraud Check FC 4 Claim Assessment CA 5 Approval AP 6 Payment P 7 Notification N 8 Closure CL"
   },
   {
-    "Name": "Backtracking - IND",
-    "Text": "Wait, if p3 has arcs to both RDS and FC, its a non-deterministic choice. If II returns to p3, after II you would have to do DV again! Thats not right. II is an in-depth investigation, so it should loop back to FC (or before FC). So p5 -> II -> p4 p4 -> FC."
-  },
-  {
-    "Name": "Abductive Reasoning - PE",
-    "Text": "p2 -> DV -> p3 p3 -> RDS -> p2 p3 -> FC -> p4 p4 -> CA -> p5 p4 -> II -> p3 This perfectly models between DV and RDS and between FC and II! After II, go back to p3 (after DV), from there do FC again."
-  },
-  {
-    "Name": "Validation - PE",
-    "Text": "If we are at p3 (after Document Verification), we can either: - Go to RDS, which takes us back to p2 (before Document Verification). - Go to FC. If we are at p4 (after Fraud Check), we can either: - Go to II, which takes us back to p3. - Go to CA."
-  },
-  {
-    "Name": "Hypothesis Generation - PE",
-    "Text": "The claim must be approved by a senior manager if the amount surpasses a certain threshold. This implies Approval (AP) might be optional? So CA -> p5 -> (AP or skip_AP) -> p6."
+    "Name": "Pattern Recognition - PE",
+    "Text": "Loops Additional steps After DV if documents are incomplete Re Document Submission RDS occurs After FC if doubts In depth Investigation II happens This can happen multiple times before proceeding to Claim Assessment CA"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "In Petri nets, a place with multiple outgoing arcs models XOR split. For AP skip, p5 -> AP -> p6 and p5 -> skip_AP -> p6. For RDS and II, p3 -> RDS and p3 -> FC acts as skip RDS, p4 -> II and p4 -> CA acts as skip II. But for AP, need merge place."
+    "Text": "If RDS happens it probably loops back to Document Verification"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This means after FC place choice proceed to CA OR Transition II back to FC or place before FC"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "The first transition is C or CR Let us use C for Insurance Claim or just start with CR Let us include C then CR"
   },
   {
     "Name": "Backtracking - PE",
-    "Text": "To strictly isolate loops: use invisible transitions. p_after_DV -> RDS -> p_after_CR p_after_DV -> skip_RDS -> p_before_FC p_before_FC -> FC -> p_after_FC p_after_FC -> II -> p_before_FC p_after_FC -> skip_II -> p_before_CA."
-  },
-  {
-    "Name": "Validation - PE",
-    "Text": "Trace happy path: source -> C -> ... skip_RDS -> FC -> skip_II -> CA -> skip_AP -> P -> N -> CL -> sink. RDS loop, II loop, AP work correctly. No deadlocks."
+    "Text": "Wait often C is just the event name Let us add C just to be safe Actually let us look at the exact wording A customer files an Insurance Claim C after which the following steps take place I will create transitions C CR DV RDS FC II CA AP P N CL"
   },
   {
     "Name": "Heuristic Reasoning - PE",
-    "Text": "Use descriptive place names like p_after_DV, p_before_FC. Full activity names as labels, abbreviations as names. Invisible transitions with label=None for skips."
+    "Text": "If p3 has arcs to RDS and FC then it is a non deterministic choice or a place with two outgoing transitions That is fine"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If we are at p3 after Document Verification we can either go to RDS which takes us back to p2 before Document Verification or go to FC which does Fraud Check"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If we are at p4 after Fraud Check we can either go to II which takes us back to p3 after Document Verification or go to CA which does Claim Assessment"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "If we strictly want a loop between FC and II we would need a place before FC and a place after FC"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Using invisible transitions makes the routing unambiguous"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The model without invisible transitions is perfectly valid as a Petri net It is actually a standard way to represent sequences with loops in basic Petri nets"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait The claim must be approved by a senior manager if the amount surpasses a certain threshold This implies Approval AP might be optional"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This definitely implies AP is conditional So CA to place then AP or skip AP"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Let us add an invisible transition for skipping Approval"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "If we add an arc from the place before approval directly to Payment then Payment would have two incoming places creating an and join and the transition would never fire with only one token"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "To merge the flow after an xor split we need an xor join In Petri nets an xor join is represented by a place that receives arcs from multiple transitions"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The final structure uses source then C then Claim Registration then Document Verification then an RDS loop and a silent skip to before Fraud Check then Fraud Check then an II loop and a silent skip to before Claim Assessment then Claim Assessment then Approval or silent skip then Payment then Notification then Closure to sink"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let us verify this model A customer files an Insurance Claim then Claim Registration then Document Verification If documents are incomplete RDS loops back before DV If documents are complete skip RDS goes to before FC Fraud Check then if FC raises doubts II loops back before FC otherwise skip II goes to before CA then Claim Assessment then Approval or skip Approval then Payment then Notification then Closure"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The model is extremely clean standard and avoids the artifact of doing RDS after II or doing FC after RDS without DV"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Trace the token flow in the main happy path source to C to Claim Registration to Document Verification to skip RDS to Fraud Check to skip II to Claim Assessment to skip AP to Payment to Notification to Closure reaches final marking Correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Trace with RDS loop DV then RDS then back before DV then DV again Correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Trace with II loop FC then II then back before FC then FC again Correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The model is sound No deadlocks no livelocks properly completed"
   },
   {
     "Name": "Conclusion - C"

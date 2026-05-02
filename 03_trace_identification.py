@@ -122,8 +122,8 @@ def process_file_task(filename, input_folder, prel_folder, questions_folder, sch
                 resp = pm4py.llm.openai_query(
                     clipboard_content,
                     api_key=api_key,
-                    openai_model="grok-4-1-fast-reasoning",
-                    api_url="https://api.x.ai/v1/"
+                    openai_model="gpt-5.4",
+                    api_url="https://api.openai.com/v1/"
                 )
                 with open(prel_path, "w", encoding="utf-8") as f:
                     f.write(resp)
@@ -222,7 +222,7 @@ def main(input_folder, pattern, prel_folder, questions_folder):
     ]
 
     allowed = ["cat01", "cat02", "cat03", "cat04", "cat05", "cat06"]
-    api_key = open("../api_grok.txt", "r").read()
+    api_key = open("../api_openai.txt", "r").read()
     os.makedirs(prel_folder, exist_ok=True)
 
     with ThreadPoolExecutor(max_workers=50) as executor:

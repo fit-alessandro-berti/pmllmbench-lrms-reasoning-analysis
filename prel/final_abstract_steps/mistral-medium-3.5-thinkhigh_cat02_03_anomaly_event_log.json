@@ -1,39 +1,87 @@
 [
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "Let me start by recalling the typical sequence of a Procure-to-Pay (P2P) process. From what I know, the standard flow is usually something like this: 1. Create Purchase Requisition 2. Approve Purchase Requisition 3. Issue Purchase Order (PO) 4. Receive Goods (or services) 5. Vendor Invoice Received 6. Match Invoice to PO (and possibly to goods receipt) 7. Approve Invoice (sometimes combined with matching) 8. Release Payment 9. Close Case"
+    "Text": "Let me start by recalling the typical sequence of a Procure to Pay P2P process From what I know the standard flow is usually something like this 1 Create Purchase Requisition 2 Approve Purchase Requisition 3 Issue Purchase Order PO 4 Receive Goods or services 5 Vendor Invoice Received 6 Match Invoice to PO and possibly to goods receipt 7 Approve Invoice sometimes combined with matching 8 Release Payment 9 Close Case"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Now, let's look at each case in the event log to see if the activities follow this logical sequence. **Case 1001:** 1. Create Purchase Requisition 2. Approve Purchase Requisition 3. Issue Purchase Order 4. Receive Goods 5. Vendor Invoice Received 6. Match Invoice to PO 7. Release Payment 8. Close Case This looks perfectly normal. The sequence follows the standard P2P flow: requisition  approval  PO  receipt  invoice  matching  payment  close."
+    "Text": "Now lets look at each case in the event log to see if the activities follow this logical sequence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1001 This looks perfectly normal The sequence follows the standard P2P flow requisition approval PO receipt invoice matching payment close"
   },
   {
     "Name": "Pattern Recognition - PE",
-    "Text": "**Case 1002:** 1. Create Purchase Requisition 2. Issue Purchase Order 3. Vendor Invoice Received 4. Release Payment 5. Approve Purchase Requisition 6. Receive Goods 7. Match Invoice to PO 8. Close Case Hmm, this looks problematic."
+    "Text": "Case 1002 They created a requisition then immediately issued a PO without approving the requisition first Thats unusual because typically the requisition needs approval before a PO can be issued Then they received a vendor invoice before even receiving the goods Thats odd because you usually receive goods before the vendor sends an invoice or at least the invoice comes after goods are shipped delivered Then they released payment before approving the requisition and before receiving the goods Thats a big red flag You shouldnt pay for goods you havent received yet Then they approved the requisition after already issuing the PO and making payment Thats backwards Then they received goods after payment was already released Then they matched the invoice to PO after payment was released which is also backwards since matching should happen before payment"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "Here's the sequence: - They created a requisition, then immediately issued a PO without approving the requisition first. That's unusual because typically the requisition needs approval before a PO can be issued. - Then they received a vendor invoice before even receiving the goods. That's odd because you usually receive goods before the vendor sends an invoice (or at least, the invoice comes after goods are shipped/delivered). - Then they released payment before approving the requisition and before receiving the goods! That's a big red flag. You shouldn't pay for goods you haven't received yet. - Then they approved the requisition after already issuing the PO and making payment. That's backwards. - Then they received goods after payment was already released. - Then they matched the invoice to PO after payment was released, which is also backwards since matching should happen before payment. This case has several anomalies: 1. Issue PO before Approve Purchase Requisition 2. Vendor Invoice Received before Receive Goods 3. Release Payment before Approve Purchase Requisition, before Receive Goods, and before Match Invoice to PO 4. Approve Purchase Requisition happens after Issue PO and Release Payment"
+    "Text": "This case has several anomalies 1 Issue PO before Approve Purchase Requisition 2 Vendor Invoice Received before Receive Goods 3 Release Payment before Approve Purchase Requisition before Receive Goods and before Match Invoice to PO 4 Approve Purchase Requisition happens after Issue PO and Release Payment"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 This one also has issues They released payment before receiving the vendor invoice and before receiving the goods Thats problematic because you typically need to have the invoice and verify receipt of goods before making payment Then they received the vendor invoice after payment was released They received goods after payment was released Matching invoice to PO happens after payment which is backwards"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "**Case 1003:** 1. Create Purchase Requisition 2. Approve Purchase Requisition 3. Issue Purchase Order 4. Release Payment 5. Vendor Invoice Received 6. Receive Goods 7. Match Invoice to PO 8. Close Case This one also has issues: - They released payment before receiving the vendor invoice and before receiving the goods. That's problematic because you typically need to have the invoice and verify receipt of goods before making payment. - Then they received the vendor invoice after payment was released. - They received goods after payment was released. - Matching invoice to PO happens after payment, which is backwards. So the anomalies here are: 1. Release Payment before Vendor Invoice Received 2. Release Payment before Receive Goods 3. Vendor Invoice Received after Release Payment 4. Receive Goods after Release Payment 5. Match Invoice to PO after Release Payment"
+    "Text": "So the anomalies here are 1 Release Payment before Vendor Invoice Received 2 Release Payment before Receive Goods 3 Vendor Invoice Received after Release Payment 4 Receive Goods after Release Payment 5 Match Invoice to PO after Release Payment"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Receive Goods before Issue Purchase Order Thats odd because you cant receive goods against a PO that hasnt been issued yet Typically the PO is sent to the vendor before they ship the goods so goods receipt should come after PO issuance"
   },
   {
     "Name": "Deductive Reasoning - PE",
-    "Text": "**Case 1004:** 1. Create Purchase Requisition 2. Approve Purchase Requisition 3. Receive Goods 4. Issue Purchase Order 5. Vendor Invoice Received 6. Match Invoice to PO 7. Release Payment 8. Close Case This one has: - Receive Goods before Issue Purchase Order. That's odd because you can't receive goods against a PO that hasn't been issued yet. Typically, the PO is sent to the vendor before they ship the goods, so goods receipt should come after PO issuance. So the anomaly here is: 1. Receive Goods before Issue Purchase Order"
-  },
-  {
-    "Name": "Inductive Reasoning - PE",
-    "Text": "Now, let's summarize the anomalies for each case: **Case 1001:** No anomalies - this follows the standard sequence. **Case 1002:** [list] **Case 1003:** [list] **Case 1004:** [list]"
+    "Text": "So the anomaly here is 1 Receive Goods before Issue Purchase Order"
   },
   {
     "Name": "Abductive Reasoning - PE",
-    "Text": "Now, let's think about why these are problematic from a business perspective: 1. **Lack of proper authorization:** - In Case 1002, the PO was issued before the requisition was approved. This bypasses the approval controls meant to ensure purchases are legitimate and budgeted. - In Case 1004, goods were received before the PO was issued, which might mean the purchase wasn't properly authorized. 2. **Paying before receiving goods:** - In Cases 1002 and 1003, payment was released before goods were received. This is a major risk because: - The company might pay for goods that are never delivered. - It breaks the fundamental principle of goods received before payment. - It could indicate fraud (e.g., collusion with vendor to pay for undelivered goods). - Even if goods are eventually received, paying early hurts cash flow. [continues with 3-5]"
+    "Text": "Now lets think about why these are problematic from a business perspective Lack of proper authorization In Case 1002 the PO was issued before the requisition was approved This bypasses the approval controls meant to ensure purchases are legitimate and budgeted In Case 1004 goods were received before the PO was issued which might mean the purchase wasnt properly authorized Paying before receiving goods In Cases 1002 and 1003 payment was released before goods were received This is a major risk because the company might pay for goods that are never delivered It breaks the fundamental principle of goods received before payment It could indicate fraud Even if goods are eventually received paying early hurts cash flow Paying before invoice is received matched In Cases 1002 and 1003 payment was made before the invoice was received or matched to the PO This means payment might not correspond to actual goods services received No verification that the invoice amount matches the PO amount Increased risk of overpayment or payment for incorrect items"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Sequence violations In Case 1002 the approval came after PO issuance and payment This is completely backwards and suggests either a data entry error or a serious control failure In Case 1004 receiving goods before PO issuance suggests the PO might have been created after the fact to justify a purchase that was already made which is a control weakness Matching after payment In Cases 1002 and 1003 the invoice matching happened after payment was released Matching is supposed to be a pre payment control to ensure the invoice is valid before payment is made"
   },
   {
     "Name": "Hypothesis Generation - IND",
-    "Text": "Now, let's think about possible explanations for these anomalies: 1. **Data Entry Errors:** - Some of these might be due to incorrect timestamping or activity logging. For example, in Case 1003, it's impossible to release payment before receiving the invoice unless the payment was based on the PO amount alone, which is unusual. 2. **Process Violations:** 3. **Emergency Purchases:** 4. **System Issues:** 5. **Fraud or Control Weaknesses:**"
+    "Text": "Now lets think about possible explanations for these anomalies Data Entry Errors Some of these might be due to incorrect timestamping or activity logging Process Violations In Case 1002 it seems like someone might have rushed through the process without following proper controls Emergency Purchases In Case 1004 receiving goods before PO might indicate an emergency purchase where goods were needed immediately System Issues Maybe the timestamps are incorrect or activities are being logged at the wrong times Fraud or Control Weaknesses Some of these especially paying before receiving goods or invoices could indicate fraudulent activity or very weak internal controls"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1001 No Anomalies This case follows the standard P2P sequence without any anomalies"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1002 Multiple Critical Anomalies Purchase Order Issued Before Requisition Approval Problem A Purchase Order should never be issued before the corresponding Purchase Requisition is approved This bypasses a critical control meant to ensure purchases are authorized and within budget Vendor Invoice Received Before Goods Receipt Problem Typically vendors send invoices after shipping goods or simultaneously so goods receipt should precede or coincide with invoice receipt Payment Released Prematurely Problem Payment should only be released after goods are received invoice is received and matched to the PO and goods receipt and requisition is approved Retroactive Approval Problem Approval should be one of the earliest steps Approving after PO issuance and payment suggests the approval process is meaningless or being done retroactively to cover up a process violation"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1003 Payment Before Invoice and Goods Receipt Problem Payment cannot logically be released before the invoice is received as the invoice states the amount to be paid Goods were received after payment meaning the company paid for items before confirming delivery Matching the invoice to the PO and goods receipt is a critical pre payment control Doing this after payment means the payment was made blindly without verification"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1004 Goods Received Before Purchase Order Issued Problem A Purchase Order is typically issued to a vendor before they ship goods Receiving goods before the PO is issued suggests the goods were received without a formal purchase order or the PO was created after the fact to justify the receipt This bypasses the authorization step"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Overall Assessment for Case 1002 This case exhibits severe control weaknesses The sequence suggests that someone may have issued a PO and even made a payment without proper authorization and then later sought approval to justify the actions This could indicate fraud a complete breakdown of controls or significant data entry errors"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Overall Assessment for Case 1003 This case shows a complete reversal of the proper sequence for payment processing Paying before receiving the invoice or goods is a major red flag and suggests either a serious breakdown in internal controls a data entry error where timestamps are incorrect or potential fraud"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Overall Assessment for Case 1004 While less severe than Cases 1002 and 1003 this is still a control violation Receiving goods without a prior PO is a common issue in procurement and can indicate poor process discipline or emergency purchases that were not properly authorized"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "General Implications These anomalies suggest several potential issues in the P2P process Weak Internal Controls Fraud Risk Process Discipline Data Quality Issues Audit Findings"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Recommendations Based on these findings the following actions should be considered Investigate Cases 1002 and 1003 Strengthen Controls Training System Enhancements Regular Audits"
   },
   {
     "Name": "Conclusion - C"
