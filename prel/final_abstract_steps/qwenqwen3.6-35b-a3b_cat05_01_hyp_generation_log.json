@@ -1,0 +1,105 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Deconstruct the Request Goal Identify anomalies undesirable behaviors in the event log hypothesize causes and propose SQL queries to investigate Database PostgreSQL Schema order_event_log orders resources Normal Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Data Four cases 1001 1002 1003 1004 with varying activities timestamps resources and additional info"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Analyze Each Case against the Normal Flow Case 1001 Events Register Order 0815 Credit Check 0830 Validate Stock 0900 Confirm Shipment 0915 Ship Goods 0945 Issue Invoice 1000 Receive Payment 1500 next day Comparison Matches normal flow perfectly Activities are in order Anomaly None obvious"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Maybe payment delay Payment is about 5 days later Is that an anomaly The prompt asks for anomalies and undesirable behaviors A 5 day payment delay might be normal or might be an issue but without a SLA it is hard to call it an anomaly based solely on the log However looking at other cases might reveal patterns Lets flag it as a potential Long Payment Latency if compared to others"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1002 Events Register Order 0820 Confirm Shipment 0825 Ship Goods 0840 Perform Credit Check 0910 Validate Stock 0915 Issue Invoice 0930 Receive Payment 1000 next day Comparison Order Violation Confirm Shipment happens before Perform Credit Check and Validate Stock Sequence Register Confirm Ship Ship Credit Check Validate Stock Invoice Payment"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomalies 1 Credit Check happens after shipping This is a major risk Shipping before credit approval 2 Validate Stock happens after shipping This implies stock validation was skipped or done retroactively 3 Confirm Shipment timestamp is 0825 Register Order is 0820 Only 5 minutes gap 4 Ship Goods timestamp is 0840 5 Perform Credit Check timestamp is 0910"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Process bypass Maybe high value priority order Check orders table Case 1002 is priority Maybe priority orders skip checks Or maybe the system allowed out of order execution Or maybe the log is wrong Additional Info attempted_early Y on Confirm Shipment This suggests the action was done early possibly violating the sequence"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1003 Events Register Order 0845 Credit Check 0900 Ship Goods 0910 Issue Invoice 0930 Confirm Shipment 0945 Receive Payment 1100 next day Comparison Order Violation Ship Goods happens before Confirm Shipment Sequence Register Credit Ship Invoice Confirm Ship Payment Missing Activity Validate Stock is missing entirely"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomalies 1 Ship Goods before Confirm Shipment Usually you confirm before shipping 2 Validate Stock is missing Did they ship without checking stock 3 late_confirmation Y on Confirm Shipment This confirms the confirmation happened late relative to the shipping"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Warehouse error Maybe the clerk shipped without waiting for confirmation Maybe stock validation was automated and logged differently Or just a process violation Missing stock check is risky"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1004 Events Register Order 0900 Receive Payment 0905 Issue Invoice 0920 Confirm Shipment 0925 Ship Goods 0950 Comparison Order Violation Receive Payment happens before Issue Invoice Missing Activities Perform Credit Check is missing Validate Stock is missing Sequence Register Payment Invoice Confirm Ship"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomalies 1 Payment received before Invoice Usually invoice triggers payment This is a huge anomaly 2 Credit Check missing 3 Validate Stock missing 4 shipment_scheduled N on Confirm Shipment This suggests the shipment was not actually scheduled or confirmed properly yet the event exists"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Maybe this is a prepayment But usually there is a specific activity for prepayment Here it is Receive Payment Maybe the system allowed payment without invoice generation Maybe Credit Check was skipped for some reason Or maybe the log is corrupted"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Synthesize Anomalies and Hypotheses Anomaly 1 Process Sequence Violations Case 1002 Credit and Stock checks after shipping Case 1003 Shipping before confirmation Stock check missing Case 1004 Payment before invoice Credit and Stock missing Hypothesis System allows out of order execution Training issues Bypass rules for certain order types"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Anomaly 2 Missing Activities Case 1003 No Validate Stock Case 1004 No Credit Check No Validate Stock Hypothesis Automated checks Or skipped due to error Risk of shipping unvalidated stock"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Anomaly 3 Payment versus Invoice Logic Case 1004 Payment before Invoice Hypothesis Prepayment workflow not modeled correctly System bug"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Anomaly 4 Resource Role Issues Check resources No obvious resource mismatch but maybe the same resource doing conflicting things No resources look distinct per event mostly"
+  },
+  {
+    "Name": "Pattern Recognition - IND",
+    "Text": "Anomaly 5 Timestamps and Gaps Case 1001 Payment gap about 5 days Case 1002 Payment gap about 26 hours Case 1003 Payment gap about 26 hours Case 1004 Payment gap 0 hours instant"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Hypothesis Case 1001 has long latency Case 1004 has instant payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Formulate SQL Queries Goal Investigate hypotheses Query 1 Sequence Violations Need to compare activity order per case Better Check if Credit Check timestamp is greater than Ship Goods timestamp SELECT case_id FROM order_event_log e1 JOIN order_event_log e2 ON e1 case_id equals e2 case_id WHERE e1 activity equals Perform Credit Check AND e2 activity equals Ship Goods AND e1 timestamp greater than e2 timestamp"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 2 Missing Activities SELECT case_id FROM orders WHERE case_id NOT IN SELECT case_id FROM order_event_log WHERE activity equals Validate Stock SELECT case_id FROM orders WHERE case_id NOT IN SELECT case_id FROM order_event_log WHERE activity equals Perform Credit Check"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 3 Payment before Invoice SELECT case_id FROM order_event_log e1 JOIN order_event_log e2 ON e1 case_id equals e2 case_id WHERE e1 activity equals Receive Payment AND e2 activity equals Issue Invoice AND e1 timestamp less than e2 timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Query 4 Order Type versus Anomaly Check if anomalies correlate with order_type Better join anomaly cases with order type"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 5 Resource Analysis Who is performing out of order activities SELECT resource activity timestamp case_id FROM order_event_log joined with resources where conditions for anomalies are met"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Query 6 Additional Info Flags additional_info has flags like attempted_early Y late_confirmation Y shipment_scheduled N SELECT case_id activity additional_info FROM order_event_log WHERE additional_info LIKE Y OR additional_info LIKE N"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review Does the response cover all constraints Yes Anomalies Hypotheses SQL Is the SQL PostgreSQL compatible Yes Are the anomalies accurate based on data 1002 Credit after Ship yes Validate Stock after Ship yes Confirm Shipment before Credit yes 1003 Ship before Confirm yes Validate Stock missing yes 1004 Payment before Invoice yes Credit Check missing yes Validate Stock missing yes shipment_scheduled N yes Analysis holds Result looks solid"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

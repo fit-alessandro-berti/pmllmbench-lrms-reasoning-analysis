@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Deconstruct and Analyze the Input Database Schema claims id customer_id amount type date adjusters id name spec region claim_events event_id claim_id activity timestamp resource info Ideal Flow R to A to E to P to N to C POWL Model Code R A E P N C are transitions loop implies repeating E and P xor means N can be skipped root edges are R before A A before loop loop before xor and A before C Missing edge from xor to C means C is only constrained to be after A"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 1 C can happen right after A The flow R to A to C is possible because A to C exists and C has no dependency on loop or xor Anomaly 2 The loop E P allows repeating evaluation and approval E to P to E to P is possible Anomaly 3 The XOR allows skipping N"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Identify Anomalies Task 1 Premature Closure The edge A to C combined with the lack of edge xor to C means C can occur immediately after A This violates the ideal flow where E P N must happen Optional Notification The XOR with skip means N is optional Repetitive Evaluation Approval The loop structure allows multiple E and P events Concurrency Out of Sequence The key anomaly is C bypassing the rest"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Generate Hypotheses Task 2 Premature Closure Hypothesis Cancelled claims Maybe if a claim is withdrawn immediately it goes to C Hypothesis Data entry error Adjuster clicked Close too early Hypothesis System bug The workflow engine allowed clicking Close before validation Hypothesis Different claim types Maybe home_insurance has a different flow"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Optional Notification Hypothesis Maybe for certain types notification is skipped Hypothesis Automated rejection maybe no Notify event is logged or it is handled by a different system Hypothesis User error Adjuster forgot to click Notify Hypothesis Model error The XOR was added to handle rejections but Reject is not an activity in the model"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Repetitive E P Hypothesis Complex claims need multiple rounds of review Hypothesis Dispute customer appealed so re evaluation happened Hypothesis Bug system duplicated events Hypothesis Model error The loop was meant to be a Review step that might fail and go back but the implementation allows infinite loops"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Propose Verification Queries Task 3 Goal Write SQL queries against claim_events to find evidence of anomalies"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 1 Premature Closure Need claims where C happens before E or P or where C happens right after A without E or P Better to check if C exists and E P do not Result Claims closed without eval approve Matches R to A to C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 2 Repetitive E P Need claims with multiple E or P Refinement Check order too Maybe E after P Result Out of order E P"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 3 Skipped Notification Need claims where N is missing Only for claims that are closed or all Result Closed claims without notification"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Query 4 Contextual Analysis Hypothesis Testing Check if anomalies correlate with claim_type or region Result If fraud claims are skipped hypothesis about fraud workflow is supported"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review against constraints PostgreSQL syntax Yes Tables match Yes Activities match Yes"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction Simulation during drafting Critique Did I mention StrictPartialOrder semantics If nodes are not connected they are concurrent This reinforces the premature closure anomaly Critique The loop repeats E then P so E P E P supports the repetitive hypothesis Critique Query for skipped notification should find claims without N to see if the model anomaly is being exploited Critique Query for premature closure finds C without E P This is the verification"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish Write clear headings Use code blocks for SQL Add comments to SQL Summarize the connection between model hypothesis and query Result looks solid"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

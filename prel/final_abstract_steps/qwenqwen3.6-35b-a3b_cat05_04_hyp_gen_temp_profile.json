@@ -1,0 +1,97 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Context PostgreSQL database with claims adjusters claim_events Schema claim_events has claim_id activity R A E P N C timestamp resource Temporal Profile A dictionary of tuples Activity1 Activity2 mapping to AVG STDEV Profile Data R A 3600 600 R E 86400 28800 R P 90000 3600 Anomaly noted Low stdev for long duration A C 7200 3600 Anomaly noted Short closure after assign E N 300 60 Anomaly noted Very quick E C 3600 3000 P N 604800 172800 Anomaly noted Long delay high variance N C 1800 300 Tasks Identify anomalies Generate hypotheses Propose SQL verification queries"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 1 R to P Receive to Approve Stats Avg 25h STDEV 1h Observation The STDEV is very small relative to the mean This implies almost every claim goes from R to P in roughly 25h plus or minus 1h"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis This is too consistent for a human process Likely a batch process a hard coded SLA trigger or a system bug where P is automatically generated at a fixed offset from R"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Check Does E and A happen If R to P is tight maybe E is skipped The profile has R to E with high variance so E exists Maybe E happens but P is rigid Or maybe P is timestamped incorrectly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 2 P to N Approve to Notify Stats Avg 7 days STDEV 2 days Observation Huge delay 7 days is a long time to notify a customer after approval High variance means some are fast some are very slow"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis Manual notification backlog Email server issues Customer communication is done via a separate system not integrated Or perhaps N is only done for specific claim types High variance suggests resource constraints or manual intervention delays"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 3 A to C Assign to Close Stats Avg 2h STDEV 1h Observation Claims are closed very quickly after assignment"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis Premature closure Claims are assigned and immediately closed without evaluation Or C is triggered by a system error Or C is being logged incorrectly If A to C is 2h and A to E or E to C should exist this suggests C happens too soon Could be a Reject claim that is closed fast"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 4 E to N Evaluate to Notify Stats Avg 5 min STDEV 1 min Observation Extremely fast 5 minutes from evaluation to notification"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis Automated notification immediately after evaluation If the process requires manual review or approval between E and N this is a violation Or N is an automated status update not a customer notification Or the timestamp is wrong Low STDEV suggests automation"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly 5 E to C vs A to C A to C is 2h E to C is 1h This implies C happens very close to E as well If A to C is 2h and E usually happens after A then E to C being 1h is consistent with C happening right after E This reinforces the Premature Closure or Rapid Closure hypothesis Claims are being closed almost immediately after evaluation assignment"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "The user asked for Anomalies Hypotheses SQL Queries I should group these logically Anomalies Section List the pairs with issues Hypotheses Section Map hypotheses to anomalies SQL Section Provide queries"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Need to calculate time between activities for each claim claim_events has activity Need to pivot or self join Self join is safer in standard SQL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Filter by Z score or range Z score logic ABS diff minus avg divided by stdev greater than threshold"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Join with adjusters via resource Wait claim_events resource is VARCHAR adjusters adjuster_id is INTEGER and name is VARCHAR Usually resource might match adjuster_id cast to string or name"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Better to use resource directly if the join is tricky or suggest the join condition I will propose a query that groups by resource to find outliers"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Specific Query Ideas Query 1 R to P Anomaly Detection Query 2 A to C Premature Closure Query 3 P to N Delay Analysis by Resource Query 4 E to N Automation Check"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "R to P is 25h R to E is 24h This is interesting R to P is only 1 hour longer than R to E This suggests P happens almost immediately after E"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If E to P is fixed then R to P STDEV should equal R to E STDEV R to E STDEV is 28800 8h R to P STDEV is 3600 1h This contradicts the math If R to P equals R to E plus E to P then STDEV R to P should be at least STDEV R to E Here STDEV R to P is less than STDEV R to E"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "This implies R to P and R to E are not simply additive or the data has issues It suggests P might be timestamped incorrectly or P is not actually dependent on E in the data generation"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "If P is automated at 25h regardless of E and E happens at 24h plus or minus 8h then for claims where E happens late P still happens at 25h That would mean P happens before E in some cases"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This implies P occurs before E in some cases This is a process violation Approve before Evaluate This is a crucial insight"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Add query to check P before E Select claim_id where p timestamp is before e timestamp This verifies the variance anomaly"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

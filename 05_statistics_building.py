@@ -100,7 +100,7 @@ for mod in models:
 
     #del models[mod]["activities"]
 
-    models[mod]["score"] = (100 * models[mod]["conclusion_correct"] - 100 * models[mod][
+    models[mod]["score"] = 2.5*(100 * models[mod]["conclusion_correct"] - 100 * models[mod][
         "conclusion_partially_correct"] - 200 * models[mod]["conclusion_incorrect"]) + \
                            (10 * models[mod]["step_positive_effect"] - 1 * models[mod]["step_indifferent"] - 20 *
                             models[mod]["step_negative_effect"])
