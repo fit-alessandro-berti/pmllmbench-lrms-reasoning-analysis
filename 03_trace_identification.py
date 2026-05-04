@@ -123,7 +123,8 @@ def process_file_task(filename, input_folder, prel_folder, questions_folder, sch
                     clipboard_content,
                     api_key=api_key,
                     openai_model="gpt-5.4",
-                    api_url="https://api.openai.com/v1/"
+                    api_url="https://api.openai.com/v1/",
+                    extra_payload={}
                 )
                 with open(prel_path, "w", encoding="utf-8") as f:
                     f.write(resp)
@@ -225,7 +226,7 @@ def main(input_folder, pattern, prel_folder, questions_folder):
     api_key = open("../api_openai.txt", "r").read()
     os.makedirs(prel_folder, exist_ok=True)
 
-    with ThreadPoolExecutor(max_workers=50) as executor:
+    with ThreadPoolExecutor(max_workers=150) as executor:
         futures = []
         for filename in txt_files:
             if not any(p in filename.lower() for p in allowed):
