@@ -1,32 +1,80 @@
+from __future__ import annotations
+
 import json
-import os
-import traceback
-import pyperclip
 import subprocess
 import time
-from concurrent.futures import ThreadPoolExecutor
+import traceback
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, Optional, Sequence, Tuple, Union
+
 import pm4py
-
-# You need to install jsonschema if you haven't already:
-# pip install jsonschema
-from jsonschema import validate, ValidationError
+import pyperclip
+from jsonschema import ValidationError, validate
 
 
-def read_file_contents(input_path):
+DEFAULT_QUESTIONS_FOLDER = Path(r"C:\Users\berti\pm-llm-benchmark\questions")
+DEFAULT_INPUT_FOLDER = Path(r"C:\Users\berti\pm-llm-benchmark\answers")
+DEFAULT_PREL_FOLDER = Path("prel") / "final_abstract_steps"
+DEFAULT_PATTERNS_FILE = Path("lrms_list.txt")
+DEFAULT_API_KEY_PATH = Path("../api_openai.txt")
+
+ALLOWED_CATEGORIES = ("cat01", "cat02", "cat03", "cat04", "cat05", "cat06")
+REQUEST_MODEL = "gpt-5.4"
+API_URL = "https://api.openai.com/v1/"
+MAX_WORKERS = 150
+SCAN_INTERVAL_SECONDS = 60
+MANUAL_MODE = False
+
+
+@dataclass(frozen=True)
+class ProcessingConfig:
+    input_folder: Path
+    prel_folder: Path
+    questions_folder: Path
+    api_key_path: Path = DEFAULT_API_KEY_PATH
+    allowed_categories: Sequence[str] = ALLOWED_CATEGORIES
+    max_workers: int = MAX_WORKERS
+    request_model: str = REQUEST_MODEL
+    api_url: str = API_URL
+    manual_mode: bool = MANUAL_MODE
+
+
+@dataclass(frozen=True)
+class TraceJob:
+    filename: str
+    model_pattern: str
+    input_path: Path
+    question_path: Path
+    temp_output_path: Path
+    final_output_path: Path
+
+
+PatternInput = Union[str, Sequence[str]]
+
+
+def read_file_contents(input_path: Union[str, Path]) -> str:
+    path = Path(input_path)
     try:
-        f = open(input_path, "r", encoding="utf-8")
-        content = f.read()
-        f.close()
-    except:
-        f = open(input_path, "r")
-        content = f.read()
-        f.close()
-    # Read input file content
-    content = content.split("<think>")[-1].split("</think>")[0].split("<thought>")[-1].split("</thought>")[0]
+        content = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        content = path.read_text()
+
+    return extract_thought_content(content)
+
+
+def extract_thought_content(content: str) -> str:
+    for start_tag, end_tag in (("<think>", "</think>"), ("<thought>", "</thought>")):
+        if start_tag in content:
+            content = content.split(start_tag, 1)[1]
+            if end_tag in content:
+                content = content.split(end_tag, 1)[0]
     return content
 
 
-def build_header_string():
+def build_header_string() -> str:
     return """
 Produce a JSON containing the ordered list of abstract reasoning steps followed in the provided text.
 The list should include dictionaries having two keys:
@@ -86,107 +134,13 @@ The JSON should look like:
 """
 
 
-def process_file_task(filename, input_folder, prel_folder, questions_folder, schema, api_key):
-    header_stri = build_header_string()
-    prel_path = os.path.join(prel_folder, filename)
-    input_path = os.path.join(input_folder, filename)
-    question_path = os.path.join(questions_folder, "cat" + filename.split("_cat")[1])
-
-    while True:
-        try:
-            question = read_file_contents(question_path)
-            reasoning_trace = read_file_contents(input_path)
-
-            clipboard_content = "\n".join([
-                header_stri,
-                "\n\nQuestion:",
-                question,
-                "\n\nReasoning trace:",
-                reasoning_trace
-            ])
-
-            if False:
-                # Copy to clipboard
-                pyperclip.copy(clipboard_content)
-
-                print(f"Copied content of '{filename}' to clipboard with a prepended request.")
-
-                with open(prel_path, "w", encoding="utf-8") as f:
-                    f.write("")  # create empty file
-
-                # Open in Notepad (blocking call until user closes)
-                print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
-                subprocess.call(["notepad", prel_path])
-            else:
-                print("req")
-                resp = pm4py.llm.openai_query(
-                    clipboard_content,
-                    api_key=api_key,
-                    openai_model="gpt-5.4",
-                    api_url="https://api.openai.com/v1/",
-                    extra_payload={}
-                )
-                with open(prel_path, "w", encoding="utf-8") as f:
-                    f.write(resp)
-
-            # Extract the JSON from the prel file (delimited by ```json ... ```).
-            # Be careful to pick the correct segment if multiple code fences exist.
-            raw_prel = read_file_contents(prel_path)
-            if "```json" in raw_prel:
-                # Split at the first occurrence after ```json
-                json_segment = raw_prel.split("```json", 1)[1]
-                # Then split at the first triple backticks after that
-                contents_str = json_segment.split("```", 1)[0]
-            else:
-                raise ValueError(
-                    "No ```json code fence found in the prel file. "
-                    "Please include the JSON inside ```json ... ``` fences."
-                )
-
-            # Load the JSON
-            contents = json.loads(contents_str)
-
-            # Validate against the JSON schema
-            try:
-                validate(instance=contents, schema=schema)
-            except ValidationError as e:
-                # Raise a specific exception if validation fails
-                raise Exception(f"JSON does not validate: {e.message}")
-
-            # If validation succeeds, rename prel_path to .json extension
-            new_prel_path = prel_path.replace(".txt", ".json")
-            os.rename(prel_path, new_prel_path)
-
-            # Write out the validated JSON in the new file
-            with open(new_prel_path, "w", encoding="utf-8") as fp:
-                json.dump(contents, fp, indent=2, ensure_ascii=False)
-
-            print(f"Validation successful. Final JSON saved as '{new_prel_path}'.")
-            print(f"Finished processing '{filename}'. Moving on...\n")
-            return
-
-        except Exception as ex:
-            traceback.print_exc()
-            print(f"Validation or file reading/writing failed for '{filename}'. Retrying...")
-            time.sleep(2)
-
-
-def main(input_folder, pattern, prel_folder, questions_folder):
-    # JSON Schema to validate the final structure.
-    # We expect an array of objects. Each object can be either:
-    #    1) A normal reasoning step, where "Name" matches one of the
-    #       known reasoning patterns, followed by " - PE", " - IND", or " - NE".
-    #    2) The "Conclusion" step, with "Name" matching "Conclusion - C",
-    #       "Conclusion - PC", or "Conclusion - W".
-    #
-    # The field "Corresponding text" must be a string for both types of items.
-    schema = {
+def build_schema() -> dict:
+    return {
         "type": "array",
         "items": {
             "type": "object",
             "oneOf": [
                 {
-                    # Reasoning step pattern
                     "properties": {
                         "Name": {
                             "type": "string",
@@ -195,81 +149,262 @@ def main(input_folder, pattern, prel_folder, questions_folder):
                                 r"Abductive Reasoning|Hypothesis Generation|Validation|Backtracking|"
                                 r"Ethical or Moral Reasoning|Counterfactual Reasoning|Heuristic Reasoning)"
                                 r" - (PE|IND|NE)$"
-                            )
+                            ),
                         },
-                        "Text": {"type": "string"}
+                        "Text": {"type": "string"},
                     },
-                    "required": ["Name", "Text"]
+                    "required": ["Name", "Text"],
                 },
                 {
-                    # Conclusion pattern
                     "properties": {
                         "Name": {
                             "type": "string",
-                            "pattern": r"^Conclusion - (C|PC|W)$"
+                            "pattern": r"^Conclusion - (C|PC|W)$",
                         }
                     },
-                    "required": ["Name"]
-                }
-            ]
-        }
+                    "required": ["Name"],
+                },
+            ],
+        },
     }
 
-    # List and filter matching files
-    all_files = os.listdir(input_folder)
-    txt_files = [
-        f for f in all_files
-        if f.startswith(pattern) and f.endswith(".txt")
-    ]
 
-    allowed = ["cat01", "cat02", "cat03", "cat04", "cat05", "cat06"]
-    api_key = open("../api_openai.txt", "r").read()
-    os.makedirs(prel_folder, exist_ok=True)
+def load_patterns(patterns_file: Union[str, Path]) -> Tuple[str, ...]:
+    with Path(patterns_file).open("r", encoding="utf-8") as f:
+        return tuple(line.strip() for line in f if line.strip())
 
-    with ThreadPoolExecutor(max_workers=150) as executor:
-        futures = []
-        for filename in txt_files:
-            if not any(p in filename.lower() for p in allowed):
-                continue
 
-            # Build path to corresponding prel file
-            prel_path = os.path.join(prel_folder, filename)
+def normalize_patterns(patterns: PatternInput) -> Tuple[str, ...]:
+    if isinstance(patterns, str):
+        return (patterns,)
+    return tuple(pattern for pattern in patterns if pattern)
 
-            # If the prel file doesn't exist, create it
-            if not os.path.exists(prel_path) and not os.path.exists(prel_path.replace(".txt", ".json")):
-                futures.append(
-                    executor.submit(
-                        process_file_task,
-                        filename,
-                        input_folder,
-                        prel_folder,
-                        questions_folder,
-                        schema,
-                        api_key
-                    )
-                )
 
-        for future in futures:
+def read_api_key(api_key_path: Union[str, Path]) -> str:
+    return Path(api_key_path).read_text(encoding="utf-8").strip()
+
+
+def build_prompt(question: str, reasoning_trace: str) -> str:
+    return "\n".join(
+        [
+            build_header_string(),
+            "\n\nQuestion:",
+            question,
+            "\n\nReasoning trace:",
+            reasoning_trace,
+        ]
+    )
+
+
+def question_filename_for(answer_filename: str) -> str:
+    if "_cat" not in answer_filename:
+        raise ValueError(f"Cannot derive question filename from '{answer_filename}'")
+    return "cat" + answer_filename.split("_cat", 1)[1]
+
+
+def matching_model_pattern(filename: str, patterns: Sequence[str]) -> Optional[str]:
+    for pattern in patterns:
+        if filename.startswith(pattern):
+            return pattern
+    return None
+
+
+def is_allowed_category(filename: str, allowed_categories: Sequence[str]) -> bool:
+    lower_filename = filename.lower()
+    return any(category in lower_filename for category in allowed_categories)
+
+
+def discover_pending_jobs(config: ProcessingConfig, patterns: Sequence[str]) -> Tuple[TraceJob, ...]:
+    jobs = []
+    for input_path in sorted(config.input_folder.iterdir(), key=lambda path: path.name):
+        filename = input_path.name
+        if not input_path.is_file() or input_path.suffix != ".txt":
+            continue
+
+        model_pattern = matching_model_pattern(filename, patterns)
+        if model_pattern is None or not is_allowed_category(filename, config.allowed_categories):
+            continue
+
+        final_output_path = config.prel_folder / input_path.with_suffix(".json").name
+        if final_output_path.exists():
+            continue
+
+        jobs.append(
+            TraceJob(
+                filename=filename,
+                model_pattern=model_pattern,
+                input_path=input_path,
+                question_path=config.questions_folder / question_filename_for(filename),
+                temp_output_path=config.prel_folder / filename,
+                final_output_path=final_output_path,
+            )
+        )
+
+    return tuple(jobs)
+
+
+def interleave_jobs_by_model(jobs: Sequence[TraceJob]) -> Tuple[TraceJob, ...]:
+    grouped_jobs = {}
+    for job in jobs:
+        grouped_jobs.setdefault(job.model_pattern, deque()).append(job)
+
+    interleaved_jobs = []
+    active_models = sorted(grouped_jobs)
+    while active_models:
+        next_active_models = []
+        for model_pattern in active_models:
+            model_jobs = grouped_jobs[model_pattern]
+            interleaved_jobs.append(model_jobs.popleft())
+            if model_jobs:
+                next_active_models.append(model_pattern)
+        active_models = next_active_models
+
+    return tuple(interleaved_jobs)
+
+
+def request_trace_identification(prompt: str, api_key: str, config: ProcessingConfig) -> str:
+    return pm4py.llm.openai_query(
+        prompt,
+        api_key=api_key,
+        openai_model=config.request_model,
+        api_url=config.api_url,
+        extra_payload={},
+    )
+
+
+def write_manual_request(prompt: str, job: TraceJob) -> None:
+    pyperclip.copy(prompt)
+    print(f"Copied content of '{job.filename}' to clipboard with a prepended request.")
+
+    job.temp_output_path.write_text("", encoding="utf-8")
+    print(f"Opening '{job.temp_output_path}' in Notepad. Please edit, save, and close.")
+    subprocess.call(["notepad", str(job.temp_output_path)])
+
+
+def extract_json_from_response(raw_response: str) -> str:
+    if "```json" not in raw_response:
+        raise ValueError(
+            "No ```json code fence found in the prel file. "
+            "Please include the JSON inside ```json ... ``` fences."
+        )
+
+    json_segment = raw_response.split("```json", 1)[1]
+    return json_segment.split("```", 1)[0].strip()
+
+
+def validate_trace_json(contents: object, schema: dict) -> None:
+    try:
+        validate(instance=contents, schema=schema)
+    except ValidationError as e:
+        raise ValueError(f"JSON does not validate: {e.message}") from e
+
+
+def write_final_json(job: TraceJob, contents: object) -> None:
+    with job.final_output_path.open("w", encoding="utf-8") as fp:
+        json.dump(contents, fp, indent=2, ensure_ascii=False)
+
+    try:
+        job.temp_output_path.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def process_file_task(job: TraceJob, schema: dict, api_key: str, config: ProcessingConfig) -> None:
+    while True:
+        try:
+            if job.final_output_path.exists():
+                print(f"Skipping '{job.filename}' because '{job.final_output_path}' already exists.")
+                return
+
+            question = read_file_contents(job.question_path)
+            reasoning_trace = read_file_contents(job.input_path)
+            prompt = build_prompt(question, reasoning_trace)
+
+            if config.manual_mode:
+                write_manual_request(prompt, job)
+            else:
+                print(f"req {job.model_pattern} {job.filename}")
+                response = request_trace_identification(prompt, api_key, config)
+                job.temp_output_path.write_text(response, encoding="utf-8")
+
+            raw_response = read_file_contents(job.temp_output_path)
+            contents = json.loads(extract_json_from_response(raw_response))
+            validate_trace_json(contents, schema)
+            write_final_json(job, contents)
+
+            print(f"Validation successful. Final JSON saved as '{job.final_output_path}'.")
+            print(f"Finished processing '{job.filename}'. Moving on...\n")
+            return
+
+        except Exception:
+            traceback.print_exc()
+            print(f"Validation or file reading/writing failed for '{job.filename}'. Retrying...")
+            time.sleep(2)
+
+
+def summarize_models(jobs: Iterable[TraceJob]) -> str:
+    counts = {}
+    for job in jobs:
+        counts[job.model_pattern] = counts.get(job.model_pattern, 0) + 1
+
+    return ", ".join(f"{model}: {count}" for model, count in sorted(counts.items()))
+
+
+def process_pending_files(config: ProcessingConfig, patterns: Sequence[str]) -> int:
+    if not patterns:
+        print("No model patterns configured.")
+        return 0
+
+    config.prel_folder.mkdir(parents=True, exist_ok=True)
+    jobs = interleave_jobs_by_model(discover_pending_jobs(config, patterns))
+    if not jobs:
+        print("No pending matching files found.")
+        return 0
+
+    schema = build_schema()
+    api_key = "" if config.manual_mode else read_api_key(config.api_key_path)
+
+    print(f"Submitting {len(jobs)} files across {len(set(job.model_pattern for job in jobs))} model(s).")
+    print(f"Pending by model: {summarize_models(jobs)}")
+
+    with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
+        future_to_job = {
+            executor.submit(process_file_task, job, schema, api_key, config): job
+            for job in jobs
+        }
+
+        for future in as_completed(future_to_job):
             future.result()
 
     print("All matching files have been processed.")
+    return len(jobs)
+
+
+def main(
+    input_folder: Union[str, Path],
+    patterns: PatternInput,
+    prel_folder: Union[str, Path],
+    questions_folder: Union[str, Path],
+) -> int:
+    config = ProcessingConfig(
+        input_folder=Path(input_folder),
+        prel_folder=Path(prel_folder),
+        questions_folder=Path(questions_folder),
+    )
+    return process_pending_files(config, normalize_patterns(patterns))
+
+
+def run_forever(config: ProcessingConfig, patterns_file: Union[str, Path]) -> None:
+    while True:
+        patterns = load_patterns(patterns_file)
+        process_pending_files(config, patterns)
+        time.sleep(SCAN_INTERVAL_SECONDS)
 
 
 if __name__ == "__main__":
-    # Usage (3 arguments, optionally):
-    # python script.py <input_folder> <pattern> <prel_folder>
-    # Defaults are set if no arguments are provided.
-
-    questions_folder = r"C:\Users\berti\pm-llm-benchmark\questions"
-    input_folder = r"C:\Users\berti\pm-llm-benchmark\answers"
-    prel_folder = r"prel\final_abstract_steps"
-
-    F = open("lrms_list.txt", "r")
-    patterns = [x.strip() for x in F.readlines()]
-    F.close()
-
-    while True:
-        for pattern in patterns:
-            main(input_folder, pattern, prel_folder, questions_folder)
-        #break
-        time.sleep(60)
+    default_config = ProcessingConfig(
+        input_folder=DEFAULT_INPUT_FOLDER,
+        prel_folder=DEFAULT_PREL_FOLDER,
+        questions_folder=DEFAULT_QUESTIONS_FOLDER,
+    )
+    run_forever(default_config, DEFAULT_PATTERNS_FILE)
