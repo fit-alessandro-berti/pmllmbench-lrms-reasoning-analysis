@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import subprocess
 import time
@@ -15,8 +16,10 @@ import pyperclip
 from jsonschema import ValidationError, validate
 
 
-DEFAULT_QUESTIONS_FOLDER = Path(r"C:\Users\berti\pm-llm-benchmark\questions")
-DEFAULT_INPUT_FOLDER = Path(r"C:\Users\berti\pm-llm-benchmark\answers")
+REPO_ROOT = Path(__file__).resolve().parent
+DEFAULT_PM_BENCHMARK_ROOT = REPO_ROOT.parent / "pm-llm-benchmark"
+DEFAULT_QUESTIONS_FOLDER = DEFAULT_PM_BENCHMARK_ROOT / "questions"
+DEFAULT_INPUT_FOLDER = DEFAULT_PM_BENCHMARK_ROOT / "answers"
 DEFAULT_PREL_FOLDER = Path("prel") / "final_abstract_steps"
 DEFAULT_PATTERNS_FILE = Path("lrms_list.txt")
 DEFAULT_API_KEY_PATH = Path("../api_openai.txt")
@@ -394,17 +397,38 @@ def main(
     return process_pending_files(config, normalize_patterns(patterns))
 
 
-def run_forever(config: ProcessingConfig, patterns_file: Union[str, Path]) -> None:
+def run_loop(
+    config: ProcessingConfig,
+    patterns_file: Union[str, Path],
+    *,
+    exit_on_no_changes: bool = False,
+) -> None:
     while True:
         patterns = load_patterns(patterns_file)
-        process_pending_files(config, patterns)
+        processed_count = process_pending_files(config, patterns)
+        if processed_count == 0 and exit_on_no_changes:
+            print("No pending matching files found, exiting.")
+            return
         time.sleep(SCAN_INTERVAL_SECONDS)
 
 
+def run_forever(config: ProcessingConfig, patterns_file: Union[str, Path]) -> None:
+    run_loop(config, patterns_file, exit_on_no_changes=False)
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Identify reasoning trace steps for pending LRM files.")
+    parser.add_argument(
+        "--exit-on-no-changes",
+        action="store_true",
+        default=False,
+        help="Exit instead of waiting for the next scan when no pending files are found.",
+    )
+    args = parser.parse_args()
+
     default_config = ProcessingConfig(
         input_folder=DEFAULT_INPUT_FOLDER,
         prel_folder=DEFAULT_PREL_FOLDER,
         questions_folder=DEFAULT_QUESTIONS_FOLDER,
     )
-    run_forever(default_config, DEFAULT_PATTERNS_FILE)
+    run_loop(default_config, DEFAULT_PATTERNS_FILE, exit_on_no_changes=args.exit_on_no_changes)

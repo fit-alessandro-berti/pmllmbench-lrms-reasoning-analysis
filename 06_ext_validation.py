@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import traceback
@@ -83,39 +84,59 @@ def evaluate_file(file_path, output_folder, api_key):
 
 
 def main(input_folder, output_folder):
-    # Read API key (adjust the path to your API key file as needed)
-    api_key_path = "../api_grok.txt"
-    with open(api_key_path, "r") as f:
-        api_key = f.read().strip()
-
     # Process each JSON file from the input folder using a thread pool.
     json_files = [
         file for file in os.listdir(input_folder)
         if file.endswith(".json")
     ]
 
+    pending_files = []
+    for file in json_files:
+        output_path = os.path.join(output_folder, file)
+        if os.path.exists(output_path):
+            continue
+        pending_files.append(file)
+
+    if not pending_files:
+        print("No pending JSON files found.")
+        return 0
+
+    # Read API key only when there is work to submit.
+    api_key_path = "../api_grok.txt"
+    with open(api_key_path, "r") as f:
+        api_key = f.read().strip()
+
     with ThreadPoolExecutor(max_workers=150) as executor:
         futures = []
-        for file in json_files:
-            output_path = os.path.join(output_folder, file)
-            if os.path.exists(output_path):
-                continue
+        for file in pending_files:
             file_path = os.path.join(input_folder, file)
             futures.append(executor.submit(evaluate_file, file_path, output_folder, api_key))
 
         for future in futures:
             future.result()
     print("All files have been processed.")
+    return len(futures)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Validate pending extracted reasoning-step JSON files.")
+    parser.add_argument(
+        "--exit-on-no-changes",
+        action="store_true",
+        default=False,
+        help="Exit instead of waiting for the next scan when no pending files are found.",
+    )
+    args = parser.parse_args()
+
     # Set the input folder (with JSON files produced by the previous script) and the output folder.
-    input_folder = r"prel\final_abstract_steps"
+    input_folder = os.path.join("prel", "final_abstract_steps")
     output_folder = r"valid_ext"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     while True:
-        main(input_folder, output_folder)
-        #break
+        processed_count = main(input_folder, output_folder)
+        if processed_count == 0 and args.exit_on_no_changes:
+            print("No pending JSON files found, exiting.")
+            break
         time.sleep(60)
