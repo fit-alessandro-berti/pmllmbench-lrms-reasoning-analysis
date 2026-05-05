@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First the event log has case_id activity and timestamp The task is to find cases that have a specific sequence of three activities in direct succession Approve Purchase Requisition followed immediately by Create Order and then Confirm Order So these three events must be consecutive in the cases event log Then among those cases we need to check if the time between Create Order and Confirm Order is more than 5 days If both conditions are met we exclude those cases from the final result"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So for a case to have this sequence there must be three consecutive events where the first is Approve Purchase Requisition the second Create Order and the third Confirm Order So using window functions with lag or lead could help here"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively for each case we can check if there exists a triplet of consecutive events that match the sequence"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Lets think about using LEAD function For each row we can get the next activity and the one after that So for a row where activity is Approve Purchase Requisition we can check if the next activity using LEAD is Create Order and the next next activity using LEAD with offset 2 is Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Since the events are ordered by timestamp and we have a row number ordered by timestamp then consecutive rows would be consecutive events"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the triplet the Create Order is at row n plus 1 and Confirm Order is at row n plus 2 So the time difference is timestamp of n plus 2 minus timestamp of n plus 1 If that difference is more than 5 days then the case is to be excluded"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "So the steps are For each case find if there exists a triplet of consecutive events where the activities are Approve Purchase Requisition Create Order Confirm Order in order For those cases check if in any such triplet the time between Create Order and Confirm Order is more than 5 days Exclude all events from such cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "First we can create a CTE Common Table Expression that assigns row numbers to each event in a case ordered by timestamp Then for each row we can check if the current activity is Approve Purchase Requisition and the next two activities are Create Order and Confirm Order Then for those rows calculate the time difference between the next and next next timestamps"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But how to get the next and next next activities and their timestamps Using LEAD function with offset 1 and 2"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then in this CTE we can filter rows where activity is Approve Purchase Requisition next_activity is Create Order next_next_activity is Confirm Order Then for those rows check if next_next_timestamp minus next_timestamp is greater than interval 5 day"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The next step is to find all case_ids where there exists at least one such triplet meeting the time condition"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The case_ids in triplet_candidates are the ones to exclude So the final query would select all events from event_log where case_id is not in select case_id from triplet_candidates"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Need to make sure that the subquery correctly captures all case_ids that have at least one such triplet"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The LEAD function with offset 2 may return null if there are not enough rows So the where clause in triplet_candidates would exclude those cases where the triplet is not complete So thats correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "What if a case has multiple such triplets Then the triplet_candidates would have the case_id listed once but since were using select case_id duplicates would be removed So the not in would correctly exclude the case"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Sample case 1 Approve Create Confirm with 1 day difference should not be excluded Sample case 2 Approve Create Confirm with 6 day difference should be excluded Another case where the triplet is broken by Other should not be excluded"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Another case where there are multiple triplets one meeting the time condition and another not Since any occurrence would cause the case to be excluded the query should capture that"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In DuckDB subtracting two timestamps gives an interval and comparing it to interval 5 day should work"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

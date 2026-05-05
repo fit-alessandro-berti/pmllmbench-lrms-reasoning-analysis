@@ -1,0 +1,117 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Step 1 Identify cases that have the sequence of three activities in direct succession and the time condition We need to check for the sequence of Approve Purchase Requisition then Create Order then Confirm Order without any other activity in between Then among these check that the time between Create Order and Confirm Order is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2 Exclude all events from those cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use pattern matching with window functions to mark the sequence and then compute the time difference"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For each case well order events by timestamp and then assign a row number or use LAG LEAD to check the sequence"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively we can self join the event log on case id and consecutive events but that might be complex"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Another method use the LEAD function twice to look at the next two activities and their timestamps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If the current activity is Approve Purchase Requisition then the next activity by timestamp should be Create Order and the one after that should be Confirm Order"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can then mark the case if we find at least one such triple and then also check the time difference between the second and third event"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are only concerned with the triple that is in direct succession no other events in between So we are looking for three consecutive events"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This will give us the case ids that have the triple in direct succession and with the time condition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note what if the same case has multiple such triples We only need to exclude the case if at least one triple meets the condition"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we can use this list of case ids to filter out from the event log"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The condition says exclude them from your final result meaning we want to return all events from cases that do not meet the condition"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The above method with LEAD exactly checks three consecutive events"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are ordering by timestamp and then looking at the next two So if there are other events in between then the LEAD values would reflect that and the condition would fail"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The problem says in direct succession meaning no other event from the same case in between So the triple must be three consecutive events in the cases timeline So the above method is correct"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "What if the case has more than three events We are only looking for one triple that meets the condition"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "We must be cautious about performance If the event log is large we might want to avoid scanning the entire table twice But lets assume we are using DuckDB and it is optimized"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The triple might be at the end of the case so LEAD activity 2 might be null Then the condition will fail This is correct because we are only interested in triples that are complete"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The condition on time compares two timestamps We must ensure that the timestamps are of a type that can be subtracted to get an interval"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If these are timestamp types then subtracting yields an interval"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are using DISTINCT in excluded cases so handling multiple matching triples in one case is fine"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively we can use EXISTS to avoid duplicate case id in the excluded cases"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "We can try to optimize by first filtering the activities that are in the set of the three we are looking for but then we might break the consecutive condition"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Another approach uses self joins and not exists checks to ensure no event lies between the matched activities"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "This approach might be even more expensive because of the anti joins and the triple join So we stick with the window function"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The window function method naturally checks the next two events in the order of timestamp so if there is an event in between the expected activities the condition would fail So this is correct"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "The problem does not specify the data type of timestamp We assume it is a timestamp type If it is a string we must convert We assume it is a timestamp"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

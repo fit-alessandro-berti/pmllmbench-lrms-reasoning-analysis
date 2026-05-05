@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Analyze the Request Input Database schema PostgreSQL three tables order event log orders resources sample event log data for 4 cases 1001 to 1004 and an assumed normal process flow Task Act as a target LLM to analyze the provided data Goals Identify anomalies undesirable behaviors in the event log Hypothesize causes for these anomalies Propose SQL queries to investigate these hypotheses further Constraints No hints or guidance should be provided in the output"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Data and Process Flow Normal Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Case 1001 Follows normal flow perfectly Timestamps are sequential"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Register Order Confirm Shipment anomaly skipping Credit Check Stock Validation Ship Goods anomaly shipping before Credit Check Stock Validation Perform Credit Check anomaly Credit Check happens after Shipping Validate Stock anomaly Stock Validation happens after Shipping Issue Invoice Receive Payment Observation This looks like a Priority order check orders table 1002 is priority Maybe a process exception for priority but logically risky shipping before credit stock"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Register Order Perform Credit Check Ship Goods anomaly skipping Stock Validation and Confirm Shipment Issue Invoice Confirm Shipment anomaly Confirm Shipment happens AFTER Ship Goods Receive Payment Observation Missing Validate Stock activity entirely Or maybe merged Confirm Shipment is out of order"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Register Order Receive Payment anomaly Payment received almost immediately after registration before Invoice Issue Invoice anomaly Invoice issued after Payment Confirm Shipment Ship Goods Missing Credit Check Validate Stock Observation Pre payment Or system glitch High value order 3000"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Identify Specific Anomalies Sequence Violations Activities happening out of the defined order for example Ship before Credit Check Confirm Shipment after Ship Goods Payment before Invoice Missing Activities Credit Check or Stock Validation missing in some cases 1003 1004 Timing Issues Extremely short durations between certain steps for example 1004 Payment 5 mins after Register Data Consistency additional info flags like attempted early Y late confirmation Y shipment scheduled N"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesize Causes Process Bypass Priority orders might bypass checks Case 1002 System Automation Configuration Maybe stock validation is automated and skipped if in stock but logged differently Or manual override Data Entry Errors Staff recording events out of order or forgetting to log intermediate steps Fraud Risk Payment before invoice Case 1004 could be pre authorization or fraud Shipping before credit check Case 1002 is a financial risk Role Confusion Resources performing tasks outside their usual scope though roles seem mapped correctly in resources table the timing suggests rush"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Draft SQL Queries Need to detect sequence violations This requires window functions LAG LEAD or self joins on order event log Need to detect missing activities per case Need to correlate with orders order type value and resources department role Query 1 Find cases where Ship Goods occurs before Perform Credit Check Query 2 Find cases where Receive Payment occurs before Issue Invoice Query 3 Identify cases missing specific mandatory activities Credit Check Validate Stock Query 4 Correlate anomalies with order type Priority vs Standard"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Refine Output Structure Section 1 Anomaly Detection What is wrong Section 2 Hypotheses Why is it wrong Section 3 SQL Investigation Plan How to verify"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review against Constraints Do not provide hints about the prompt itself Ensure SQL is valid PostgreSQL Ensure analysis is based only on the provided schema and data samples"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish Make sure the SQL uses the correct column names case id activity timestamp Ensure the logic handles the temporal aspect correctly Highlight the specific cases 1002 1003 1004 as examples in the analysis"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction during drafting In Case 1003 Validate Stock is missing from the log entirely In Case 1004 Perform Credit Check is missing I should query for missing activities based on the expected flow Self Correction For sequence violations a window function approach is best in PostgreSQL"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Structure 1 Anomaly Analysis Detail the deviations observed in cases 1002 1003 1004 compared to 1001 2 Hypothesis Generation Explain potential business or technical reasons 3 SQL Investigation Provide specific queries to validate these findings across the full dataset"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait one detail The prompt asks me to be the target LLM So I should output the analysis directly Check Case 1004 again Register Receive Payment Issue Invoice This is definitely an anomaly regarding standard accounting Invoice usually precedes Payment Also missing Credit Check and Stock Validation Check Case 1002 Priority order Skipped Credit Stock before shipping This suggests a Priority Override policy or a violation Check Case 1003 Ship Goods before Confirm Shipment Missing Validate Stock"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait check the resources table join order event log resource matches resources resource id This allows filtering by department role if needed SQL Syntax PostgreSQL Use WITH clauses for readability Final check on constraints without any hints or guidance provided here This means I should not say As per the prompt instructions I should just answer the task"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For sequence violations a window function approach is best in PostgreSQL Then filter where activity equals Ship Goods and previous activity not equal Confirm Shipment Actually better to check specific forbidden predecessors Or check if timestamp of Ship Goods is less than timestamp of Perform Credit Check for the same case This finds cases where Shipping happened before Credit Check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The prompt says Propose relevant SQL queries to investigate these hypotheses further So the SQL should be investigative not just descriptive of the sample data though the sample data informs the query I should write queries that would work on the full table"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

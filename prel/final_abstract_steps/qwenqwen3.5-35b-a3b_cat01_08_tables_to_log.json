@@ -1,0 +1,101 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Understand the Goal The objective is to transform raw ERP tables Orders Order Lines Delivery Invoice Payments Products Resources into a structured event log suitable for process mining The event log needs specific columns Case ID Activity Name Timestamp Resource Actor and Other Attributes"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Input Data Orders Defines the start of the process Key fields order_id order_date sales_person_id Order Lines Defines picking fulfillment details Key fields order_id item_picking_date picker_id Delivery happens after picking Invoice similar to delivery one order can have multiple invoices Payment one invoice can have payments"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "I need to decide whether to create one Picked event per order or per line"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Process mining usually looks at the case lifecycle Picking is often a batch activity per order but the data shows individual line picking times"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "If I create one row per line item the Case ID is the same but the Activity Name is the same Item Picked This creates multiple events for the same activity in one case This is valid in event logs"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "However standard process mining often prefers one event per case per step Let us look at the prompt instructions Items Picked events from the Order Lines table produce one event per activity if it is meaningful"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "To ensure chronological correctness and distinct activities I will create one event per logical step per case Step 1 Order Created Step 2 Item Picked Step 3 Delivery Step 4 Invoice Step 5 Payment"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "I will aggregate the picking events into a single Order Picked event per order using the latest timestamp of the picking operations as the order is not ready until the last item is picked"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Delivery table One order can have multiple deliveries for example Order 1002 This is crucial If an order is split Order Dispatched and Order Arrived should happen multiple times for the same Case ID I will create events for each delivery record"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Invoice table Similar to delivery one order can have multiple invoices for example Order 1002 I will create an event for each invoice"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Payments table Since the Case ID is order_id I need to link payments to the order If multiple invoices exist for an order I will map the payment to the order_id of the invoice it belongs to"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "I need to join the Resource Table to get names for IDs like SP001 WH001 CR01 BL001"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Payment table does not explicitly have a resource ID I will leave Resource as System or Billing Dept or try to link via the invoices billing person Let us link Payment to the Billing Person associated with the Invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check Order 1004 It has Order Lines Picked It has no Delivery record It has no Invoice record It has no Payment record Ensure that every event for every order_id is included So I must include Order 1004 even if it stops at Picking"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 1 Order Created Source Orders Table Activity Order Created Resource Sales Person mapped from sales_person_id Timestamp order_date"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 2 Order Picked Source Order Lines Table Logic Aggregate to one event per order_id Timestamp Max item_picking_date Resource use the picker of the latest picking date for consistency Activity Order Picked"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 3 Order Dispatched Source Delivery Table Logic One event per delivery_id Activity Order Dispatched Timestamp delivery_dispatch_date Resource Carrier mapped from carrier_id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 4 Order Arrived Source Delivery Table Logic One event per delivery_id Activity Order Arrived Timestamp delivery_arrival_date Resource Carrier"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 5 Invoice Issued Source Invoice Table Logic One event per invoice_id Activity Invoice Issued Timestamp invoice_issue_date Resource Billing Person mapped from billing_person_id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Event 6 Payment Received Source Payments Table Logic Join invoice_id to order_id via Invoice Table One event per payment_id Activity Payment Received Timestamp payment_date Resource Billing Person linked via Invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Order 1002 Has 2 Deliveries Log will have Dispatch Arrive pairs twice Has 2 Invoices Log will have Invoice Issued twice Has 2 Payments one per invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Chronology Check Dispatch 2 is after Dispatch 1 Arrival 1 is before Arrival 2 Invoice 1 is after Dispatch 2 Payment 1 is after Invoice 1 Payment 2 is after Invoice 2 The dates align"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction on Order Picked If I produce one event per line item the log becomes very long However if I aggregate I lose the granularity of the picking process Decision I will aggregate to a single Order Picked event per Order to maintain the standard Order to Cash process flow structure"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review against Constraints Case ID equals order_id yes Activity Names logical yes Timestamps chronological yes Every event included yes including Order 1004 which ends early Resources mapped yes Markdown format yes"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

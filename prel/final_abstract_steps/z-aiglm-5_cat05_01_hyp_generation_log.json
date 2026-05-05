@@ -1,0 +1,89 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The user wants me to analyze a provided PostgreSQL database schema and sample event log data for order processing The goal is to 1 Identify anomalies and undesirable behaviors in the event log 2 Hypothesize the causes for these anomalies 3 Propose SQL queries to investigate these hypotheses"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Schema order_event_log case_id event_id activity timestamp resource additional_info orders case_id customer_id order_type order_value resources resource_id role department Assumed Normal Flow 1 Register Order 2 Perform Credit Check 3 Validate Stock 4 Confirm Shipment 5 Ship Goods 6 Issue Invoice 7 Receive Payment"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Analyzing Case 1001 Observation This looks like the standard happy path It follows the sequence perfectly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing Case 1002 Confirm Shipment Anomaly Skipped Credit Check Validate Stock Ship Goods Anomaly Shipping before Credit Check Stock Validation Perform Credit Check Anomaly Happens AFTER shipping Validate Stock Anomaly Happens AFTER shipping Observation This is a Workaround or Rush Order scenario The goods were shipped before checking credit or stock This is a high risk process violation"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing Case 1003 Ship Goods Anomaly Skipped Validate Stock Confirm Shipment Issue Invoice Confirm Shipment Anomaly Late confirmation Observation Ship Goods happened before Confirm Shipment Also Validate Stock is missing entirely The confirmation happened after the goods were already gone This suggests a process skip or data entry lag"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing Case 1004 Receive Payment Anomaly Payment received immediately Before invoice Before shipment Issue Invoice Anomaly Invoice after payment Confirm Shipment Note additional_info says shipment_scheduled N Ship Goods Anomaly Shipment scheduled N but goods were shipped Observation Missing Credit Check and Validate Stock Pre payment received maybe a pre order or deposit Invoice issued after payment is odd Shipment scheduled N but shipped anyway"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Categorizing Anomalies Sequence Deviations Out of order events Case 1002 Confirm Shipment and Ship Goods before Credit Check and Stock Validation Case 1002 Credit Check and Stock Validation after the fact retrospective checks Case 1003 Ship Goods before Confirm Shipment Case 1004 Payment before Invoice Missing Activities Skipped steps Case 1003 Missing Validate Stock Case 1004 Missing Perform Credit Check Validate Stock"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Resource Role Mismatches Potential authorization issues Looking at resources table WarehouseClerk is Logistics LogisticsMgr is Logistics Normal flow suggests Sales to Finance to Warehouse Logistics to Logistics to Finance Case 1004 Payment received at 0905 by FinanceTeam 02 Invoice at 0920 by FinanceTeam 01 This is plausible but reversed order"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Case 1002 Rush Order Priority Handling The orders table says this is a priority order This might justify the speed but skipping Credit Check until after shipping is a major financial risk The hypothesis is that Priority orders trigger a bypass mechanism or a ship now check later policy"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Case 1003 Missing Stock Validation Did the system crash Did the clerk forget Or was it a drop ship scenario where stock was not checked internally The timestamp shows Ship Goods at 0910 and Confirm Shipment at 0945 Maybe the warehouse is acting autonomously"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Case 1004 Pre payment and Missing Checks A high value order 3000 00 Payment received immediately Maybe this is a prepaid scenario where credit checks are skipped because money is in hand But invoice came after payment Shipment scheduled N but shipped This looks like a data quality issue or a forced shipment despite system blocks"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 1 Detect Out of Order Events Need to join the table to itself or use window functions to compare timestamps of specific activities for example Ship Goods earlier than Perform Credit Check Query Find cases where Ship Goods timestamp is earlier than Perform Credit Check"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 2 Detect Missing Steps Use GROUP BY case_id and check for existence of specific activities Query Find cases that have Ship Goods but lack Validate Stock"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 3 Investigate Priority vs Standard behavior Join with orders table Query Check if sequence deviations correlate with order_type priority"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 4 Resource Analysis Who is performing the out of order steps Join with resources Query Analyze the resources performing Ship Goods when previous steps are missing Are they specific clerks"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 5 Data Entry Timeliness Query Calculate time difference between events Large gaps or negative gaps logical order vs timestamp order"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Structure of the Output The prompt asks to identify anomalies hypothesize and propose SQL queries I will structure the response into three clear sections Analysis of Anomalies Hypotheses and SQL Investigation Queries"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining the SQL Self joins are useful for sequence checking Aggregation with filtering HAVING clause is good for missing steps"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Lets double check the specific anomalies in Case 1004 Register Payment Invoice Confirm N Ship Hypothesis Prepayment orders might skip credit checks automatically SQL Find orders where payment happens before invoice check if credit check is skipped"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Lets double check Case 1002 Register Confirm Ship Credit Stock Invoice Payment Hypothesis Backfilling data The logistics team rushed and finance back office had to catch up later SQL Identify cases where Credit Check occurs after Ship Goods"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Lets double check Case 1003 Register Credit Ship Invoice Confirm Payment Hypothesis The Confirm Shipment activity is just a paperwork formality logged late by the manager while the physical shipping happened earlier SQL Find cases where Confirm Shipment happens after Ship Goods"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

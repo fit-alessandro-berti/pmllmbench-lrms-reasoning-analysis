@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Understand the Goal The objective is to write a DuckDB SQL query that filters an event_log table Specifically I need to exclude all events belonging to cases case_id that satisfy two conditions simultaneously Condition A The case contains the specific sequence of activities Approve Purchase Requisition Create Order Confirm Order directly no intervening activities Condition B Within that specific sequence the time difference between Create Order and Confirm Order is greater than 5 days Final Output All events from cases that do not meet both Condition A and Condition B"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Data Structure Table event_log Columns case_id activity timestamp Ordering Events within a case need to be ordered by timestamp to determine sequence"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Step 1 Order Events To detect sequences I need to know the position of each event within its case Ill need window functions like ROW_NUMBER or LAG and LEAD"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 2 Identify the Sequence I need to find rows where Current activity is Approve Purchase Requisition AND the next is Create Order AND the next next is Confirm Order Alternatively I can look at the Create Order row and check the previous and next activities"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Crucially direct succession means no other activity from the same case exists between them Since the data is an event log sorting by timestamp usually defines the order"
+  },
+  {
+    "Name": "Deductive Reasoning - NE",
+    "Text": "Step 3 Calculate Time Delta For the identified sequence calculate timestamp Confirm Order minus timestamp Create Order Filter where activity Approve Purchase Requisition and LEAD activity 1 Create Order and LEAD activity 2 Confirm Order Calculate duration LEAD timestamp 2 minus timestamp Check duration greater than 5 days"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Step 4 Filter Cases Select case_ids where the sequence exists AND the time delta greater than 5 days Step 5 Exclude Select all rows from event_log where case_id is NOT IN the list from Step 4"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Approach 1 Self Joins Join event_log to itself 3 times based on case_id and time ordering Constraint No event exists between the rows This is hard with simple joins Better Use Window Functions to get LEAD and LAG"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Approach 2 Window Functions Recommended LEAD activity 1 gives next activity LEAD activity 2 gives next next activity LEAD timestamp 2 gives timestamp of Confirm Order LEAD timestamp 1 gives timestamp of Create Order Collect case_ids Final Select SELECT all FROM event_log WHERE case_id NOT IN subquery"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Direct Succession Using LEAD on the ordered data ensures direct succession because LEAD looks at the immediate next row in the ordered sequence If there was an activity in between LEAD 1 would be that activity not Create Order So LEAD logic satisfies the no other event in between requirement naturally"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Multiple Occurrences A case might have this sequence multiple times The prompt asks to exclude cases that contain any instance of this sequence meeting the criteria So if one instance matches the whole case is excluded"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Performance NOT IN with a subquery is generally okay but NOT EXISTS or LEFT JOIN is often preferred However for a benchmark query clarity and correctness are paramount"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "CTE 1 ranked_events Use LEAD activity 1 LEAD activity 2 LEAD timestamp 1 and LEAD timestamp 2 over partition by case_id order by timestamp CTE 2 filtered_cases Select distinct case_id where activity Approve Purchase Requisition and next_activity Create Order and next_next_activity Confirm Order and next_next_timestamp minus next_timestamp greater than interval 5 days Final Query Select all from event_log where case_id not in filtered_cases"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Final check on Time Calculation Wait the requirement is time elapsed between the Create Order event and the Confirm Order event So I need timestamp of Confirm minus timestamp of Create My previous thought used Confirm minus Approve I need to correct this LEAD timestamp 2 minus LEAD timestamp 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Row 1 Approve Row 2 Create Row 3 Confirm When processing Row 1 activity Approve LEAD activity 1 Create LEAD activity 2 Confirm LEAD timestamp 1 t2 LEAD timestamp 2 t3 Condition t3 minus t2 greater than 5 days This matches the requirement"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This logic correctly identifies any instance of the sequence in the case Since we select distinct case_id in the CTE if any instance matches the case is excluded This aligns with Identifies any case that contains the following sequence"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "One detail on timestamp column name timestamp is a reserved keyword It is safer to quote it as timestamp to avoid ambiguity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final check on exclusion Select all from event_log where case_id not in subquery This returns all events for the kept cases This matches the requirement return all events from event_log except those that belong to cases matching the criteria"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

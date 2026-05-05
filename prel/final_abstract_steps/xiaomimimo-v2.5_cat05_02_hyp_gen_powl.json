@@ -1,0 +1,133 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a POWL model and an underlying database The task is to 1 Identify anomalies in the given POWL model 2 Generate hypotheses for why these anomalies exist 3 Propose database queries to verify these hypotheses"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets break down the POWL model We have the following activities R A E P N C The model is a StrictPartialOrder with nodes R A loop xor C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The loop is defined as loop OperatorPOWL operator Operator LOOP children E P This loop means do E then optionally do P and then E again repeatedly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "So it allows multiple cycles of E and P However note that the loop does not necessarily require that after every E there is a P It can also exit after an E without doing P This is anomalous because in the intended process we only evaluate once and then approve once"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The xor is defined as xor OperatorPOWL operator Operator XOR children N skip So it chooses between doing N or skipping do nothing"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The XOR allows skipping the notification N entirely In the intended process we always notify the customer"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The edges in the partial order are R to A A to loop loop to xor and A to C We note that there is no edge from xor to C Also we have an edge from A to C"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The edge A to C allows the claim to be closed after assigning an adjuster without going through the loop E P and the XOR N"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The model does not have an edge from xor to C So if we go through the loop and then xor we cannot close the claim"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The partial order does not enforce that xor must complete before C So the claim could be closed at any time after A even before the loop and xor or concurrently with them"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The business rule might require reevaluation and reapproval in some cases for example if additional information is needed The model might have been intended to capture a subprocess for handling adjustments but the main process should be linear"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "There might be cases where the customer does not need to be notified for example internal claims or when the claim is handled automatically Alternatively it might be an oversight"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The modeler might have intended to allow the claim to be closed at any stage for example if the customer withdraws the claim But the current model does not control when this can happen"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "It might be an oversight The intended model might have been to have the xor connected to C"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The model might have been designed to be flexible but it is too flexible and allows nonstandard paths"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can use the claim_events to trace the actual process for each claim"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Claims that were closed without a proper evaluation or approval event We need to find claims that have a C event but do not have an E event or do not have a P event or both"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Claims that are closed without evaluation Select claim_id from claim_events where activity C and claim_id not in select claim_id from claim_events where activity E"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Claims that are closed without approval Select claim_id from claim_events where activity C and claim_id not in select claim_id from claim_events where activity P"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Claims that were approved multiple times We can group by claim_id and count the number of P events"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Select claim_id count approval_count from claim_events where activity P group by claim_id having count greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Claims that skipped notification N We want to find claims that went through the process at least have E and P but do not have N"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Select claim_id from claim_events where activity in E P group by claim_id having count distinct activity equals 2 and claim_id not in select claim_id from claim_events where activity N"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can look for claims that have a C event that occurs before an E event or before a P event if we consider the timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "For each claim we can get the timestamp of the first C and the first E and check if the first C is before the first E"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Similarly we can check for closing before approval P"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We might want to check if there are notifications that occur before the corresponding evaluation or approval In the intended process N is after P"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This would find claims that were notified before being approved or without approval"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Claims that have multiple cycles of evaluation and approval loop We can look for claims that have more than one E and more than one P and also check the order of events to see if they alternate"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Alternatively we can use a sequence query to find patterns"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can try to count the number of E and P for each claim and see if the number of E is greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "These queries can help us verify the anomalies in the actual event data"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

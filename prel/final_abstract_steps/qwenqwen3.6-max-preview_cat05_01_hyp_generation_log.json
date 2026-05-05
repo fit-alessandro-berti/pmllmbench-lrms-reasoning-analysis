@@ -1,0 +1,97 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Understand User Input Database PostgreSQL Schema Three tables order_event_log orders resources Assumed Normal Process Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Example Data Four cases 1001 1002 1003 1004 with event logs showing various deviations from the normal flow"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This means the user wants me to act as the target LLM and fulfill the request I will act as the target LLM and produce the analysis and SQL queries"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Data for Anomalies Mental Walkthrough Normal Flow Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Case 1001 Follows the exact normal flow Timestamps are sequential No obvious anomalies"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Flow Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment Anomalies Credit Check and Validate Stock happen after Shipment Confirm Shipment happens before Credit Check and Stock Validation this is a major process violation shipping before credit stock check attempted early Y"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Flow Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment Anomalies Missing Validate Stock Ship Goods happens before Confirm Shipment late confirmation Y Sequence is out of order"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Flow Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods Anomalies Payment received immediately after registration before invoice credit check stock validation or shipment Missing Credit Check Validate Stock shipment scheduled N but goods were shipped anyway Sequence is heavily disrupted"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Identify Anomalies Undesirable Behaviors Out of Sequence Execution Activities occurring in wrong order for example shipping before credit check payment before invoice Missing Mandatory Steps Cases skipping critical controls like Perform Credit Check or Validate Stock Premature Late Activities Early shipment confirmation late shipment confirmation payment before invoicing Data State Inconsistencies shipment scheduled N but Ship Goods still occurs Potential Fraud Policy Violations Bypassing credit checks for high value orders processing payments prematurely"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesize Causes System Integration Errors Event logging system might be capturing timestamps incorrectly or workflow engine is not enforcing sequence constraints Policy Violations Workarounds Staff might be manually overriding steps to expedite orders especially priority orders like 1002 or bypassing credit checks for trusted customers Training Process Awareness Employees might not understand the required sequence leading to ad hoc execution Data Entry Logging Issues additional_info flags like attempted early Y or late confirmation Y suggest manual overrides or system warnings that were ignored Fraud Financial Risk Receiving payment before invoicing or shipping could indicate accounting irregularities or system glitches in the billing module"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Need to write PostgreSQL queries that Detect out of sequence activities Find missing mandatory steps Identify cases with specific flags in additional_info Correlate anomalies with order value type or resource roles Check for timestamp inversions"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 1 Detect Out of Sequence Activities Violating Normal Flow Need to compare timestamps of specific activities per case Normal order Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment I can use conditional aggregation or window functions to pivot timestamps per case then check for violations"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Actually a cleaner way is to just flag cases where any expected sequence is violated I will refine it for readability"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 2 Identify Missing Mandatory Steps Mandatory Perform Credit Check Validate Stock"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 3 Correlate Anomalies with Order Value Type and Resources Join with orders and resources to see if high value or priority orders bypass checks or if specific resources departments are involved"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Query 4 Detect State Inconsistencies in additional_info Look for flags like shipment scheduled N followed by Ship Goods or attempted early Y"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To make it more analytical I can join it with subsequent events to see if goods were shipped despite shipment scheduled N Actually a simpler approach is fine I will provide a query that extracts these flags and correlates them with case outcomes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 5 Analyze Resource Department Involvement in Violations Who is performing out of sequence steps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This is a strong query for detecting direct sequence jumps violations"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Structure the Response I will organize the output into Identified Anomalies and Undesirable Behaviors Hypothesized Root Causes Proposed SQL Queries for Investigation with explanations Recommendations Next Steps optional but adds value"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "I will ensure the SQL is PostgreSQL compatible uses CTEs window functions appropriately and directly addresses the anomalies and hypotheses"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction Refinement during drafting Check Query 1 The conditional aggregation approach is good but I should handle NULLs properly in comparisons In PostgreSQL NULL less than value is NULL so I need to use explicit is not null checks Actually a better approach for sequence violation is using LAG or checking specific pairs I will stick to the LAG approach for direct adjacent violations and use a pivot CTE for global sequence checks"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Hypotheses should map directly to queries for example Hypothesis Priority orders bypass credit checks Query joins orders table to check order_type versus missing steps"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "All steps look solid I will generate the response now"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Self Correction Verification during thought Check case 1004 Receive Payment happens right after Register Order This is highly anomalous Payment before invoice credit check stock shipment Could be system auto payment for online orders or fraud or data logging error Check case 1002 order_type is priority This strongly supports the hypothesis that priority orders might be fast tracked bypassing controls Check case 1003 Missing Validate Stock Ship Goods before Confirm Shipment late confirmation Y Suggests warehouse acted before logistics approval possibly due to stock system sync delays or manual override"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

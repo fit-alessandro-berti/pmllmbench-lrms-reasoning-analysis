@@ -1,0 +1,117 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Step 1 Identify cases that have the sequence of activities Approve Purchase Requisition Create Order Confirm Order in direct succession"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can use the LEAD and LAG window functions to look at the next and previous activities for each event However note that we are looking for three consecutive events"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We can assign a row number to each event in a case ordered by timestamp and then check for three consecutive rows with the required activities Alternatively we can use the LEAD function to look at the next activity and the one after that"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each event in a case we want to check if the current activity is Approve Purchase Requisition the next activity by timestamp is Create Order and the activity after that is Confirm Order We can do this by using LEAD twice"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Step 2 Among the cases identified in Step 1 we want to exclude those where the time between Create Order and Confirm Order is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can compute the time difference between the Create Order event and the Confirm Order event for the same case and sequence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note we are only considering the sequence where they are direct succession So if we have the sequence then the Confirm Order event must be the next event after Create Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So we can compute the time difference for the row where the activity is Create Order and the next activity is Confirm Order in the same case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 3 Exclude the cases that meet both the sequence and the timing condition We are to return all events from cases that do not meet both conditions"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do WITH consecutive events AS SELECT LEAD activity and LEAD timestamp values from event log"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are looking for rows where activity equals Approve Purchase Requisition AND next activity equals Create Order AND next next activity equals Confirm Order AND the time difference is more than 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use SELECT DISTINCT case id from consecutive events and then exclude these case ids from the final result using NOT IN or a left join"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This means that if a case has the sequence but the time condition is not met that is less than or equal to 5 days then we do not exclude that case"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The above query might have performance issues if the event log is large We can also use a left join with a distinct list of case ids to exclude This is often more efficient"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The above left join condition will give us exactly that"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "We assume the event log table has the columns case id activity timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We will use DuckDB syntax for date difference In DuckDB we can use TIMESTAMPDIFF Or we can use EXTRACT EPOCH"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note the condition says more than 5 days So if the difference is 5 days and 1 hour it is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can use next next timestamp minus next timestamp greater than INTERVAL 5 days This will be safe and clear"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Final query WITH consecutive events AS and exclude cases AS then SELECT event log star FROM event log LEFT JOIN exclude cases ON case id WHERE exclude cases case id IS NULL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are returning all events from the event log for cases that are not in exclude cases This should be the desired result"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "This assumes that the events are ordered by timestamp and that there are no two events with the same timestamp for the same case If there are then we might get non deterministic results"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We can adjust the window order by using a tie breaker We can use ROW NUMBER over partition by case id order by timestamp activity and then self join on consecutive row numbers"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Lets write the final query using the explicit self join for clarity and to avoid issues with ties"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "However note that the LEAD method is more efficient if the dataset is large But for correctness in the presence of ties the self join is safer"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Let me rewrite using LEAD with timestamp activity ordering This is more efficient and handles ties by ordering by activity as well We will use the LEAD method with timestamp activity ordering"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Final query with LEAD and tie breaking WITH consecutive events AS SELECT LEAD activity and LEAD timestamp over partition by case id order by timestamp activity exclude cases AS SELECT DISTINCT case id WHERE activity equals Approve Purchase Requisition and next activity equals Create Order and next next activity equals Confirm Order and next next timestamp minus next timestamp greater than INTERVAL 5 days SELECT event log star FROM event log LEFT JOIN exclude cases ON case id WHERE exclude cases case id IS NULL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "For case id 1 the time between Create Order and Confirm Order is 6 days so it should be excluded For case id 2 it is 4 days so it should not be excluded The query should return all events from case id 2 and 3 This matches the requirement We are done"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

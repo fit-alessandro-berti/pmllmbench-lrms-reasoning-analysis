@@ -1,0 +1,109 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log for order processing and some reference tables The normal process flow is 1 Register Order Sales 2 Perform Credit Check Finance 3 Validate Stock Warehouse 4 Confirm Shipment Logistics 5 Ship Goods Logistics 6 Issue Invoice Finance 7 Receive Payment Finance"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Case 1001 Events 1 Register Order to 2 Perform Credit Check to 3 Validate Stock to 4 Confirm Shipment to 5 Ship Goods to 6 Issue Invoice to 7 Receive Payment This follows the normal flow"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Events 8 Register Order to 9 Confirm Shipment to 10 Ship Goods to 11 Perform Credit Check to 12 Validate Stock to 13 Issue Invoice to 14 Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly Steps 2 to 4 Perform Credit Check Validate Stock Confirm Shipment are out of order Specifically Confirm Shipment and Ship Goods happened before Perform Credit Check and Validate Stock This is a violation of the assumed process because credit and stock validation should happen before shipment"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Events 15 Register Order to 16 Perform Credit Check to 17 Ship Goods to 18 Issue Invoice to 19 Confirm Shipment to 20 Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomaly Step 19 Confirm Shipment happens after Step 17 Ship Goods Normally confirmation should be before shipment Also Validate Stock is missing"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Events 21 Register Order to 22 Receive Payment to 23 Issue Invoice to 24 Confirm Shipment to 25 Ship Goods"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Receive Payment event 22 happens very early right after Register Order and before any other steps like credit check validate stock This might imply prepayment but then why issue invoice after payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The normal flow expects credit check and stock validation before shipment Here even after payment we have Issue Invoice event 23 Confirm Shipment event 24 which is set to shipment scheduled N and Ship Goods event 25 Also note that the credit check and validate stock activities are missing entirely"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "So the main anomalies are 1 Out of order activities Case 1002 and 1003 2 Missing activities Case 1003 missing Validate Stock Case 1004 missing Perform Credit Check and Validate Stock 3 Early payment and invoice after payment Case 1004"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for these anomalies 1 System errors The order processing system might have bugs leading to out of order execution or skipping steps 2 Policy violations Employees might be bypassing steps for example to expedite an order which should be logged but is not 3 Training issues Workers might not be properly trained on the process flow 4 Exceptional cases Some orders might be handled differently for example priority orders prepayment orders"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "For example in Case 1004 the order is of type standard but has a high value 3000 However the missing steps are critical credit and stock The order type for Case 1002 is priority Maybe priority orders have a different flow But the normal flow description does not specify variant flows"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can write SQL queries to investigate"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "To find cases that do not follow the standard sequence We expect the sequence of activities to be Register Order then Perform Credit Check then Validate Stock then Confirm Shipment then Ship Goods then Issue Invoice then Receive Payment We can check for each case the order of activities by timestamp and see if they follow"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "To find missing activities in the process for each case For each case we should have 7 activities We can group by case_id and count events and also check for the presence of each activity"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "To check if the anomalies are correlated with order type customer resource etc"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Query 1 Find cases that have out of order activities according to the normal process We can assign a step number to each activity and then check if the timestamp order matches the step order within a case"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are looking for rows where step order correct is false that is the current step is less than the previous step meaning it went backward"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But this does not show the out of order directly We can compare the step with the event order Actually we want to see if the step order matches the event order Alternatively we can assign the step number and then check if the step number increases with event order within a case"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So in the above query the step order correct is previous step less than current step We want that to be true for the normal flow If false then there is an anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Query 2 Check for missing activities per case"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But this will show for which case an activity is missing Alternatively we can group by case_id and list the present activities and then compare"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 3 Join the anomaly cases with the orders table to get order type and value For example for cases that have out of order events from Query1 or missing events from Query2 we can join with orders"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can also check for the case 1004 early payment and then invoice We can write a query to find cases where Receive Payment happens before Issue Invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So payment time is before invoice time That is unusual because normally you issue an invoice before receiving payment But sometimes like prepayment it might be acceptable However the process flow does not account for prepayment So we can flag these"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "These queries should help in investigating the anomalies"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

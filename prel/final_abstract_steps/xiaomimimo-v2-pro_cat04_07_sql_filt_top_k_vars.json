@@ -1,0 +1,93 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We are going to break down the problem into steps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 1 For each case we need to get the ordered sequence of activities by timestamp We can use string agg to concatenate the activities in the order of their timestamps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2 Group by this sequence to get the count of cases per variant"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 3 Rank the variants by their count descending and pick the top K"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 4 Filter the original event log to only include cases that are in the top K variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note We are to return all events from the original event log for cases that are in the top K variants"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do this in a single query by using common table expressions CTEs or subqueries"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Lets assume K is a parameter In DuckDB we can use a placeholder for K but for the purpose of this query lets assume we want to parameterize it"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH case sequences AS SELECT case id STRING AGG activity ORDER BY timestamp AS variant sequence FROM event log GROUP BY case id variant counts AS SELECT variant sequence COUNT AS frequency ROW NUMBER OVER ORDER BY COUNT DESC AS rank FROM case sequences GROUP BY variant sequence SELECT event log FROM event log JOIN case sequences ON event log case id equals case sequences case id JOIN variant counts ON case sequences variant sequence equals variant counts variant sequence WHERE variant counts rank less than or equal to K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The above query does that"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "What if two different cases have the same sequence Then they are the same variant and we count them together"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "We assume that the separator does not appear in the activity names If it does we might need a different separator"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The string representation is more human readable Since the problem does not specify we can use either"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "Alternatively we can use an array to represent the sequence DuckDB supports arrays We can use ARRAY AGG and then group by the array"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Well stick with the string representation for simplicity"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Well use a placeholder K In DuckDB we can use named parameters with K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "What if there are ties The problem says top K variants by their frequency In case of ties we might get more than K if we use RANK or DENSE RANK"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "If K equals 2 then with DENSE RANK we get more than 2 variants in a tie case If K equals 2 and we use ROW NUMBER we get exactly 2 variants"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Since the problem is ambiguous well assume we want to include all variants that are in the top K by frequency even if that means more than K variants in case of ties We can change the query to use DENSE RANK"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH case sequences AS SELECT case id STRING AGG activity ORDER BY timestamp AS variant sequence FROM event log GROUP BY case id variant counts AS SELECT variant sequence COUNT AS frequency DENSE RANK OVER ORDER BY COUNT DESC AS rank FROM case sequences GROUP BY variant sequence SELECT event log FROM event log JOIN case sequences ON event log case id equals case sequences case id JOIN variant counts ON case sequences variant sequence equals variant counts variant sequence WHERE variant counts rank less than or equal to K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We are joining the event log with the case sequences and then with variant counts This will include all events for cases that are in the top K variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The same case id might appear in multiple variants No because we grouped by case id to get one sequence per case So the join is safe"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

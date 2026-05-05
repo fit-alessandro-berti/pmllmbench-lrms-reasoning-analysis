@@ -1,0 +1,61 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to write a DuckDB SQL query that returns all events from event_log except those belonging to cases that have a specific sequence of three activities in direct succession and where the time between Create Order and Confirm Order is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Interpretation We need to identify cases that contain the sequence Approve Purchase Requisition then Create Order then Confirm Order in that exact order with no other events in between Then among those check if the timestamp difference between the Create Order and Confirm Order events is more than 5 days Then exclude all events from those cases from the final result"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "If a case has at least one occurrence of the sequence with more than 5 day gap then all events of that case should be excluded"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We need to find for each case the events ordered by timestamp and then look for pattern activity equals Approve Purchase Requisition then next activity equals Create Order then next activity equals Confirm Order"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can also use a window function to get the next and previous activity within each case ordered by timestamp That would be simpler For each event we can compute the previous events activity and the next events activity within the same case ordered by timestamp"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Using the next and previous activities for the Create Order event is sufficient if its previous activity is Approve Purchase Requisition and its next activity is Confirm Order then the sequence exists"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The next activity for Create Order being Confirm Order ensures that the next event in the case is Confirm Order so there is no other event between Similarly the previous activity being Approve Purchase Requisition ensures that the previous event is Approve Purchase Requisition"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can identify all Create Order events that have the required neighbors Then compute the time difference between the timestamp of that Create Order event and the timestamp of the next event which is Confirm Order If that difference is more than 5 days then that occurrence qualifies Then we can get the case_id and collect distinct case_ids that have at least one such qualifying occurrence"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH ordered_events AS SELECT all rows plus LAG activity as prev_activity LEAD activity as next_activity and LEAD timestamp as next_timestamp FROM event_log partitioned by case_id ordered by timestamp Then candidate_cases AS SELECT DISTINCT case_id FROM ordered_events WHERE activity equals Create Order and prev_activity equals Approve Purchase Requisition and next_activity equals Confirm Order and next_timestamp minus timestamp is greater than interval 5 day Then SELECT all columns from event_log where case_id not in candidate_cases"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "There could be multiple events with same timestamp Possibly but unlikely we can assume timestamp is unique or break ties by some ordering Since not given we assume timestamp is precise enough"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The window functions partition by case_id so they only consider events within the same case"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we could use DATEDIFF but that may count calendar day boundaries rather than exact elapsed time so safer to use next_timestamp minus timestamp greater than interval 5 day"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Our candidate cases will include the case if any occurrence meets the condition That is correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Cases with sequence but timing less than or equal to 5 days are not excluded That matches the requirement"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

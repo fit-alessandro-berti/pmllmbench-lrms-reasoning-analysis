@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "I need to find cases that have the sequence Approve Purchase Requisition Create Order Confirm Order in direct succession no other events between them"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Among those cases filter to only those where the time between Create Order and Confirm Order is more than 5 days Exclude those cases from the final result Return all events from the remaining cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "First I need to identify cases with the specific sequence I can use window functions to check for consecutive activities"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Use ROW NUMBER or LAG LEAD functions to identify consecutive activities Filter for the specific sequence Calculate the time difference between Create Order and Confirm Order Use NOT EXISTS or EXCEPT to exclude those cases"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH sequenced cases AS SELECT case id timestamp as create order time LEAD timestamp OVER PARTITION BY case id ORDER BY timestamp as confirm order time FROM SELECT case id timestamp activity LAG activity OVER PARTITION BY case id ORDER BY timestamp as prev activity LAG activity 2 OVER PARTITION BY case id ORDER BY timestamp as prev prev activity FROM event log lagged WHERE activity Confirm Order AND prev activity Create Order AND prev prev activity Approve Purchase Requisition"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "I need to verify the timestamp subtraction syntax in DuckDB"
+  },
+  {
+    "Name": "Deductive Reasoning - NE",
+    "Text": "filtered cases AS SELECT case id FROM sequenced cases WHERE confirm order time create order time more than interval 5 days"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "SELECT all FROM event log WHERE case id NOT IN SELECT case id FROM filtered cases"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "The approach involves using window functions to identify the specific activity sequence and then filtering based on the time difference between Create Order and Confirm Order"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

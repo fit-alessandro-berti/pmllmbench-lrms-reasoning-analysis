@@ -1,0 +1,133 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a POWL model with anomalies Lets break down the task"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Loop between Evaluate E and Approve P The loop structure E P allows for Starting with E then optionally followed by P and then back to E"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "But note the loop requires E then P so each cycle has E and P"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "However the loop might also allow for skipping the approval step Not exactly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So the pattern is E P E meaning that we have one or more evaluations and the number of approvals equals the number of times we went through the loop"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Therefore the loop allowing multiple evaluations and approvals is an anomaly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "XOR skipping notification The XOR is defined with two children N skip So it can either do N Notify Customer or do nothing skip"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This is an anomaly because the intended process requires a notification step N"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Partial ordering allowing premature closing The partial order has R to A A to loop loop to xor and also A to C directly"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This means that after assigning the adjuster A we can choose to skip the loop E and P and the XOR N and go directly to C Close Claim"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This premature closing is a serious anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 1 The claim process might have a scenario where after an approval new information might come to light that requires a reevaluation"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 2 There might be a misunderstanding of the claim process by the modeler"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 3 Change in business rules perhaps the business introduced a quality check step after approval that might require a reevaluation and then a reapproval"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 1 In some cases the customer might have opted out of notification or the claim might be settled without the need for notification"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 2 Technical issue the system might have a bug that sometimes fails to send the notification"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 3 Miscommunication the business process owner might have wanted to allow skipping notification in certain cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 1 There might be a class of claims that are considered fast track and do not require evaluation and approval"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 2 Technical error the workflow system might have a bug that allows the claim to be closed without following the entire process"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 3 Inadequate constraints in the modeling tool the tool might have allowed adding the edge from A to C without validating the necessary steps"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query for claims with multiple approvals P per claim SELECT claim_id COUNT FROM claim_events WHERE activity P GROUP BY claim_id HAVING COUNT greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Similarly for multiple evaluations SELECT claim_id COUNT FROM claim_events WHERE activity E GROUP BY claim_id HAVING COUNT greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To see the pattern of events we can get the sequence of activities for a claim SELECT claim_id ARRAY AGG activity ORDER BY timestamp as sequence FROM claim_events GROUP BY claim_id"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Find closed claims with a C event that do not have a notification event N"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "SELECT c claim_id FROM claims c JOIN claim_events e ON c claim_id e claim_id WHERE e activity C GROUP BY c claim_id HAVING COUNT CASE WHEN e activity N THEN 1 END equals 0"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Closing without evaluation E SELECT c claim_id FROM claims c JOIN claim_events e ON c claim_id e claim_id WHERE e activity C GROUP BY c claim_id HAVING COUNT CASE WHEN e activity E THEN 1 END equals 0"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Closing without approval P SELECT c claim_id FROM claims c JOIN claim_events e ON c claim_id e claim_id WHERE e activity C GROUP BY c claim_id HAVING COUNT CASE WHEN e activity P THEN 1 END equals 0"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We can use window functions to check the order of events per claim"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This will find claims where the close event C immediately follows the assign adjuster A event"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "However if there are other events like a system event then the previous activity of C might not be A So we need a more robust check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check for the existence of any E P or N event that occurs between A and C using not exists"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "The actual execution of these queries on the database will help in identifying the extent of the anomalies and possibly point to patterns by claim type amount or adjuster"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

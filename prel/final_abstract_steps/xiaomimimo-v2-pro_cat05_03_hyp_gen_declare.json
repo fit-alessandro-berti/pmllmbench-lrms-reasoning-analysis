@@ -1,0 +1,133 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model and asked to identify anomalies generate hypotheses about why they exist and propose SQL verification approaches"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First lets recall what each DECLARE constraint means"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "init The first activity in the process must be the specified activity existence The specified activity must occur at least once responded existence If the first activity occurs then at least one of the activities in the list must occur at some point precedence The first activity must be preceded by at least one of the activities in the list noncoexistence The first activity and at least one of the activities in the list cannot both occur in the same trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets analyze each constraint and then see if there are contradictions"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "init The process must start with R Receive Claim This is straightforward"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "existence The activity C Close Claim must occur at least once This means every trace must have a C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "responded existence If E Evaluate Claim occurs then at least one A Assign Adjuster must occur Note This does not require that A occurs before E just that if E is present then A must be present somewhere in the trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "precedence The activity C Close Claim must be preceded by at least one R Receive Claim Since we already have an init that says the process starts with R this is automatically satisfied for any trace that has C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "noncoexistence The activities E and C cannot both occur in the same trace That is if E occurs then C cannot occur and vice versa"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "From existence C must occur in every trace From noncoexistence E and C cannot both occur Therefore if C must occur in every trace then E cannot occur in any trace"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But then what about the responded existence constraint It says that if E occurs then A must occur However if E never occurs then the constraint is vacuously true So that constraint does not cause a contradiction by itself"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "However note that the intended process flow includes E Evaluate Claim as a step The model by having noncoexistence between E and C and requiring C in every trace effectively eliminates E from the process This is an anomaly because the intended process has an evaluation step"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Additionally the responded existence constraint if E then A becomes irrelevant because E never occurs So the main anomaly is that the model forces the absence of E which is a required step in the intended process"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now lets generate hypotheses about why such anomalies might occur"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Misinterpretation of business requirements Perhaps the noncoexistence constraint was intended to mean something else such as that E and C should not occur at the same time but the way it is defined in DECLARE is that they cannot both appear in the same trace at all"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Incremental changes in policies Maybe the process changed to remove the evaluation step for some claims and the model was updated to reflect that by disallowing E and C together but then the existence of C was kept effectively removing E"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Technical issues or incomplete data Its possible that the data used to mine the DECLARE model did not contain any traces with both E and C leading to the noncoexistence constraint being learned However the existence constraint for C might have been learned from a different dataset or set to 1 by mistake"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Pressure to handle claims quickly Perhaps there was a desire to skip the evaluation step which might be time consuming and go directly to closing but then the model was set up to require closing and disallow evaluation which is contradictory to the intended process"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Now we are to propose SQL verification approaches We want to check if the anomalies occur in practice We have three tables claims adjusters and claim events We are interested in the claim events table because it logs the activities with the activity column"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We want to find claims that were closed without any evaluation find traces where evaluation and closing coexist violating the models rules and identify if evaluation steps always correspond with assigned adjusters"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 1 Claims that were closed without any evaluation We want claims that have at least one C event and no E event"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "SELECT claim id FROM claim events WHERE activity equals C GROUP BY claim id HAVING COUNT CASE WHEN activity equals E THEN 1 END equals 0"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively we can use a subquery"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT c claim id FROM claims c WHERE EXISTS SELECT 1 FROM claim events ce WHERE ce claim id equals c claim id AND ce activity equals C AND NOT EXISTS SELECT 1 FROM claim events ce WHERE ce claim id equals c claim id AND ce activity equals E"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 2 Traces where evaluation and closing coexist We want claims that have at least one E and at least one C"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT claim id FROM claim events WHERE activity IN E C GROUP BY claim id HAVING COUNT DISTINCT activity equals 2"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 3 Claims with evaluation but no assignment We want claims that have at least one E event and no A event"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "SELECT claim id FROM claim events WHERE activity equals E GROUP BY claim id HAVING COUNT CASE WHEN activity equals A THEN 1 END equals 0"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT c claim id FROM claims c WHERE EXISTS SELECT 1 FROM claim events ce WHERE ce claim id equals c claim id AND ce activity equals E AND NOT EXISTS SELECT 1 FROM claim events ce WHERE ce claim id equals c claim id AND ce activity equals A"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "These queries will help us verify if the anomalies as defined by the DECLARE model are present in the actual data"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Note The model also has an init constraint that the first activity is R We could verify that by checking that every claim has an R event and that the earliest event for each claim is R However that is not the main anomaly we are focusing on"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]

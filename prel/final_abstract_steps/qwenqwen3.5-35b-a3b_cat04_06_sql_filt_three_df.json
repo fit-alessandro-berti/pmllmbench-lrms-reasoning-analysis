@@ -1,0 +1,89 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Understand the Goal The objective is to write a DuckDB SQL query that filters out specific cases from an event log table The cases to be excluded must meet two conditions They contain a specific sequence of three activities Approve Purchase Requisition Create Order Confirm Order in direct succession and within that sequence the time difference between Create Order and Confirm Order is greater than 5 days Final Output All events from event log except those belonging to cases identified in Condition A and B"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Data Structure Table event log Columns case id activity timestamp Assumption There might be multiple events per case per activity but the sequence logic implies ordering by timestamp is crucial"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "I need to find cases where Approve Purchase Requisition is immediately followed by Create Order which is immediately followed by Confirm Order Immediately followed means there is no other event with a different activity between them in the chronological order for that specific case"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Approach Window functions are best here I can use LEAD or LAG to look at the next previous activities within a partition of case id ordered by timestamp"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Challenge How to handle multiple events with the same timestamp Usually we order by timestamp and maybe add a tie breaker if strict ordering is needed but for this prompt timestamp is likely sufficient"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Filtering I need to check if activity equals Approve Purchase Requisition and next activity equals Create Order and next next activity equals Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For the rows identified in Step 1 where the sequence starts I need to calculate the time between the Create Order which is the second event in the sequence and the Confirm Order which is the third event Calculation next next timestamp minus next timestamp greater than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Once I find the specific rows that satisfy both the sequence and the time condition I need to extract the unique case ids associated with them Lets call this list excluded cases"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The final query needs to select all rows from event log where case id is not in excluded cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "CTE 1 Window Analysis ranked events with case id activity timestamp next activity next timestamp next next activity next next timestamp from event log"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "CTE 2 Identify Excluded Cases select distinct case id from ranked events where activity equals Approve Purchase Requisition and next activity equals Create Order and next next activity equals Confirm Order and next next timestamp minus next timestamp greater than interval 5 day"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Final Query select all from event log where case id not in select case id from excluded cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "What if next next timestamp is null LEAD returns null if the row does not exist The where clause handles this comparison with null is false What about multiple sequences in one case If a case has the sequence twice distinct case id handles it What if the time difference is exactly 5 days The prompt says more than 5 days"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction on Direct Succession Strictly speaking LEAD looks at the immediate next row in the sorted order This satisfies no other event from the same case in between them"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Example Approve Approve Create Order Confirm Order Row 1 sees Row 2 as next activity and fails Row 2 sees Row 3 as next activity and Row 4 as next next activity This logic works correctly for identifying the start of the sequence"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait one potential issue If I use LEAD on the whole table and there are multiple Approve events only the one that actually precedes Create Order will trigger the condition The logic holds where activity equals Approve and next activity equals Create"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Row X Activity Approve Timestamp T1 next timestamp equals T2 Create Order next next timestamp equals T3 Confirm Order Calculation T3 minus T2 greater than 5 days This is correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review of Requirements Sequence Approve Create Confirm check LEAD logic Direct Succession check LEAD logic Time greater than 5 days between Create and Confirm check T3 minus T2 Exclude these cases check not in Return all events from remaining cases check select from event log"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Not in with a subquery is standard Not exists might be slightly more performant and safer against nulls Actually Not exists is generally preferred in modern SQL for performance and null safety Lets use Not exists to be safe and robust"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Revised Final Query Plan CTE windowed log adds next and next next columns CTE excluded cases filters based on sequence and time Final select uses not exists and orders by case id and timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "One final check on direct succession If I have Approve Create Confirm Create Confirm then Row 1 matches sequence and if time check passes the case is excluded If any instance of the sequence meets the criteria the whole case is excluded This matches the requirement"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

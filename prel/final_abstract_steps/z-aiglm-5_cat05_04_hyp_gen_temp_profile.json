@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Analyze the Request Goal Identify anomalies in a provided temporal profile model generate hypotheses for them and propose SQL verification methods Input Data A PostgreSQL schema claims adjusters claim_events and a Python dictionary representing a temporal profile model with average times and standard deviations between process activities R A E P N C Constraints Do not reference the instructions explanations provided in the prompt Present findings independently"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Temporal Profile Model R A 1 hour plus minus 10 mins Seems normal R E 1 day plus minus 8 hours Seems reasonable for evaluation scheduling R P about 25 hours plus minus 1 hour Anomaly Detected The standard deviation is extremely low 1 hour relative to the average 25 hours This suggests rigid automation or gaming the system where approvals happen exactly 25 hours after submission regardless of complexity A C 2 hours plus minus 1 hour Anomaly Detected The gap between Assign and Close is very short Usually Evaluate E and Approve P happen in between If A to C is 2 hours steps might be skipped or claims are being auto closed or rejected immediately E N 5 mins plus minus 1 min Anomaly Detected Very fast transition from Evaluation to Notification This implies the notification is triggered automatically by the evaluation result but perhaps too fast for human review or maybe it is an auto rejection workflow P N 7 days plus minus 2 days Anomaly Detected Huge delay between Approval and Notification Once approved the customer should be notified relatively quickly for example same day 7 days suggests a batch process running weekly or a severe communication bottleneck E C 1 hour plus minus 50 mins High variance but not necessarily an anomaly just inconsistent N C 30 mins plus minus 5 mins Normal"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Develop Hypotheses For R to P low variance Rubber stamping or automated approval script Maybe a specific claim type has a fixed SLA that is strictly adhered to by software ignoring actual case complexity For A to C short duration Incomplete claims Adjusters might be closing claims without evaluation to clear their queue cherry picking Or perhaps these are duplicate claims being closed immediately For E to N short duration Automated rejection notification Or an automated system triggers notification instantly upon evaluation entry For P to N long duration Batch processing Notifications might not be sent in real time but collated and emailed or posted on a weekly schedule Or an external vendor handles notifications with a lag"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Draft SQL Verification Strategies Goal 1 Validate R to P low variance Calculate actual duration for each claim between R and P Look for outliers or a perfect bell curve Check if specific claim types or adjusters correlate with this rigid timing Goal 2 Validate A to C short duration Find claims that have A and C but missing E or P Join with claims to see claim amounts low value claims might be fast tracked or auto closed Goal 3 Validate P to N long duration Identify claims with large gaps Join with adjusters to see if specific regions or specializations are affected maybe one region uses a legacy batch system Goal 4 Correlate anomalies Do claims with fast A to C have specific resources associated"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Construct the Output Section 1 Anomaly Identification Focus on the R P variance P N duration A C duration and E N speed Section 2 Hypotheses Connect the identified anomalies to business process flaws automation errors batching queue clearing Section 3 SQL Verification Write valid PostgreSQL queries Query 1 Calculate deviations for R P Query 2 Find skipped steps A to C with no E or P Query 3 Analyze the P N delay by region"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refine SQL Queries Query logic Need to pivot event timestamps to calculate differences Structure WITH clauses CTEs are best for readability in PostgreSQL Query 1 R P Low Variance Correction on R P numbers Avg 90000 Stdev 3600 Range check 82800 97200"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Checking outliers for 3600s avg plus small stdev logic check actually the prompt said avg 90000s about 25h and stdev 3600s 1h So range is roughly 24h 26h Correction on R P numbers Avg 90000 Stdev 3600 Range check 82800 97200"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Note on Schema mapping claim_events resource is VARCHAR adjusters adjuster_id is INTEGER adjusters name is VARCHAR I should cast or check if resource matches name or ID The prompt says resource is the resource performing Usually this maps to adjuster_id or name I will assume resource might store the Adjuster Name or ID I will write the query assuming a join is possible perhaps on resource equals name or casting I will stick to a safer approach Join claims to events to adjusters Wait claim_events does not explicitly link to adjusters table via FK definition in the text but resource is the actor I will assume resource corresponds to adjusters name for the query example or just group by the resource column itself"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review of the Output Structure Ensure the tone is analytical Ensure SQL is PostgreSQL compatible Ensure the Do not reference instructions constraint is met Self Correction during drafting The prompt asks for proposing verification approaches using SQL I should provide the specific SQL queries I will structure them clearly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Refining the Hypothesis for E to N 5 mins It is not just speed it is the standard deviation 1 minute stdev implies automated action If it is supposed to be a manual review step this confirms it is bypassed If it is meant to be automated it is fine The hypothesis should focus on the possibility of skipped human intervention or auto rejection loops Refining A to C 2 hours Why is this weird Because Evaluate and Approve usually take time If A to C is 2 hours and E to C is 1 hour then Assign Evaluate Close fits the timeline but where is Approve The anomaly text suggests prematurely closed Hypothesis Claims rejected immediately after evaluation without formal approval Or Approve is skipped for small claims This is a strong hypothesis"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

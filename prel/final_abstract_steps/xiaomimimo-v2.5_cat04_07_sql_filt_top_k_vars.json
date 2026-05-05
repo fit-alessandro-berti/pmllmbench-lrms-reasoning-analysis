@@ -1,0 +1,89 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are given a problem that requires several steps Lets break it down 1 We need to determine the sequence of activities for each case id ordered by timestamp 2 Group by the complete activity sequence variant and count the number of cases per variant 3 Determine the top K variants by frequency We dont know K so we must make the query general 4 Return all events from the original event log table that belong to cases case id which are part of these top K variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However note that the same case id might appear in multiple variants No because each case id has one sequence of activities by sorting its events by timestamp So each case id belongs to exactly one variant"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Step 1 For each case id create the sequence of activities We can use list activity ORDER BY timestamp to get an ordered list of activities for each case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2 Group by this list variant and count the number of cases distinct case id or just count of rows in the group since each case is one row to get the frequency"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 3 Order by the count in descending order and limit to the top K But note we are to return events from the original log so we must not lose the case id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However we are also asked to return all events from the original log for the cases in the top K variants So we must a First identify the top K variants their activity sequences b Then for each case id in the original log check if its variant is among the top K"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "But note the variant is defined by the entire ordered list of activities We cannot simply group by a string if the list is long DuckDB has a LIST type We can use list to string to convert the list to a string for grouping but note that the activity names might have commas Alternatively we can use the LIST type"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "However grouping by a list in DuckDB is possible But lets note the list is ordered so two lists with the same activities in the same order are equal"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can do WITH case sequences AS SELECT case id list activity ORDER BY timestamp AS activity sequence FROM event log GROUP BY case id variant counts AS SELECT activity sequence COUNT AS case count FROM case sequences GROUP BY activity sequence ORDER BY case count DESC LIMIT K"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we want to get the case ids from case sequences that have an activity sequence in the top K But note the top K variants are defined by the entire sequence We can then join back to the original event log"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However the problem says Return all events from the original event log that belong only to cases which are part of these top K variants So we must return the original rows from event log for the case ids that are in the top K variants"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets write the full query WITH case sequences AS SELECT case id list activity ORDER BY timestamp AS activity sequence FROM event log GROUP BY case id variant counts AS SELECT activity sequence COUNT AS case count FROM case sequences GROUP BY activity sequence ORDER BY case count DESC LIMIT K SELECT el FROM event log el JOIN case sequences cs ON el case id equals cs case id WHERE cs activity sequence IN SELECT activity sequence FROM variant counts"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "However note the activity sequence in variant counts is a list DuckDB can compare lists for equality"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "But wait what if K is 0 Then we return nothing Also note that the LIMIT clause in DuckDB does not allow parameters"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we can use a variable in DuckDB with a SET command but in a pure SQL query we might not Since the problem does not specify how to handle K we will assume K is given as a constant"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Another approach we can use RANK or ROW NUMBER in a window function to get the top K without a limit on the number of rows in the variant counts CTE WITH case sequences AS SELECT case id list activity ORDER BY timestamp AS activity sequence FROM event log GROUP BY case id variant counts AS SELECT activity sequence COUNT AS case count ROW NUMBER OVER ORDER BY COUNT DESC AS rn FROM case sequences GROUP BY activity sequence SELECT el FROM event log el JOIN case sequences cs ON el case id equals cs case id WHERE cs activity sequence IN SELECT activity sequence FROM variant counts WHERE rn less than or equal to K"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "This is more standard and works for any K Lets write the final query accordingly"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "However note the problem does not specify if there could be ties If we use ROW NUMBER we break ties arbitrarily If we want to include all ties for the Kth place we might use RANK or DENSE RANK"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Lets use ROW NUMBER for simplicity but note that it will return exactly K variants or less if there are fewer than K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final query WITH case sequences AS SELECT case id list activity ORDER BY timestamp AS activity sequence FROM event log GROUP BY case id variant counts AS SELECT activity sequence COUNT AS case count ROW NUMBER OVER ORDER BY COUNT DESC AS rn FROM case sequences GROUP BY activity sequence SELECT el FROM event log el JOIN case sequences cs ON el case id equals cs case id WHERE cs activity sequence IN SELECT activity sequence FROM variant counts WHERE rn less than or equal to 10 Replace 10 with the desired K"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "However note the problem does not specify the value of K We must leave it as a parameter"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

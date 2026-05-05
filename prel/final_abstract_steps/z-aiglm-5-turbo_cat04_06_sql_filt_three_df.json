@@ -1,0 +1,65 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The problem asks us to write a DuckDB SQL query that filters out specific cases from an event_log table The table has columns case_id activity timestamp A case should be excluded if it meets both of the following conditions 1 It contains the exact sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order 2 The time elapsed between the Create Order event and the Confirm Order event of that sequence is more than 5 days All other events should be returned"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "To achieve this we can use a window function to look at the previous two activities and their timestamps for each event in a case ordered by timestamp If the current event is Confirm Order the previous event is Create Order and the event before that is Approve Purchase Requisition then the sequence condition is met Then we check if the timestamp of the current event Confirm Order minus the timestamp of the previous event Create Order is greater than 5 days If so we flag this case_id for exclusion"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use a CTE to identify these case_ids"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets double check the requirements Using LAG over PARTITION BY case_id ORDER BY timestamp guarantees direct succession by row position within the case"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "What if there are simultaneous events Usually ORDER BY timestamp handles this but in standard SQL simultaneous events might be arbitrarily ordered DuckDB will order them arbitrarily If we need to be strictly safe about simultaneous events we might need a tie breaker but typically ORDER BY timestamp is sufficient for event logs unless specified otherwise Lets assume standard ORDER BY timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "timestamp minus ts_prev1 greater than INTERVAL 5 DAY handles this perfectly The problem says more than 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Where case_id not in select case_id from BadCases handles this"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Lets consider if a case could have multiple occurrences of this sequence one greater than 5 days and one less than or equal to 5 days The prompt says exclude them the cases from your final result So if a case has any such sequence the whole case is excluded DISTINCT case_id handles this"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "What about NOT IN If case_id could be NULL NOT IN might filter out NULL case_ids A LEFT JOIN or NOT EXISTS is safer"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Actually the subquery with NOT EXISTS evaluates the window function for every row in event_log which might be inefficient A CTE is better"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is very clean and optimal DuckDB will execute this efficiently"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets double check if more than 5 days means greater than INTERVAL 5 DAY Yes more than 5 days means strictly greater than"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets review the prompt to ensure no other requirements were missed Identifies any case case_id that contains the following sequence of three activities in direct succession Checked with no other event from the same case in between them Checked LAG guarantees this because it looks at the immediately preceding rows time elapsed between the Create Order event and the Confirm Order event is more than 5 days Checked exclude them from your final result Checked only return events from cases that do not meet the above criteria Checked"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Usually this phrasing just means use the right SQL clauses to achieve the correct filter But to be absolutely safe we could order the final result by case_id and timestamp which is the natural order for event logs Lets add ORDER BY case_id and timestamp at the end"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This looks solid No further tricks detected"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

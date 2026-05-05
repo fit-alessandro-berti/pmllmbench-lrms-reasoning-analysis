@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "I need to create a DuckDB SQL query that Extracts the ordered sequence of activities for each case_id sorted by timestamp Groups cases by their complete activity sequence process variants Counts cases per variant Identifies the top K variants by frequency Returns all events from cases that belong to these top K variants"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "First I need to create sequences for each case I can use array_agg with ORDER BY timestamp to create ordered arrays of activities per case Then I group by this sequence to count how many cases have each variant I rank the variants by count and select top K Finally I filter the original event log to only include cases from these top variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH case_variants AS SELECT case_id array_agg activity ORDER BY timestamp as activity_sequence FROM event_log GROUP BY case_id variant_counts AS SELECT activity_sequence COUNT as case_count FROM case_variants GROUP BY activity_sequence ORDER BY case_count DESC LIMIT K top_variants AS SELECT activity_sequence FROM variant_counts SELECT e FROM event_log e JOIN case_variants cv ON e case_id equals cv case_id WHERE cv activity_sequence IN SELECT activity_sequence FROM top_variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait let me think more carefully The LIMIT K in a CTE might not work as expected because we need to use the top K variants from that CTE Let me restructure"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Actually let me use a different approach with window functions"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WITH case_variants AS SELECT case_id array_agg activity ORDER BY timestamp as activity_sequence FROM event_log GROUP BY case_id variant_counts AS SELECT activity_sequence COUNT as case_count FROM case_variants GROUP BY activity_sequence ranked_variants AS SELECT activity_sequence case_count ROW_NUMBER OVER ORDER BY case_count DESC as rank FROM variant_counts SELECT e FROM event_log e JOIN case_variants cv ON e case_id equals cv case_id WHERE cv activity_sequence IN SELECT activity_sequence FROM ranked_variants WHERE rank less than or equal to K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This looks better Let me make sure this handles all the requirements Extracts ordered sequence of activities per case_id array_agg with ORDER BY timestamp Groups cases by their complete activity sequence GROUP BY activity_sequence in variant_counts Counts cases per variant COUNT in variant_counts Determines top K variants by frequency ROW_NUMBER window function Returns all events from cases in top K variants final SELECT with JOIN The query looks correct"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

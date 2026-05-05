@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "For each case_id we need to get the ordered sequence of activities This can be done by concatenating the activity names in timestamp order perhaps using STRING_AGG with ORDER BY timestamp"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we need to group by that variant_seq to count the number of cases per variant We will get a table of variant_seq and case_count"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Determine the top K variants by frequency We need to define K as a parameter In the query we can use a placeholder like or a variable"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "The problem says top K variants by their frequency so we can use a window function to rank variants by count descending then pick those with rank less than or equal to K"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The simplest is to compute the counts order by count descending limit K and then join But if there is a tie for the Kth place we might miss some variants The problem statement does not specify handling ties so we can assume we want exactly K variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to assign each case to a variant Then we need to find the top K variants by case count Then we need to get all events for cases that belong to any of those top K variants"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_variants AS SELECT case_id STRING_AGG activity ORDER BY timestamp AS variant_seq FROM event_log GROUP BY case_id"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "variant_counts AS SELECT variant_seq COUNT as case_count FROM case_variants GROUP BY variant_seq"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "I will use a method that picks exactly K variants by using ROW_NUMBER ordered by count descending and then by variant_seq to break ties"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to return events from the original event_log for cases that are in these top K variants So we need to join case_variants which has case_id and variant_seq with the ranked_variants to get the case_ids that are in top K variants Then join with event_log to get events"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Alternatively we can do WITH case_variants AS SELECT case_id STRING_AGG activity ORDER BY timestamp AS variant_seq FROM event_log GROUP BY case_id variant_counts AS SELECT variant_seq COUNT as case_count FROM case_variants GROUP BY variant_seq top_k_variants AS SELECT variant_seq FROM variant_counts ORDER BY case_count DESC variant_seq LIMIT K SELECT el FROM event_log el JOIN case_variants cv ON el case_id equals cv case_id JOIN top_k_variants tk ON cv variant_seq equals tk variant_seq ORDER BY el case_id el timestamp"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Using a string is fine Alternatively we could use an array ARRAY_AGG activity ORDER BY timestamp That might be more robust because it does not rely on a delimiter"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Arrays are safer because they avoid delimiter issues and can be used in GROUP BY and compared for equality"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_variants AS SELECT case_id ARRAY_AGG activity ORDER BY timestamp AS variant_seq FROM event_log GROUP BY case_id variant_counts AS SELECT variant_seq COUNT as case_count FROM case_variants GROUP BY variant_seq top_k_variants AS SELECT variant_seq FROM variant_counts ORDER BY case_count DESC variant_seq LIMIT 1 SELECT el FROM event_log el JOIN case_variants cv ON el case_id equals cv case_id JOIN top_k_variants tk ON cv variant_seq equals tk variant_seq ORDER BY el case_id el timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This query will return all events for cases that are in the top K variants The top_k_variants CTE selects the variant_seq of the top K variants Then we join with case_variants to get the case_ids that have those variant_seq Then join with event_log to get events"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "To make the order deterministic if timestamps are equal I will add activity as a secondary sort ORDER BY timestamp activity"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH case_variants AS SELECT case_id ARRAY_AGG activity ORDER BY timestamp activity AS variant_seq FROM event_log GROUP BY case_id variant_counts AS SELECT variant_seq COUNT as case_count FROM case_variants GROUP BY variant_seq ranked_variants AS SELECT variant_seq ROW_NUMBER OVER ORDER BY case_count DESC variant_seq AS rn FROM variant_counts top_k_variants AS SELECT variant_seq FROM ranked_variants WHERE rn less than or equal to 1 SELECT el FROM event_log el JOIN case_variants cv ON el case_id equals cv case_id JOIN top_k_variants tk ON cv variant_seq equals tk variant_seq ORDER BY el case_id el timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The query is complete It determines the sequence per case groups cases by variant counts cases per variant identifies the top K variants and returns all events for cases belonging to those variants"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

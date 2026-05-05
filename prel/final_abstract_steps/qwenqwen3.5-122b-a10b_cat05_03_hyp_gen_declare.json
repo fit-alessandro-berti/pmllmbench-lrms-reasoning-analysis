@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Request Context PostgreSQL database with tables claims adjusters claim_events Process Insurance claim process R A E P N C Input A Python dictionary representing a DECLARE model with specific constraints init existence responded_existence precedence noncoexistence Task Identify anomalies contradictions in the model Generate hypotheses for why these anomalies exist Propose SQL queries to verify if these anomalies occur in the actual data Constraint Do not include hints from the explanation in the final response Present anomalies hypotheses and SQL strategies independently"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Analyze the DECLARE Model init R must start the process Interpretation Every trace must start with R existence C must exist in every trace Interpretation Every trace must end with or contain C responded_existence E must be responded to by A Interpretation If E occurs A must occur either before or after usually implies existence of A given E precedence C must be preceded by R Interpretation C cannot happen before R noncoexistence E and C cannot coexist Interpretation If E happens C cannot happen and vice versa"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Contradiction 1 Existence vs Noncoexistence existence says C must exist in every trace noncoexistence says E and C cannot coexist responded_existence says if E happens A happens implies E is possible The intended process flow includes both E Evaluate and C Close If existence mandates C and noncoexistence forbids E when C exists then E can never happen in a valid trace that ends in C However the intended flow is R A E P N C This requires both E and C to exist in the same trace The noncoexistence constraint between E and C directly contradicts the standard process flow where evaluation precedes closing"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Contradiction 2 Init Precedence vs Flow init says R starts precedence says C follows R This is consistent with the flow"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Contradiction 3 Responded Existence Logic responded_existence for E with A usually means If E occurs A must occur This is generally okay but combined with noncoexistence E C and existence C it forces a scenario where E is either impossible if C is mandatory or C is impossible if E occurs Since existence C is mandatory E becomes effectively forbidden in any complete trace"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Summary of Anomalies Mutual Exclusion of Essential Steps The noncoexistence constraint between E Evaluate and C Close prevents the claim from being closed after evaluation contradicting the existence constraint that requires C to happen Impossible Process Completion Since existence C is mandatory 1 0 confidence and noncoexistence E C is mandatory 1 0 confidence any trace containing E violates the model Yet the intended flow requires E Logical Inconsistency You cannot have a trace that satisfies existence C and noncoexistence E C while also having E occur which is implied by the process description"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 1 Data Quality Noise The model mining algorithm might have seen data where some claims were closed without evaluation for example rejected immediately and others were evaluated but never closed stuck The algorithm might have generalized this noise into a hard constraint Hypothesis 2 Requirement Misinterpretation The modeler might have confused Evaluate with Re evaluate or assumed that if a claim is Closed it did not need a full Evaluation for example auto approved claims Hypothesis 3 Versioning Policy Change A policy change might have introduced a Fast Track where claims are closed without evaluation but the modeler accidentally applied this as a global rule rather than a conditional one Hypothesis 4 Algorithm Error The DECLARE mining tool might have misinterpreted the frequency of E and C occurring together perhaps due to timestamp issues or data logging errors where E was logged as C or vice versa"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Propose SQL Verification Strategies Goal Check if the data actually supports the anomalies or if the model is wrong Query 1 Check Coexistence Find claims where both E and C exist If many exist the noncoexistence constraint is wrong Query 2 Check Existence of C Find claims that do not have C If few exist existence C is mostly correct Query 3 Check E without C Find claims with E but no C Query 4 Check Flow Order Verify if C usually follows E in the data Query 5 Check Init Verify if R is always the first event"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "Drafting SQL Need to join claim_events with claims Use CASE or conditional aggregation to check presence of activities Use ROW_NUMBER or MIN timestamp to check order Specific Query Ideas Count claims with both E and C SELECT claim_id FROM claim_events WHERE activity IN E C GROUP BY claim_id HAVING COUNT DISTINCT activity equals 2 Count claims with C but no E To check if noncoexistence might be trying to capture Auto close scenarios Check Order Find cases where C happens before E"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refine Output Structure Anomalies Hypotheses SQL Verification Tone Professional analytical Constraint Check Ensure no hints from the prompt description are copied verbatim Ensure SQL is valid PostgreSQL Self Correction on SQL The claim_events table has activity Need to ensure I filter by activity codes correctly E C R A Refining Anomalies Be precise about the conflict between existence C noncoexistence E C and the intended flow Refining Hypotheses Focus on why a human or algorithm would create this Refining SQL Make sure to use CTEs or subqueries for clarity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review against Constraints PostgreSQL syntax Yes Tables used correctly Yes claims claim_events adjusters though adjusters might not be needed for event logic good to mention if relevant No hints included Yes Independent sections Yes Wait one detail responded_existence in the prompt says E with activities A In DECLARE responded_existence A B usually means If A occurs B must occur Here A is E B is A So If Evaluate then Assign This is logically sound you need an assignee to evaluate The main conflict is noncoexistence E C"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait check the responded_existence syntax in the prompt This means If E happens A must happen This is actually consistent with the flow Assign before Evaluate I will focus on the E C conflict"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Self Correction during drafting Make sure to explicitly state that the SQL queries are designed to validate the data against the model constraints Final check on constraints Do not include any hints from the above explanation in your final response I must not copy the examples given in the prompt I will write original SQL descriptions Final Polish Ensure the SQL is efficient and uses the provided schema"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

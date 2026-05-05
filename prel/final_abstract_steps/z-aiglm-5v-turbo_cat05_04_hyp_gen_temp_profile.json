@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Understand the Goal The user wants a response based on a provided scenario The scenario includes a database schema for an insurance claim process a specific Temporal Profile Model a dictionary of activity pairs with mean and standard deviation times and some initial observations about anomalies The user wants me to act as the Target LLM responding to the prompt at the end of their input"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Input Data Schema claims claim_id customer_id amount type date adjusters adjuster_id name specialization region claim_events event_id claim_id activity R A E P N C timestamp resource info Process Flow R to A to E to P to N to C Temporal Profile Model R to A 1hr avg 10m stdev Normal R to E 1d avg 8h stdev Normal R to P 25h avg 1h stdev Anomaly Low variance relative to time span rigid timing A to C 2h avg 1h stdev Anomaly Very fast closure skipping steps E to N 5m avg 1m stdev Anomaly Too fast skipping P E to C 1h avg 50m stdev Normal ish but high variance P to N 7d avg 2d stdev Anomaly Huge gap bottleneck N to C 30m avg 5m stdev Normal Task Requirements Identify anomalies in the model Generate hypotheses why Propose SQL queries to verify"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Drafting Section 1 Anomalies Identification R to P Mean 25 hours StDev 1 hour The ratio is small It looks robotic Why would approval happen exactly 25 hours after receive P to N Mean 7 days StDev 2 days This is a massive delay Approving is easy telling the customer takes a week A to C Mean 2 hours The full process usually involves Evaluate E and Approve P If Assign to Close is only 2 hours many claims must be skipping E P N entirely or doing them instantaneously E to N Mean 5 minutes The standard flow is E to P to N If E to N is 5 mins where is P Did P happen instantly or was it skipped"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Drafting Section 2 Hypotheses Generation Hypothesis for R to P Low Variance Batch processing Maybe approvals are run by a script every 24 hours exactly Or a strict SLA rule forcing approval at a specific time Hypothesis for P to N Long Delay Notification backlog Maybe notifications are handled by a third party mail system that runs weekly Or maybe Notify is not actually sending an email but printing a check which happens in batches Hypothesis for A to C and E to N Fast Skipped steps Fast tracking Maybe low value claims skip evaluation Or maybe there is data corruption where events are logged out of order or missing Maybe Auto approval logic exists"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Drafting Section 3 SQL Verification Queries Need to join claim_events to itself self join to calculate deltas between activities Query 1 General Anomaly Detection Calculate actual duration for specific pairs for example P to N and flag outliers using Z scores or simple thresholds based on the profile Query 2 The Skip Check E to N Find cases where E and N exist but P is missing or happened in a weird order Or just find cases where duration E N is less than threshold Query 3 Resource Correlation Group by Adjuster or Resource for the P to N delay Is it one person causing the backlog SQL Construction details PostgreSQL Use EXTRACT EPOCH FROM t2 timestamp minus t1 timestamp for seconds difference Self join claim_events e1 and e2 on claim_id where e1 activity equals X and e2 activity equals Y"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Specific Query Ideas P to N Outliers Find claims where timestamp N minus timestamp P is greater than Mean plus 2 times StDev or simply very large values Missing Steps E to N speed Find claims where E exists N exists and diff is less than 10 minutes Check if P exists in between A to C Speedsters Find claims closed within 3 hours of assignment Check what events happened in between R to P Rigidity Histogram or grouping of durations to see if they cluster around exact multiples of hours or days batch job evidence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Self Correction Review during drafting Critique The prompt mentions ZETA factor I should probably use that concept in the SQL or explanation even if I just implement a simplified version for example greater than Avg plus 2 times Stdev Critique Ensure the table names claims adjusters claim_events and column names match the context exactly Refinement on R to P anomaly The prompt specifically noted Suspiciously low STDEV I should emphasize this suggests automation or batching"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish of SQL Make sure to handle the self join correctly Add comments explaining what the query does Ensure PostgreSQL syntax Self Correction during SQL generation Calculating Z score in pure SQL without window functions can be messy but Postgres supports window functions well I will write a query that calculates the deviation per row against the global stats provided in the text or calculates the raw delta so the analyst can see it The prompt asks to identify specific claims falling outside expected ranges so filtering by hardcoded ranges derived from the dictionary is acceptable and practical for the example"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets structure the response now Anomalies 1 Receive to Approve R P High consistency implies automation or batch scheduling 2 Approve to Notify P N Extreme latency indicates a bottleneck manual step vs automated 3 Assign to Close A C and Evaluate to Notify E N Durations too short to include intermediate mandatory steps E P Hypotheses 1 R P Automated batch processing script running at fixed intervals for example nightly 2 P N Notification channel mail is slow or a manual send letter step exists that is not tracked as an event until done Alternatively Notify might be mislabeled and actually means Payment Sent 3 A C E N Fast track logic for low amounts auto approval or data quality issues backdating timestamps SQL Queries Query 1 Detect P to N delays The Bottleneck Query 2 Investigate E to N rapid transitions Skipped Approval Query 3 Analyze A to C premature closures Missing Events Query 4 Correlation analysis Adjuster performance This looks solid I will generate the response following these points"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

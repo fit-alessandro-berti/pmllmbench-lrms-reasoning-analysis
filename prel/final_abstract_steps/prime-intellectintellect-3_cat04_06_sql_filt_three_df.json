@@ -1,0 +1,97 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We are going to break down the problem into steps Step 1 Identify cases that have the exact sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order Step 2 Among those cases filter to only those where the time between Create Order and Confirm Order is more than 5 days Step 3 Exclude these cases from the event_log That is return all events except those from the cases identified in Step 2"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note that the problem says exclude them from your final result meaning we only want events from cases that do not meet the criteria"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach We can use a window function to identify the sequences and then filter"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each case we want to find if there is a sequence of three events with no gaps that matches the pattern We can assign row numbers partitioned by case_id and ordered by timestamp Then for each event we can look for event1 activity Approve Purchase Requisition event2 the next event row number plus 1 must be Create Order event3 the next event row number plus 2 must be Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then for such a triplet we calculate the time difference between event2 and event3 that is Create Order and Confirm Order We then mark the case_id as bad if at least one such sequence exists and the time difference is more than 5 days Finally we return all events from event_log where the case_id is NOT in the set of bad case_ids"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "But note the above might not be efficient and also we are not checking the direct succession Actually we are using lead so the next event is the immediate next in time But what if there are multiple events with same timestamp We should use row_number to get the immediate next"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we can use row_number partition by case_id ordered by timestamp and join ordered events by adjacent row numbers"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note the above might not be necessary because we are using row_number and we know the next row is the immediate next But we must ensure that the next event is indeed Create Order and the next next is Confirm Order"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we can use ordered events with lead activity and lead timestamp to get the next two activities and their timestamps This is simpler and uses window functions to get the next two activities and their timestamps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then the final query is select all from event_log where case_id not in select case_id from bad_cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note the problem says return all events from event_log except those that belong to cases matching both the specified sequence and the timing condition So we are excluding the entire case if it has at least one such sequence that meets the timing condition"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "But note what if a case has multiple sequences We are using distinct in bad_cases so we only mark the case once"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "But note what if a case has multiple sequences Then we still mark the case as bad and exclude all events of that case"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "The problem does not specify We should assume that the events are ordered by timestamp and if same timestamp we need a consistent order We can add an additional ordering column if there is one but the problem does not provide So we have to rely on timestamp only"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Alternatively we can use order by timestamp activity to have a deterministic order"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Given the ambiguity we will assume that the log has unique timestamps If not we break ties by activity alphabetically to have a deterministic order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps with event_log_with_lead selecting lead activity 1 lead activity 2 lead timestamp 1 and lead timestamp 2 partition by case_id ordered by timestamp activity Then candidate_sequences where activity is Approve Purchase Requisition next_activity is Create Order next_next_activity is Confirm Order and next_next_ts minus next_ts is greater than interval 5 day Then bad_cases as distinct case_id from candidate_sequences Then select all from event_log where case_id not in select case_id from bad_cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The time elapsed between the Create Order event and the Confirm Order event We are calculating next_next_ts minus next_ts which is the time between the second and third event That is correct"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The condition is more than 5 days so we use greater than interval 5 day"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "The window functions might be expensive for large data but we are only doing two leads and it is per row"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If there is an event in between then the next activity will not be Create Order so the sequence will not be included"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Example case 1 with Approve Purchase Requisition on 2024 01 01 Create Order on 2024 01 02 Confirm Order on 2024 01 08 gives difference 6 days so bad case Then we exclude case 1 If the difference was 5 days then we do not exclude"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Therefore the query is correct"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event log with columns case_id activity timestamp We need to 1 Find cases that have a specific sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order 2 Among these cases we only consider those where the time between Create Order and Confirm Order is more than 5 days 3 Exclude the cases that meet both conditions from the final result"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can use window functions to look at the next two events for each event in a case ordered by timestamp"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We want to check for each event in a case if the current activity is Approve Purchase Requisition then the next activity immediately following is Create Order and the one after that is Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We also need to check the time difference between the Create Order event and the Confirm Order event Since we are looking at the sequence we can get the timestamp of the Create Order event which is the next event and the Confirm Order event which is the event after next Then compute the difference in days"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "However note We are only interested in cases that have at least one such sequence with the time condition"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can create a CTE that identifies for each case and for each occurrence of the sequence if it exists the following case_id the timestamp of the Approve Purchase Requisition event or we can just note the case_id and the condition on the time"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "But note We are to exclude the entire case if there is at least one such sequence meeting the condition So we can first find the cases that have the sequence and the time condition then remove those cases from the event log"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Step 1 For each event in a case we look at the next two events We can use LEAD twice"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Well create a CTE that for each event in a case ordered by timestamp gets current activity and timestamp next activity and timestamp 1 step ahead next next activity and timestamp 2 steps ahead"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Then we filter for rows where current activity Approve Purchase Requisition AND next activity Create Order AND next next activity Confirm Order And also the time difference between the next event Create Order and the next next event Confirm Order is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2 From the above we get the case_ids that have at least one such sequence with the time condition Step 3 Then we select all events from event_log where case_id is not in the set of case_ids found in Step 2"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We will use LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp as next_activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp as next_next_activity LEAD timestamp 1 OVER PARTITION BY case_id ORDER BY timestamp as next_timestamp LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp as next_next_timestamp"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "However note We are only interested in the condition when the current activity is Approve Purchase Requisition So we can filter the CTE to only rows where current activity is that and then check the next two Alternatively we can do it in one go"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "But wait what if the events are not in the same day"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively we can use next_next_timestamp minus next_timestamp greater than INTERVAL 5 days This will return true if the interval is more than 5 days Lets use that"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step by step 1 Create a CTE with the lead columns 2 Filter where current activity is Approve Purchase Requisition and next activity is Create Order and next_next activity is Confirm Order and next_next_timestamp minus next_timestamp greater than INTERVAL 5 days 3 Select distinct case_id from that CTE We only need to know which cases to exclude 4 Then select all from event_log where case_id not in the set from step 3"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note the problem says in direct succession We are using LEAD which by definition gets the immediate next events"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

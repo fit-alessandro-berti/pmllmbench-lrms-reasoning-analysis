@@ -27,7 +27,7 @@ DEFAULT_API_KEY_PATH = Path("../api_openai.txt")
 ALLOWED_CATEGORIES = ("cat01", "cat02", "cat03", "cat04", "cat05", "cat06")
 REQUEST_MODEL = "gpt-5.4"
 API_URL = "https://api.openai.com/v1/"
-MAX_WORKERS = 150
+MAX_WORKERS = 25
 SCAN_INTERVAL_SECONDS = 60
 MANUAL_MODE = False
 

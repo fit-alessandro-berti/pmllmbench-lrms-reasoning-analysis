@@ -1,0 +1,97 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a POWL model for an insurance claim handling process The model has been defined with some anomalies We are to 1 Identify the anomalies 2 Hypothesize why these anomalies might exist 3 Propose database queries to verify the hypotheses using the given schema"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets break down the model Activities R A E P N C and a silent transition skip The model structure A loop LOOP E P which means execute E then either exit or do P and then E again repeatedly An XOR XOR N skip which chooses between N or skipping it A partial order R to A to loop to xor to C and also an extra edge A to C which might allow closing before the loop and xor are done"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now lets list the anomalies 1 The loop E P is unusual because it repeatedly evaluates and approves In a typical process we evaluate once and then approve once This loop might allow multiple evaluations and approvals for the same claim which is not standard"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "2 The XOR that chooses between notifying the customer N or skipping it skip This might lead to claims being closed without notifying the customer"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "3 The partial order has an extra edge A to C which allows the claim to be closed C immediately after assigning an adjuster A without waiting for the loop evaluation and approval and the notification step"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "4 Additionally note that the partial order does not have an edge from xor to C so it is possible that C occurs without the xor and hence without notification and even without the loop being completed"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "5 The loop structure itself the loop is defined as E P In a POWL LOOP the first child E is executed first then the second child P is executed and then we go back to the first child E until we exit This means that after the first E we might exit without doing P or we might do P and then E again This could lead to a claim being approved without being evaluated again if we exit after the first E or being evaluated multiple times and approved multiple times"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now lets hypothesize why these anomalies might exist 1 The loop between E and P might be an attempt to model a rework loop where if the evaluation fails we might need to re evaluate after some adjustments However the way it is modeled E then P then back to E is not typical because approval P should happen only after a successful evaluation It might be that the modeler intended a different structure such as a loop that allows re evaluation until a condition is met and then approval"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "2 The XOR for notification might be due to a business rule that sometimes does not require customer notification for certain types of claims or under certain conditions However it might also be an oversight and the modeler intended to always notify the customer"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "3 The extra edge A to C might be a mistake in the model or it might represent an emergency procedure that allows closing a claim without going through the entire process for example if the claim is withdrawn immediately after assignment"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "4 The lack of ordering from xor to C might be an oversight allowing C to occur without the notification step even if the notification step is chosen in the XOR"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "5 The loop structure might be a result of a misunderstanding of the LOOP operator in POWL The modeler might have intended a different pattern for example a retry loop for evaluation until it passes then approve"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Now lets propose database queries to verify these hypotheses We have three tables claims adjusters claim_events The claim_events table records the activities with activity labels for each claim along with a timestamp and resource We can look for 1 Claims that have been closed C without having been evaluated E or approved P appropriately 2 Claims that have multiple evaluation E and approval P events indicating the loop was executed multiple times 3 Claims that were closed C without a notification event N or with a notification event skipped that is no N event 4 Claims that were closed C before the evaluation E and approval P events were completed that is timestamp of C is before the timestamp of the last E or P 5 Claims that have an adjustment assignment A and then immediately a close C without any E or P in between"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 1 Identify claims that were closed without evaluation SELECT DISTINCT claim_id FROM claim_events ce WHERE activity C AND NOT EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals E"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 2 Identify claims that were closed without approval SELECT DISTINCT claim_id FROM claim_events ce WHERE activity C AND NOT EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals P"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 3 Identify claims that were closed without notification SELECT DISTINCT claim_id FROM claim_events ce WHERE activity C AND NOT EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals N"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 4 Identify claims that have multiple evaluation events more than one E SELECT claim_id COUNT as eval_count FROM claim_events WHERE activity E GROUP BY claim_id HAVING COUNT greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 5 Identify claims that have multiple approval events more than one P SELECT claim_id COUNT as approval_count FROM claim_events WHERE activity P GROUP BY claim_id HAVING COUNT greater than 1"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 6 Claims closed before the last evaluation if any evaluation exists SELECT claim_id FROM claim_events ce WHERE activity C AND EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals E AND ce2 timestamp greater than ce timestamp Similarly for approval SELECT claim_id FROM claim_events ce WHERE activity C AND EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals P AND ce2 timestamp greater than ce timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 7 Claims where the event after A is C WITH event_order AS SELECT claim_id activity timestamp LEAD activity OVER PARTITION BY claim_id ORDER BY timestamp as next_activity FROM claim_events SELECT claim_id FROM event_order WHERE activity A AND next_activity C"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 8 Claims that have C and then an E event after C SELECT claim_id FROM claim_events ce WHERE activity C AND EXISTS SELECT 1 FROM claim_events ce2 WHERE ce2 claim_id equals ce claim_id AND ce2 activity equals E AND ce2 timestamp greater than ce timestamp Similarly for P"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "We can run these queries on the database to see how many claims exhibit these behaviors"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The intended process flow is R to A to E to P to N to C The model allows Multiple E and P through the loop Skipping N through the XOR Closing without waiting for E and P through edge A to C So we are looking for Claims that have multiple E and P Claims that skip N Claims that close without E and P"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

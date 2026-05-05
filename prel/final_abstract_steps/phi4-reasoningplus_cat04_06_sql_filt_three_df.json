@@ -1,0 +1,81 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We need to write a DuckDB SQL query that identifies any case case_id that contains three activities in direct succession Approve Purchase Requisition Create Order Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "These events must appear in this exact order with no other event from the same case in between them"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Among those cases that have this specific sequence further refine selection to only those where time elapsed between Create Order and Confirm Order is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "After identifying such cases exclude those case_ids from final result We need a query that returns all events from event_log except events whose case_id meets above criteria"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So idea Write a query which uses window functions maybe to detect these sequences or join with itself"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Plan Identify cases that match the pattern Then exclude those case_ids from final result"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to find sequence of three consecutive rows per case sorted by timestamp But we must check direct succession meaning that the sequence should be contiguous"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Approach We can compute lag and lead functions for each event"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We want Approve Purchase Requisition immediately preceding Create Order And then Confirm Order immediately following Create Order So we can use lag over partition by case_id order by timestamp to check if previous event is Approve Purchase Requisition and lead for next event equals Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We have to check ordering by case_id and timestamp ascending"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH sequence AS SELECT case_id activity timestamp LAG activity OVER PARTITION BY case_id ORDER BY timestamp AS prev_activity LEAD activity OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD timestamp OVER PARTITION BY case_id ORDER BY timestamp AS confirm_timestamp FROM event_log"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Then we want to filter only rows where activity equals Create Order and prev_activity is Approve Purchase Requisition and next_activity is Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to check that the time difference between create_timestamp and confirm_timestamp is more than 5 days"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "If the same case has multiple sequences then likely if a given case ever shows this pattern and the event difference condition holds then exclude that entire case events"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "So final query Exclude any rows whose case_id appears in the list of problematic cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The window function with lag and lead is appropriate"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Using left join and then filtering by seq case_id is null is standard method"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "SELECT e FROM event_log e LEFT JOIN SELECT DISTINCT s case_id FROM SELECT case_id activity timestamp as create_time LEAD timestamp OVER PARTITION BY case_id ORDER BY timestamp AS confirm_time LAG activity OVER PARTITION BY case_id ORDER BY timestamp AS prev_activity LEAD activity OVER PARTITION BY case_id ORDER BY timestamp AS next_activity FROM event_log s WHERE s activity equals Create Order AND s prev_activity equals Approve Purchase Requisition AND s next_activity equals Confirm Order AND confirm_time minus create_time greater than interval 5 days seq ON e case_id equals seq case_id WHERE seq case_id IS NULL"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The inner subquery is used to identify problematic cases and then we exclude them using left join filtering by seq case_id is null Also mention window functions are used"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

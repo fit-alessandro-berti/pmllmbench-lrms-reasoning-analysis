@@ -1,0 +1,121 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given three tables order event log orders and resources The normal process flow is 1 Register Order Sales 2 Perform Credit Check Finance 3 Validate Stock Warehouse 4 Confirm Shipment Logistics 5 Ship Goods Logistics 6 Issue Invoice Finance 7 Receive Payment Finance We have four example orders case id 1001 1002 1003 1004 with their event logs"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps 1 Identify anomalies and undesirable behaviors by comparing the actual event sequences with the normal flow 2 Hypothesize why these anomalies might occur 3 Propose SQL queries to investigate the anomalies"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Order 1001 Events 1 Register Order 2 Perform Credit Check 3 Validate Stock 4 Confirm Shipment 5 Ship Goods 6 Issue Invoice 7 Receive Payment This follows the normal flow"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Order 1002 Events 1 Register Order 2 Confirm Shipment Logistics This is step 4 but we havent done step 2 Perform Credit Check or step 3 Validate Stock 3 Ship Goods Logistics step 5 but again missing credit check and stock validation 4 Perform Credit Check Finance step 2 but after shipment 5 Validate Stock Warehouse step 3 after shipment 6 Issue Invoice 7 Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies Confirm Shipment and Ship Goods occurred before Perform Credit Check and Validate Stock This is a deviation from the normal process"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "It might be that the order was rushed since its a priority order and the credit check and stock validation were done after shipment But that is risky"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Order 1003 Events 1 Register Order 2 Perform Credit Check 3 Ship Goods step 5 but missing step 3 Validate Stock and step 4 Confirm Shipment at this point 4 Issue Invoice 5 Confirm Shipment step 4 but after shipping late confirmation 6 Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies Ship Goods event 3 occurs before Confirm Shipment event 5 Normally Confirm Shipment should come before Ship Goods Validate Stock is missing entirely the event log does not have a Validate Stock event for case id 1003 So that activity was skipped"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The warehouse shipped the goods without having a formal confirmation Or the system allowed shipping without confirmation Then the logistics manager confirmed the shipment later This might be due to a system error or manual intervention The stock validation step was skipped Maybe because the system assumed stock was available Or an error in the process"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Order 1004 Events 1 Register Order 2 Receive Payment step 7 but very early Before any other steps 3 Issue Invoice step 6 but after payment Normally invoice is issued before payment is received 4 Confirm Shipment step 4 but the additional info says shipment scheduled N meaning shipment not scheduled 5 Ship Goods"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies Payment received immediately after order registration The events are Register Order then Receive Payment then Issue Invoice so payment before invoice Missing Perform Credit Check and Validate Stock Shipment was confirmed but marked as not scheduled and then goods were shipped That is contradictory"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The customer paid immediately maybe by credit card so the payment was recorded first But then the invoice was generated later This might be due to an asynchronous process Or a system design flaw The credit check and stock validation were skipped Maybe because the payment was received in advance The shipment was confirmed as not scheduled but then shipped This is very odd It might be a data entry error Or the system allowed shipping without scheduling"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Summary of anomalies A Order 1002 Shipment confirmed and goods shipped before credit check and stock validation B Order 1003 Goods shipped before shipment confirmation late confirmation Validate Stock activity missing C Order 1004 Payment received before invoice is issued Missing credit check and stock validation Shipment confirmed as not scheduled but then goods were shipped"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For Order 1002 The order was marked as priority and the team tried to expedite by skipping some steps But then they realized they need to do the credit check and stock validation so they did it after shipment This could be a policy violation For Order 1003 The warehouse shipped the goods without having a formal confirmation Or the system allowed shipping without confirmation Then the logistics manager confirmed the shipment later This might be due to a system error or manual intervention The stock validation step was skipped Maybe because the system assumed stock was available Or an error in the process For Order 1004 The customer paid immediately maybe by credit card so the payment was recorded first But then the invoice was generated later This might be due to an asynchronous process Or a system design flaw The credit check and stock validation were skipped Maybe because the payment was received in advance The shipment was confirmed as not scheduled but then shipped This is very odd It might be a data entry error Or the system allowed shipping without scheduling"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We want to check for deviations from the normal process Lets define the normal process steps in order by activity name 1 Register Order 2 Perform Credit Check 3 Validate Stock 4 Confirm Shipment 5 Ship Goods 6 Issue Invoice 7 Receive Payment"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively we can check for a Missing activities in the process b Activities out of order We are more interested in specific deviations Shipment before confirmation Payment before invoice Credit check after shipment Stock validation after shipment"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Anomaly 1 Missing activities We can list all activities that are expected in the normal flow and check if they are present per case Expected activities Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Anomaly 2 Activities out of order We can assign an expected order to each activity and then compare the actual order by timestamp to the expected order"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Anomaly 3 For order 1004 we have Confirm Shipment with additional info shipment scheduled N We want to check if there are other cases with similar situation And what happened after"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Anomaly 4 Missing activities per order type We have order type in the orders table We might want to see if priority orders like 1002 are more prone to skipping steps"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We might also want to check the roles and departments to see if the right resource is performing the activity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 1 Find missing activities per case"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 2 Find cases where shipment occurred before confirmation"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 3 Find cases where payment occurred before invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 4 Find cases where credit check occurred after shipment"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 5 Find cases where stock validation occurred after shipment"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 6 Find cases where shipment was confirmed as not scheduled but then shipped"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 7 Check for activities performed by the wrong department or role"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "We might also want to see the entire sequence of events per case That can be done for manual inspection"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

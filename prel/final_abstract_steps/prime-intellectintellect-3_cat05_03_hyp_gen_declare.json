@@ -1,0 +1,109 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model for an insurance claim process The intended process flow is Receive R Assign A Evaluate E Approve P Notify N Close C"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The DECLARE model provided is The constraints are init existence responded existence precedence and noncoexistence"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to Identify anomalies Generate hypotheses and Propose verification approaches"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets break down each constraint in the DECLARE model init every trace must start with R existence every trace must end with C responded existence for every occurrence of A there must be a subsequent occurrence of E precedence for every occurrence of C there must be a prior occurrence of R noncoexistence activities E and C cannot occur in the same trace"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is consistent with the intended process This is also consistent with the intended process This is consistent with the intended flow This is also consistent because the process starts with Receive and ends with Close"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However in the intended process flow includes both Evaluate and Close with Evaluate happening before Close Therefore this constraint is problematic because it forbids the co occurrence of Evaluate and Close which should naturally occur together in a valid claim process"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The main anomaly is in the noncoexistence constraint it states that Evaluate E and Close C cannot coexist in the same trace However in the intended process every claim that is closed must have been evaluated"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Therefore the noncoexistence constraint directly contradicts the intended process and the other constraints"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Additionally note that the model does not enforce the entire sequence There is no constraint that forces the sequence R A E P N C The model does not prevent skipping activities for example going from R directly to C or having E without A"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Why might such an anomaly exist"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Misinterpretation of business requirements The modeler might have misunderstood the noncoexistence constraint Perhaps they intended to say that Evaluate and Close cannot happen at the same time but allowed in sequence However the DECLARE constraint as written forbids any co occurrence in the same trace"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Incremental changes in policies The model might have been built incrementally Initially there might have been a rule that claims must be closed without evaluation and then the process evolved to require evaluation but the old constraint was not removed"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Technical issues or incomplete data The model might have been generated automatically from event logs that had many traces without evaluation because of data collection issues and then the noncoexistence constraint was learned Alternatively the model might have been built by someone who is not familiar with the DECLARE notation"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Pressure to handle claims quickly In some scenarios claims might be closed without evaluation for small claims However that would be a deviation from the standard process The constraint as written would then be an attempt to enforce that deviation as a rule but it contradicts the intended process"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We need to write SQL queries to check if the anomalies occur in practice We are particularly interested in the claim events table which records the events for each claim Each claim has a unique claim id and we can group events by claim id to form a trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We will focus on the noncoexistence anomaly E and C co occurring because that is the most critical But we can also check for other potential issues"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 1 Find claims that have both E and C This query returns claims that have at least one evaluation and at least one close event We expect this to be non empty because closed claims should be evaluated But the noncoexistence constraint would consider this an anomaly"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 2 Find claims that are closed without evaluation This query returns claims that have a close event but no evaluation event This is a deviation from the intended process"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 3 Claims that do not start with R the first event is not R"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 4 Claims that do not have R at all"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 5 Claims that do not end with C We can check for claims that have events but do not have a close event or have other events after the close Query 5a Claims that have events but do not have a close event at all Query 5b Claims that have events after the close event"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 6 Find Assign events that are not followed by an Evaluate event for the same claim This query returns Assign events for which there is no subsequent Evaluate event"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 7 Find Close events that do not have a prior Receive event"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 8 Find Close events that occur before the first Receive event for the same claim This returns close events that either have no receive event or occur before the first receive event"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The critical one for the noncoexistence constraint is Query 1 and Query 2 Query 1 will return claims that have both E and C which should be the norm but the constraint forbids Query 2 returns claims that are closed without evaluation which is a deviation"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The DECLARE model provided has an anomaly in the noncoexistence constraint The other constraints are acceptable though they do not enforce the entire sequence However the noncoexistence constraint is clearly contradictory to the intended process"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

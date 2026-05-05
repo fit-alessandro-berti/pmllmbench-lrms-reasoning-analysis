@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The normal process flow is supposed to be a sequence of steps Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment But looking at the example data there are some orders that do not follow this exact sequence"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Take case_id 1002 The events are Register Order Confirm Shipment Ship Goods then Perform Credit Check Wait that is out of order The credit check happened after shipping which is not the normal flow That is an anomaly Similarly case_id 1003 has Ship Goods before Confirm Shipment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The normal flow expects certain steps to happen in a specific sequence Any deviation from that could indicate a problem For example performing a credit check after shipping might mean the credit check was missed initially leading to potential risks if the customer credit is not good"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "In case_id 1004 the payment is received before the invoice is even issued event_id 23 is Issue Invoice after Receive Payment That is a clear anomaly"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Maybe it is a prepayment but according to the normal flow the invoice should come before payment So this could be an error in the process or maybe a data entry mistake"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case_id 1002 has Validate Stock after Ship Goods which is out of order The normal flow is Validate Stock before Confirm Shipment and Ship Goods So that is another deviation Also in case_id 1003 after Ship Goods there is Confirm Shipment That is reversed"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Maybe the resource was not available earlier or there was a delay in processing But why was the credit check done so late That could be a process violation"
+  },
+  {
+    "Name": "Inductive Reasoning - IND",
+    "Text": "In case_id 1001 the process from Register Order to Receive Payment took 4 days In case_id 1002 it took 1 day Case_id 1003 also 1 day Case_id 1004 payment was received the same day as the order which is very quick"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Possible hypotheses for these anomalies Out of order activities could be due to manual interventions system errors causing steps to be executed prematurely or employees bypassing standard procedures maybe due to time pressure or lack of training"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Missing steps Maybe some steps are not logged properly or certain steps are skipped intentionally but that would be a policy violation Early payments could be prepayments Alternatively data entry errors where the payment event was logged incorrectly Time discrepancies could indicate bottlenecks or rush jobs"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For each event in order_event_log assign this expected position Then for each case order the events by timestamp and check if the expected positions are in increasing order If not there is an anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Possible SQL queries Find all cases where the sequence of activities does not follow the expected order Find cases where Receive Payment occurs before Issue Invoice Find cases where Perform Credit Check occurs after Ship Goods Find cases where Validate Stock is missing"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Find cases where the time between Register Order and Receive Payment is unusually short or long Check for cases where the same resource handled multiple steps that should be handled by different roles Investigate cases where Confirm Shipment has additional_info indicating problems like shipment_scheduled N Check if high order_value cases have more anomalies"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT el case_id el timestamp AS payment_time ei timestamp AS invoice_time FROM order_event_log el JOIN order_event_log ei ON el case_id equals ei case_id WHERE el activity equals Receive Payment AND ei activity equals Issue Invoice AND el timestamp less than ei timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT case_id FROM orders WHERE case_id NOT IN SELECT case_id FROM order_event_log WHERE activity equals Validate Stock"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT case_id timestamp additional_info FROM order_event_log WHERE activity equals Confirm Shipment AND additional_info LIKE shipment_scheduled N"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT el case_id el activity r role r department FROM order_event_log el JOIN resources r ON el resource equals r resource_id WHERE el activity equals Perform Credit Check AND r department not equals Finance"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT el case_id el activity r role r department FROM order_event_log el JOIN resources r ON el resource equals r resource_id WHERE el activity equals Ship Goods AND r department not equals Logistics"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

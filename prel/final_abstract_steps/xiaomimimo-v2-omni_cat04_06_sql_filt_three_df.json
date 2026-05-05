@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given an event_log table with columns case_id activity timestamp This means for a given case there must be three consecutive events in order with these activities"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Among those cases we then check if the time between the Create Order and the subsequent Confirm Order in that sequence is more than 5 days We then exclude all events from cases that meet both conditions Return all events from the remaining cases"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use window functions to get the next activity and next timestamp for each event in a case ordered by timestamp Alternatively we can use a self join or a window function with lead Lets use lead to get the next two activities and timestamps for each row within each case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we can check for the pattern and compute the time difference We then get the distinct case_ids from the above query Then we select all events from event_log where case_id is not in the list from step 4"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note that the sequence must be direct meaning no other events in between Using lead with offset 1 and 2 assumes that the next two events are the ones we are interested in and if there are events in between they will break the pattern"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The above lead query will only capture the pattern if the three events are consecutive in the case If the pattern is broken by an event in between then the lead for the first event will not see the pattern because the next and next next are not the required activities So this approach should work"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "We assume the timestamp is unique per case If not we might need to consider a secondary ordering like an event id but the problem only gives timestamp We will assume timestamp is unique enough"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH lead_events AS SELECT case_id activity timestamp LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD timestamp 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_timestamp LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_timestamp FROM event_log"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "WHERE activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If a case has the pattern multiple times we want to exclude the entire case if at least one occurrence meets the time condition"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But note The window function in the MAX is over the entire case We cannot use window functions inside MAX like that We need to use a subquery or a common table expression that first flags each row and then aggregate Let me adjust"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH lead_events AS SELECT case_id activity timestamp next_activity next_timestamp next_next_activity next_next_timestamp FROM event_log pattern_check AS SELECT case_id MAX CASE WHEN activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5 THEN 1 ELSE 0 END AS has_pattern_with_time FROM lead_events GROUP BY case_id"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Alternatively we can use NOT EXISTS for clarity The lead_events CTE is computed once and then used in the subquery This should be efficient enough"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Let me do it with a precomputed excluded case list This might be more efficient because we are only getting the distinct case_ids that meet the condition and then filtering"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "WITH excluded_cases AS SELECT DISTINCT case_id FROM SELECT case_id activity LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_activity LEAD timestamp 1 OVER PARTITION BY case_id ORDER BY timestamp AS next_timestamp LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp AS next_next_timestamp FROM event_log AS lead_events WHERE activity = Approve Purchase Requisition AND next_activity = Create Order AND next_next_activity = Confirm Order AND DATEDIFF day next_timestamp next_next_timestamp > 5 SELECT FROM event_log WHERE case_id NOT IN SELECT case_id FROM excluded_cases"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The condition is more than 5 days so we use greater than 5 The pattern must be direct Our lead method ensures that because we are looking at the next and next next events"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets test with a simple example Suppose we have a case with events case_id 1 activity Approve Purchase Requisition timestamp 2023 01 01 case_id 1 activity Create Order timestamp 2023 01 06 case_id 1 activity Confirm Order timestamp 2023 01 07 The pattern is there and the time between Create Order and Confirm Order is 1 day which is not more than 5 So this case should not be excluded Now if we change the Confirm Order to 2023 01 12 then the time is 6 days which is more than 5 so this case should be excluded"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

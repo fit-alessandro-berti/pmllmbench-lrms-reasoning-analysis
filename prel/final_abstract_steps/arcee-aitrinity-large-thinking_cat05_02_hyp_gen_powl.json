@@ -1,0 +1,141 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a POWL process model that is supposed to represent an insurance claim handling process The ideal process flow is R A E P N C However the given model has anomalies"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "A loop between E and P evaluate and approve meaning that after evaluating we can either exit the loop and then go to notify or approve and then evaluate again loop This could lead to multiple evaluations and approvals for a single claim"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "An XOR between N notify and skip meaning that sometimes the notification step is skipped"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The partial order does not enforce that A completes before the loop and also adds an edge from A to C directly which might allow C to occur before the loop completes or even before the loop starts This could lead to closing the claim prematurely"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomaly 1 Loop between E and P"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In the ideal process after evaluation E we should approve P and then move on But the loop allows E exit or E P E This could mean that a claim is evaluated multiple times and approved multiple times"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "This might be intended if the process allows for re evaluation and re approval for example if new information comes in However in the ideal process we only have one evaluation and one approval So the loop is an anomaly relative to the ideal"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomaly 2 XOR with skip for N"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The ideal process requires notifying the customer N The XOR with skip means that sometimes the notification is skipped This could be an anomaly if the business rule requires notification in all cases"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Anomaly 3 Partial order allowing C to occur before the loop completes or even before the loop starts because of the edge A to C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In the ideal process after assigning the adjuster A we should go through the loop E and P and then notify N and then close C But the model has an edge from A to C which might allow closing the claim right after assignment without evaluation approval or notification"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 1 Loop The loop might have been introduced to handle cases where the claim requires multiple rounds of evaluation and approval for example if the initial evaluation is incomplete and requires additional information then re evaluation and re approval"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "However it might be an oversight that the loop is not controlled for example by a condition to exit after a certain number of iterations or based on claim complexity"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 2 XOR with skip The skip might be intended for cases where the customer has already been notified by another means for example via phone and the system step is not needed"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Alternatively it could be a mistake in the process model that allows skipping a mandatory step"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis 3 Premature closing The edge A to C might be a mistake in the process model or it might be intended for very simple claims that do not require evaluation and approval for example a claim that is automatically approved"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "However in the ideal process even simple claims should go through evaluation and approval Not necessarily but the ideal process does not have such a shortcut"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can use the claim_events table to reconstruct the process for each claim and check for the anomalies"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "We have to assume that the activity names in the claim_events table correspond to these labels or we can map them"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Given the ambiguity we will write queries that assume we can filter by activity R A E P N C"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For anomaly 1 Loop between E and P we want to find claims that have multiple evaluations and approvals"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So if we find claims with multiple E and P events that confirms the loop is used"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query for multiple evaluations and approvals"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT claim_id COUNT total_events SUM CASE WHEN activity E THEN 1 ELSE 0 END num e SUM CASE WHEN activity P THEN 1 ELSE 0 END num p FROM claim_events WHERE activity IN E P GROUP BY claim_id HAVING COUNT at least four and at least two E and at least two P"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can also check the order by looking at the sequence of events for each claim"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "WITH numbered events AS SELECT claim id activity ROW NUMBER OVER PARTITION BY claim id ORDER BY timestamp as rn FROM claim_events WHERE activity IN E P patterns AS SELECT claim id STRING AGG activity ORDER BY rn as pattern FROM numbered events GROUP BY claim id SELECT claim id pattern FROM patterns WHERE pattern LIKE E P E P"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For anomaly 2 skip notification we want to find claims that do not have an N event"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The skip is a silent transition so it might not be recorded in the event log Therefore if a claim takes the skip path we would not see an N event"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "SELECT claim id FROM claims LEFT JOIN claim_events ON claim id and activity N WHERE missing notification event"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For anomaly 3 Premature closing we want to find claims that are closed C before they have been evaluated E or approved P"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We want to see if there are claims that have A and then C without going through the loop"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "WITH claim close time AS SELECT claim id MIN timestamp as close time FROM claim_events WHERE activity C GROUP BY claim id SELECT claim id for claims where there does not exist an E before close or there does not exist a P before close"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "WITH claim assign time AS SELECT claim id MIN timestamp as assign time FROM claim_events WHERE activity A GROUP BY claim id claim close time AS SELECT claim id MIN timestamp as close time FROM claim_events WHERE activity C GROUP BY claim id SELECT claim id from assigned and closed claims with no E or P between assign time and close time"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "To summarize we have three main anomalies and corresponding queries Anomaly 1 Loop between E and P Query count of E and P per claim and pattern of E P E P Anomaly 2 Skip notification Query claims without an N event Anomaly 3 Premature closing Query claims closed without having an E or P before the close event"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

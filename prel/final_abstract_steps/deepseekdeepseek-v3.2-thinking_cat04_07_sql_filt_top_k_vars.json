@@ -1,0 +1,85 @@
+[
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We are going to break down the problem into steps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each case_id we need to get the ordered sequence of activities ordered by timestamp We can use the LIST aggregate function with an ORDER BY clause to get the sequence as a list"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We then group by this sequence to get the count of cases per variant process variant"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We then determine the top K variants by frequency Lets assume K equals 5 for the example but we can make it a parameter"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We then filter the original event_log to only include cases that have their sequence in the top K variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "However note that we cannot directly use the list in a WHERE clause without storing it in a CTE or subquery"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We can use the list as a key Alternatively we can assign an identifier to each variant the list and then use that"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Create a CTE that for each case_id produces the activity sequence as a list"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we count the cases per variant and rank them"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we get the top K variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then we get the case_ids that have these variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Finally we select all events from the original event_log for these case_ids"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The original requirement is to return all events from the original event log that belong only to cases which are part of the top K variants"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So we can do SELECT all columns FROM event_log WHERE case_id IN SELECT case_id FROM top_cases"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "The output might be ordered by case_id and then timestamp The problem does not specify the order of the output We can order by case_id and then timestamp to have a nice view"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "What if two variants have the same count The problem says top K variants by their frequency We are using ROW_NUMBER which will assign a unique rank even if the counts are the same We might want to use RANK or DENSE_RANK if we want to allow ties"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets use RANK"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then when we filter by rank less than or equal to 5 we might get more than K variants if there are ties"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "The problem does not specify so we will use RANK to include ties Usually in such contexts we include ties"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In DuckDB we can use the LIST aggregate function to create a list of activities and DuckDB allows grouping by arrays"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

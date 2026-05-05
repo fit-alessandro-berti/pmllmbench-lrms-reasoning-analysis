@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Context PostgreSQL database with claims adjusters claim_events Process R A E P N C Temporal Profile Model Dictionary of Activity1 Activity2 to Avg Stdev R A 1h avg 10m stdev Normal R E 1d avg 8h stdev Normal ish R P about 25h avg 1h stdev Anomaly Low stdev for about 1 day duration The prompt mentions Suspiciously low STDEV A C 2h avg 1h stdev Anomaly A to C is fast Skips E P N E N 5m avg 1m stdev Anomaly Very fast Skips P E C 1h avg 50m stdev High variance P N 7d avg 2d stdev Anomaly Long delay N C 30m avg 5m stdev Normal"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "R P Avg 25h Stdev 1h The coefficient of variation is very low This suggests a timer based or batch process rather than organic workflow Or data manipulation A C Avg 2h This implies claims go from Assign to Close in 2 hours The standard process is A E P N C If A C is 2h either E P N happen instantly unlikely given other stats or they are skipped This suggests Premature Closure or Fast track skipping steps E N Avg 5m Process is E P N If E N is 5m P must happen in less than 5m or be skipped P usually takes time R P is 25h This suggests P is skipped or E N link implies a bypass P N Avg 7 days This is a bottleneck Approval happens but notification waits a week"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "E C Avg 1h Stdev 50m High variance Some close fast some slow Combined with A C fast this reinforces the idea of skipping steps for some claims"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis for R P Low Stdev Automated batch approval runs exactly 25 hours after receipt Or a SLA timer that forces approval Or timestamp manipulation hardcoding Hypothesis for A C E N E C Fast Skips Happy path bypass Small claims auto closed Adjusters closing claims without evaluation to meet quotas System bug allowing closure without prerequisites Hypothesis for P N Long Delay Notification system backlog Manual notification process Weekly batch job for emails Adjuster forgets to notify Hypothesis for Resource Region correlation Maybe specific regions have the bottleneck Maybe specific adjusters are skipping steps"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "General approach Need to calculate time differences between activities for the same claim_id Query 1 R P Anomaly Find claims where time P minus time R is outside Avg plus or minus k times Stdev Since Stdev is small almost any deviation is an anomaly Or check if the distribution is too tight SQL Self join claim_events or use window functions LAG or LEAD might be tricky if activities are not strictly ordered in rows but usually we join on claim_id and filter by activity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Query 2 A C Fast Skip Find claims where A C is fast and missing intermediate steps SQL Check duration A C less than threshold Then NOT EXISTS for E P N or count activities Query 3 P N Bottleneck Find claims with long P N Correlate with region adjuster Query 4 E N Skip P Find E N duration less than threshold and no P event between them"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "claim_events has resource adjusters has adjuster_id name To correlate with adjusters I need to link resource to adjusters Since resource is VARCHAR it might be the name I will write queries joining claim_events resource to adjusters name This is a reasonable assumption given the types"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review and Refine Structure Output should be clean Anomalies Hypotheses SQL Queries SQL Syntax PostgreSQL Use EXTRACT EPOCH FROM for seconds Anomaly R P The prompt highlights Suspiciously low STDEV The hypothesis should mention Rigid automation or Data fabrication Anomaly P N 7 days Hypothesis Batch processing or Backlog Anomaly A C 2 hours Hypothesis Premature closure or Skipping steps Anomaly E N 5 minutes Hypothesis Skipping Approval Queries Ensure they address the hypotheses"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

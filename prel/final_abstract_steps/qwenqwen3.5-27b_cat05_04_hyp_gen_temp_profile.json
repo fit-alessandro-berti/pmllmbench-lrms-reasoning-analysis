@@ -1,0 +1,53 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Request Input A database context PostgreSQL schema claims adjusters claim_events a temporal profile model dictionary of activity pairs with avg time and STDEV and a description of potential anomalies Task Act as an LLM receiving a prompt provided in the text to Identify anomalies in the temporal profile Generate hypotheses for these anomalies Propose verification approaches using SQL queries Constraint Do not reference the instructions or explanations above Present the output independently Goal Generate a response that looks like a direct answer to the Prompt for the Target LLM section based on the provided context"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Deconstruct the Temporal Profile and Anomalies R P Avg 90000s 25h STDEV 3600s 1h Anomaly Very low STDEV for a complex process step Suggests rigid timing possibly automated or batched artificially P N Avg 604800s 7 days STDEV 172800s 2 days Anomaly Long delay between Approval and Notification High variance suggests inconsistency some fast some very slow A C Avg 7200s 2h STDEV 3600s 1h Anomaly Very fast closure after Assignment Skips Evaluate Approve Premature closure E N Avg 300s 5 mins STDEV 60s 1 min Anomaly Very fast notification after evaluation Might skip Approval Or automated notification E C Avg 3600s 1h STDEV 3000s 50 mins Anomaly High variance relative to mean"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Section 1 Identified Anomalies Focus on the specific pairs provided in the profile Highlight the statistical oddities low STDEV high Avg high variance R to P Low variance implies artificial consistency P to N High average delay implies bottleneck backlog A to C Short duration implies skipping steps Evaluate Approve E to N Short duration implies skipping Approval step potentially"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Section 2 Hypotheses R to P Automated approval scripts running on a schedule Data fabrication P to N Manual notification process is backlogged System queue failure A to C Quick close for low value claims without full evaluation Fraudulent closure E to N Automated notification triggered immediately upon evaluation bypassing approval General Resource constraints system latency or process deviation"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Section 3 Verification SQL Queries Need to write PostgreSQL queries Query 1 R to P Anomaly Find claims where time between R and P is extremely consistent or outside the expected range though the anomaly is low STDEV finding outliers might be hard better to check the distribution Lets focus on finding claims where P happens without E in between skipping steps Or check the exact duration distribution Query 2 P to N Delay Find claims where time between P and N exceeds a threshold eg 5 days Query 3 A to C Skip Find claims where C follows A directly without E or P Query 4 Correlation Join with adjusters or claims to see if specific adjusters or claim types cause these issues"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The claim_events table has claim_id activity timestamp To calculate time between activities I need self joins or window functions Query for P to N delay Join claim_events on claim_id where one is P and next is N Calculate EXTRACT EPOCH FROM n timestamp minus p timestamp Filter by threshold Query for A to C skip Check if C exists for a claim where E or P does not exist or if C timestamp is very close to A Query for Adjuster correlation Join with adjusters table via resource assuming resource in claim_events matches adjuster_id or name"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "The schema says resource is VARCHAR adjusters has name I should assume resource matches adjusters name or adjuster_id Lets assume resource stores the ID as a string or matches name To be safe I will write the query assuming resource links to adjusters name or just analyze resource directly if IDs are not guaranteed to match types Lets assume resource contains the adjuster_id as a string for the join"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review against Constraints Do not reference the instructions or explanations above Do not say Based on the provided text or Here is the answer to the prompt Just output the analysis Present the anomalies possible reasons and verification queries independently Use clear headings"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish Ensure SQL syntax is correct for PostgreSQL for example EXTRACT EPOCH FROM Ensure the hypotheses logically follow the anomalies Make sure the SQL addresses the specific anomalies identified"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction on SQL Calculating time between specific activity pairs in a single query can be complex with self joins I will use CTEs or subqueries to make it readable For A to C anomaly The profile says Avg 2 hours This is suspiciously fast if E and P are supposed to happen A query checking for claims where C occurs shortly after A without E or P intervening would be strong For P to N Query claims where N timestamp minus P timestamp is greater than X For R to P Query to check the distribution of durations to confirm the low variance"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining the Anomaly Description Make sure to explicitly mention the statistical values Avg STDEV in the anomaly section to show understanding of the profile Refining Hypotheses Connect the stats to the business logic Low STDEV equals Rigid Automated High Avg equals Bottleneck"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Check Does this look like a direct response Yes Does it reference the prompt instructions No Is it PostgreSQL compliant Yes"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

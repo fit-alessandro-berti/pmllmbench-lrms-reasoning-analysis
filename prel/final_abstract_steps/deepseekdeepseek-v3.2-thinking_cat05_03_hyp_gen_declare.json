@@ -1,0 +1,153 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model and we need to identify anomalies generate hypotheses and propose verification approaches using SQL queries"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets first understand the intended process flow R A E P N C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This constraint says that the first event in every trace must be R So every claim must start with R"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This constraint says that event C Close Claim must occur at least once in every trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This constraint says that if E Evaluate Claim occurs then A Assign Adjuster must occur either before or after E However note that the intended flow has A before E but this constraint only requires that if E occurs then A occurs somewhere in the trace"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This constraint says that C Close Claim must be preceded by R Receive Claim In other words R must occur before C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This constraint says that E Evaluate Claim and C Close Claim cannot both occur in the same trace This is a problem because in the intended flow E occurs before C"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the main anomaly is the noncoexistence constraint between E and C According to the intended flow we must have both E and C and in fact E must come before C However the noncoexistence constraint says that E and C cannot coexist This is a contradiction"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Additionally note that the responded existence constraint requires that if E occurs then A must occur But in the intended flow A must occur before E However the responded existence constraint does not enforce the order only that both occur So it is weaker than the intended order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Also note that the precedence constraint only requires that R occurs before C but it does not require the other steps So it is possible to have a trace that goes R C which skips all the steps in between This might be allowed by the model because there is no constraint that enforces the existence of A E P N"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "However note that the existence constraint requires C and the init requires R and the precedence requires R before C So the minimal trace that satisfies these constraints is just R and C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "But wait the noncoexistence constraint says that E and C cannot coexist so if we have E then we cannot have C But the existence constraint requires C so if we have E then we cannot have C which would violate the existence constraint Therefore the model is contradictory because if E occurs then we cannot have C by noncoexistence but we must have C by existence Therefore the only way to satisfy both is to never have E"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "But then the responded existence constraint would be vacuously true because it only requires that if E occurs then A occurs So if E never occurs then it is okay"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "So the model forces that E never occurs because if it does then we break either noncoexistence or existence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But wait the intended flow requires E So this model is not consistent with the intended flow"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Lets summarize the anomalies"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Noncoexistence between E and C This directly contradicts the intended flow which requires both E and C with E before C This constraint would force the process to avoid E if C is to occur but C is required by existence"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Missing constraints for the full flow The model does not enforce the existence of A E P N Only R and C are required So the model allows skipping essential steps"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Order of A and E The responded existence constraint does not enforce that A must occur before E only that if E occurs then A occurs So it allows E to occur before A which might not be intended"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Contradiction between existence of C and noncoexistence of E and C If E occurs then C cannot occur by noncoexistence but C must occur by existence Therefore the model implicitly forbids E"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now lets generate hypotheses"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Misinterpretation of business requirements The noncoexistence constraint might have been intended to mean that E and C cannot occur at the same time but in DECLARE noncoexistence means they cannot both occur in the same trace This could be a modeling error"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Incremental changes in policies Perhaps there was a change in the process that made evaluation optional but the constraint was added without considering the requirement to close every claim"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Technical issues or incomplete data The model might have been discovered from data that had anomalies such as claims that were closed without evaluation and the discovery algorithm incorrectly inferred a noncoexistence constraint"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Pressure to handle claims quickly The model might have been designed to allow skipping evaluation to close claims faster but then the existence of C is still required However the noncoexistence constraint would then force the absence of E which might be an extreme version of skipping evaluation"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Error in constraint specification The noncoexistence constraint might have been intended to be between two other activities but E and C were mistakenly chosen"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Now for verification approaches we can use SQL queries to check the actual data for anomalies"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given three tables claims adjusters and claim events"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are interested in the claim events table"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can check Claims that were closed without any evaluation"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Look for claims that have a C event but no E event"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Traces where evaluation and closing coexist Look for claims that have both an E event and a C event"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "If evaluation steps always correspond with assigned adjusters Check if for every E event there is an A event for the same claim Also check the order is A always before E"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Check the minimal trace R C Look for claims that have only R and C events and no other events to see if the models allowed behavior is actually happening"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Check the order of A and E For claims that have both A and E check if A always happens before E"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Check the existence of required steps How many claims have the full intended flow"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "These queries can help verify if the anomalies in the DECLARE model are present in the actual data"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

@@ -1,0 +1,105 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given underlying database and schema details including order event log orders resources etc Then it gives example event logs data in the order_event_log table for different orders 1001 1002 1003 1004"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The prompt instructs The target model should be encouraged to Identify anomalies and undesirable behaviors in the given event log Hypothesize why these anomalies might occur and Propose relevant SQL queries"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Data for order id 1001 Events are in normal order Register Order then Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment That one is complete"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Data for order id 1002 Events come out of order after registration they jump to confirm shipment then ship goods then perform credit check then validate stock then issue invoice and receive payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "That is out of order The expected order flow might be that the process always has a sequence but for id 1002 the events are not in expected sequence"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Data for order id 1003 They did Register then credit check but then directly ship goods skipping validation stock and confirm shipment and later invoice is issued Also confirmation of shipment occurs after shipping goods"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So anomaly is that Validate Stock is missing and Confirmation of shipment happened after shipping goods and issuing invoice"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "For case id 1004 Register Order then Receive Payment then Issue Invoice then Confirm Shipment then Ship Goods This order is clearly anomalous"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Payment should happen after shipping and invoicing so this order is clearly out of sequence"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Thus anomalies are Out of sequence event ordering Missing expected events such as Validate Stock for case id 1003 and Payment received prior to invoice issuance and shipment confirmation in case id 1004"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "The data might be captured from a process that has different branch flows It may be due to system errors where the event log is not correctly timestamped or events are recorded asynchronously leading to out of order logging It could also be human error in entering the logs manually or even malicious tampering"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For case 1002 and 1003 credit check and validate stock are performed after shipment This may indicate system issues like delay in recording certain events or process bypass where some checks are done offline In the case of 1004 receiving payment before invoice issuance might be due to manual override or prepayment scenario"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can propose SQL queries that will help identify these anomalies The queries should probably check ordering issues for example if events are out of order compared to expected process flow"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Define a mapping of activities to numeric order values Register Order 1 Perform Credit Check 2 Validate Stock 3 Confirm Shipment 4 Ship Goods 5 Issue Invoice 6 Receive Payment 7"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then for each event in order_event_log we can check if the events are sorted by that assigned order value"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But note some orders may be missing steps We need to query anomalies cases where the order does not include all expected steps in correct order For example order id 1003 is missing Validate Stock and has out of order sequence"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "This method would not catch case 1002 because even if they are out of order the set of distinct values covers all numbers from 1 to 7 So we need to check ordering by event_id order"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 1 Identify orders where event sequence is out of order based on expected process flow using a mapping and window functions such as lag on sequence values"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 2 Identify orders where Receive Payment occurs before Issue Invoice by comparing timestamps for those activities"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 3 Identify orders where Ship Goods happens before Perform Credit Check or Validate Stock by joining shipment with those prerequisite activities"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 4 Identify orders where Confirm Shipment occurs after Issue Invoice"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 5 Identify orders that are missing key steps such as Validate Stock using a left join and null check"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "We can join with resources table maybe and orders table to correlate event details with order values and departments"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Query 6 Identify whether an event is performed by a resource from an unexpected department by joining order_event_log with resources and comparing department against expected department for each activity"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In our data the ordering is suspect while resource wise most entries appear valid so query on resource and process may not catch the anomaly of out of sequence events instead we need to check timestamp order relative to expected workflow steps"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

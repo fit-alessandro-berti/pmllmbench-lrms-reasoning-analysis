@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Request Input Context PostgreSQL database schema claims adjusters claim_events Intended process steps R A E P N C Temporal profile model with specific anomalies R P low stdev P N long delay high stdev A C quick close E N too quick Task Act as the target LLM and respond to a specific prompt Prompt Requirements Identify anomalies in the provided temporal profile Generate hypotheses for why these anomalies exist Propose verification approaches using SQL queries based on the provided schema Constraints Do NOT reference the instructions or explanations provided in the prompt Present anomalies hypotheses and SQL queries independently"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Deconstruct the Temporal Profile Anomalies R P Avg 90000s 25h STDEV 3600s 1h Anomaly Extremely low standard deviation for a process that spans roughly a day involving multiple intermediate steps Assign Evaluate Looks artificially rigid or batch processed P N Avg 604800s 7 days STDEV 172800s 2 days Anomaly High average delay and high variance Indicates a massive bottleneck or batching in notifications post approval A C Avg 7200s 2h STDEV 3600s 1h Anomaly Too fast to realistically go through Evaluate and Approve Suggests premature closures or skipping steps E N Avg 300s 5m STDEV 60s 1m Anomaly Too fast Approval P is supposed to happen between E and N according to the intended process Suggests skipping the Approval step"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Generate Hypotheses R to P Low STDEV Batch processing of approvals at a specific time of day or a hardcoded timer automated scheduled job approving claims without proper evaluation P to N Long Delay High STDEV Notification system relies on a separate batch process e g nightly mail job or manual mailing process High variance could mean some are handled ad hoc while most wait for the batch A to C Quick Close Claims are being rejected closed immediately upon assignment without evaluation e g missing documentation out of region or fraudulent detection scripts auto closing E to N Skipping P Evaluate directly triggers Notify entirely bypassing the Approve step This could be a bug in the workflow state machine or a special rule for low value claims"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Develop SQL Queries PostgreSQL Query 1 Identifying claims with short A to C times premature closures and checking if E P are missing Need to get timestamps for A and C for each claim Subtract them Join to claims to see type amount Drafting Use LAG or conditional aggregation MIN MAX with CASE to get timestamps Lets use conditional aggregation for clarity Query 2 Finding claims that go directly from E to N without P bypassing approval Check if a claim has E and N but NOT P Calculate time between E and N Drafting Group by claim_id check existence of activities Query 3 Analyzing the P to N bottleneck 7 day delay by adjuster or region Get P timestamp N timestamp Calculate difference Join with claims and adjusters Group by adjuster or region to see who or where is affected Query 4 Investigating the rigid R to P timing batch processing hypothesis Calculate time between R and P Extract the hour of the day for the P timestamp to see if approvals cluster around specific times e g midnight"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refine SQL Queries ensure they work with the schema Schema Check claim_events has claim_id activity timestamp resource claims has claim_id customer_id claim_amount claim_type adjusters has adjuster_id name specialization region Note resource in claim_events might be adjuster name ID I should probably join claim_events on resource matching adjusters name or just group by resource directly to be safe though joining on claims is guaranteed"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining Query 1 A to C Premature Close"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining Query 2 E to N skipping P"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining Query 3 P to N bottleneck by region resource"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Refining Query 4 R to P rigid timing batch job check"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Review against Constraints Identify anomalies Yes Generate hypotheses Yes Propose verification SQL Yes No referencing instructions explanations from prompt Yes keeping the tone direct and professional Formatting clean Use markdown for readability"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
