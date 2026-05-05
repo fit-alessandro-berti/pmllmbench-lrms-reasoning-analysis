@@ -34,12 +34,15 @@
 | xiaomimimo-v2-pro                                | **15470** | 43 |  3 | 0 | 559 |  80 |  2 |
 | xiaomimimo-v2.5                                  | **15454** | 43 |  3 | 0 | 558 |  86 |  2 |
 | qwenqwen3.5-35b-a3b                              | **15275** | 40 |  6 | 0 | 696 |  65 |  6 |
+| gpt-oss-20b                                      | **15183** | 44 |  2 | 0 | 476 |  77 |  0 |
 | minimaxminimax-m2.5                              | **14820** | 40 |  5 | 0 | 620 |  70 |  3 |
 | xiaomimimo-v2-omni                               | **14146** | 42 |  3 | 1 | 503 |  74 |  3 |
 | nousresearchhermes-4-70b                         | **13875** | 36 | 10 | 0 | 764 | 105 |  8 |
 | poolsidelaguna-xs.2free                          | **12858** | 38 |  8 | 0 | 558 |  62 |  8 |
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | **11272** | 38 |  5 | 3 | 473 |  68 |  7 |
+| gpt-oss-120b                                     | **11129** | 40 |  6 | 0 | 273 |  81 |  1 |
 | poolsidelaguna-m.1free                           | **9384**  | 34 | 11 | 1 | 432 |  66 |  6 |
+| googlegemini-3.1-pro-preview                     | **5310**  | 28 | 17 | 1 | 361 | 130 | 21 |
 | grok-code-fast-1                                 | **1160**  | 20 | 25 | 1 | 323 |  80 | 12 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
@@ -80,12 +83,15 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | xiaomimimo-v2-pro                                | 15.8 | 29.8 |  2.7 |  7.5 | 12.5 | 18.3 |    2 |  0.9 |  1.6 |    9 |
 | xiaomimimo-v2.5                                  | 15.2 | 27.4 |  3.1 |  7.3 | 13.8 | 19.5 |  2.2 |  1.1 |  1.2 |  9.3 |
 | qwenqwen3.5-35b-a3b                              | 13.7 | 23.7 |  3.5 |  6.3 | 10.4 | 20.3 | 12.9 |  0.5 |  1.2 |  7.4 |
+| gpt-oss-20b                                      | 13.7 | 25.3 |  4.3 |  8.5 | 17.4 | 16.1 |  1.6 |  1.6 |  1.8 |  9.6 |
 | minimaxminimax-m2.5                              | 14.9 | 28.7 |  4.2 |  8.4 | 16.2 |   16 |  1.2 |  1.7 |  1.7 |  7.1 |
 | xiaomimimo-v2-omni                               | 16.6 | 28.8 |  2.6 |  8.3 | 14.1 | 16.6 |  2.2 |  0.7 |  1.2 |    9 |
 | nousresearchhermes-4-70b                         | 12.7 | 25.9 |  3.8 |  8.6 | 17.8 | 19.6 |  4.7 |  1.1 |  1.5 |  4.4 |
 | poolsidelaguna-xs.2free                          | 17.8 | 31.2 |    4 |  7.6 | 13.7 | 13.5 |  3.7 |  1.8 |  1.3 |  5.4 |
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | 20.1 | 32.7 |  2.4 |  7.5 | 15.1 | 12.8 |  2.2 |  1.3 |  0.5 |  5.5 |
+| gpt-oss-120b                                     | 17.7 | 29.6 |  3.4 |  4.5 |  8.5 | 16.9 |  0.6 |  0.8 |  0.3 | 17.7 |
 | poolsidelaguna-m.1free                           | 23.4 | 28.4 |  4.8 |  6.3 | 12.5 | 13.5 |    4 |  0.8 |  1.4 |    5 |
+| googlegemini-3.1-pro-preview                     | 15.2 | 27.1 |  2.3 |  6.2 | 10.4 | 24.2 |  5.3 |    1 |  0.8 |  7.4 |
 | grok-code-fast-1                                 | 28.4 |   34 |  2.7 |  5.5 | 10.8 | 10.6 |  1.2 |  0.2 |  0.2 |  6.3 |
 
 Dictionary of activities:
@@ -135,10 +141,13 @@ Dictionary of activities:
 | xiaomimimo-v2-pro                                |   95 | 97.4 |  100 | 70.8 | 71.2 | 89.7 | 92.3 |  100 |   40 | 72.4 |
 | xiaomimimo-v2.5                                  |   99 | 98.3 |   85 | 68.1 | 74.2 | 92.9 | 71.4 |  100 | 12.5 | 61.7 |
 | qwenqwen3.5-35b-a3b                              | 96.2 | 98.4 |  100 | 79.2 | 66.2 | 95.5 |   96 |  100 | 55.6 | 78.9 |
+| gpt-oss-20b                                      |  100 | 97.1 | 91.7 | 59.6 | 86.5 |   91 | 88.9 | 88.9 |   20 | 60.4 |
 | minimaxminimax-m2.5                              | 98.1 | 98.5 |  100 | 70.7 | 76.8 | 94.6 |   75 | 91.7 | 41.7 | 81.6 |
 | xiaomimimo-v2-omni                               | 96.9 | 98.2 |   80 | 81.2 | 81.7 | 86.5 | 76.9 |   75 | 28.6 | 57.7 |
 | nousresearchhermes-4-70b                         |  100 | 96.5 | 90.9 | 74.7 | 75.6 | 89.5 | 90.2 |  100 | 23.1 | 66.7 |
 | poolsidelaguna-xs.2free                          | 97.3 | 90.3 |  100 |   75 | 81.4 | 92.9 | 95.7 | 90.9 |   50 | 76.5 |
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | 95.5 | 96.6 | 84.6 | 65.9 | 68.7 | 91.4 | 83.3 |  100 | 33.3 |   60 |
+| gpt-oss-120b                                     | 98.4 | 97.1 | 91.7 |   75 | 63.3 | 71.7 |   50 |  100 |    0 | 31.7 |
 | poolsidelaguna-m.1free                           | 97.5 |   93 | 79.2 |   75 | 66.7 | 80.9 |  100 |  100 | 85.7 |   56 |
+| googlegemini-3.1-pro-preview                     |   91 | 80.6 | 83.3 | 59.4 | 47.2 | 62.1 | 74.1 |  100 |   25 | 55.3 |
 | grok-code-fast-1                                 | 79.7 | 89.4 | 81.8 | 56.5 | 66.7 | 70.5 |  100 |  100 |    0 | 53.8 |
