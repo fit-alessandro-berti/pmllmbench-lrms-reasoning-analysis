@@ -65,7 +65,7 @@ def evaluate_file(file_path, output_folder, api_key):
             response = pm4py.llm.openai_query(prompt,
                                               api_key=api_key,
                                               api_url="https://api.x.ai/v1",
-                                              openai_model="grok-4-1-fast-non-reasoning",
+                                              openai_model="grok-4.20-non-reasoning",
                                               extra_payload={})
             json_str = extract_json_from_response(response)
             evaluation_list = json.loads(json_str)
