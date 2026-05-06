@@ -42,6 +42,7 @@
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | **11272** | 38 |  5 | 3 | 473 |  68 |  7 |
 | gpt-oss-120b                                     | **11129** | 40 |  6 | 0 | 273 |  81 |  1 |
 | poolsidelaguna-m.1free                           | **9384**  | 34 | 11 | 1 | 432 |  66 |  6 |
+| nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | **5954**  | 28 | 16 | 2 | 496 |  66 | 47 |
 | googlegemini-3.1-pro-preview                     | **5310**  | 28 | 17 | 1 | 361 | 130 | 21 |
 | grok-code-fast-1                                 | **1160**  | 20 | 25 | 1 | 323 |  80 | 12 |
 
@@ -91,6 +92,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | 20.1 | 32.7 |  2.4 |  7.5 | 15.1 | 12.8 |  2.2 |  1.3 |  0.5 |  5.5 |
 | gpt-oss-120b                                     | 17.7 | 29.6 |  3.4 |  4.5 |  8.5 | 16.9 |  0.6 |  0.8 |  0.3 | 17.7 |
 | poolsidelaguna-m.1free                           | 23.4 | 28.4 |  4.8 |  6.3 | 12.5 | 13.5 |    4 |  0.8 |  1.4 |    5 |
+| nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | 17.1 | 29.6 |  3.1 | 10.2 | 14.1 | 16.4 |  2.5 |  1.8 |  1.3 |  3.9 |
 | googlegemini-3.1-pro-preview                     | 15.2 | 27.1 |  2.3 |  6.2 | 10.4 | 24.2 |  5.3 |    1 |  0.8 |  7.4 |
 | grok-code-fast-1                                 | 28.4 |   34 |  2.7 |  5.5 | 10.8 | 10.6 |  1.2 |  0.2 |  0.2 |  6.3 |
 
@@ -149,5 +151,6 @@ Dictionary of activities:
 | nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | 95.5 | 96.6 | 84.6 | 65.9 | 68.7 | 91.4 | 83.3 |  100 | 33.3 |   60 |
 | gpt-oss-120b                                     | 98.4 | 97.1 | 91.7 |   75 | 63.3 | 71.7 |   50 |  100 |    0 | 31.7 |
 | poolsidelaguna-m.1free                           | 97.5 |   93 | 79.2 |   75 | 66.7 | 80.9 |  100 |  100 | 85.7 |   56 |
+| nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | 94.2 | 88.3 | 78.9 | 77.4 | 70.9 |   75 | 66.7 | 90.9 |   75 | 58.3 |
 | googlegemini-3.1-pro-preview                     |   91 | 80.6 | 83.3 | 59.4 | 47.2 | 62.1 | 74.1 |  100 |   25 | 55.3 |
 | grok-code-fast-1                                 | 79.7 | 89.4 | 81.8 | 56.5 | 66.7 | 70.5 |  100 |  100 |    0 | 53.8 |
