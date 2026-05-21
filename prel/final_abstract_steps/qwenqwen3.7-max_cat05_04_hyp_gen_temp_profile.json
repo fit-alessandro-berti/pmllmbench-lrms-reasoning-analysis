@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Understand the Goal The user wants an analysis of a temporal profile model for an insurance claim handling process I need to act as the target LLM and respond to the provided prompt The response must identify anomalies generate hypotheses for them and propose SQL queries to verify these hypotheses based on the provided database schema"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Input Data Database Schema claims claim_id customer_id claim_amount claim_type submission_date adjusters adjuster_id name specialization region claim_events event_id claim_id activity timestamp resource additional_info Process Steps R A E P N C Temporal Profile Model R A 3600s 1h STDEV 600s 10m Normal R E 86400s 1d STDEV 28800s 8h Normal R P 90000s 25h STDEV 3600s 1h Anomaly Suspiciously low STDEV for a 25h process A C 7200s 2h STDEV 3600s 1h Anomaly Too fast to close after assignment skipping E P N E N 300s 5m STDEV 60s 1m Anomaly Too fast possibly skipping P or automated without human check P N 604800s 7d STDEV 172800s 2d Anomaly Huge delay between Approve and Notify"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "R to P Receive to Approve Average 25 hours but STDEV is only 1 hour This extremely low variance for a day long process is highly unnatural P to N Approve to Notify Average 7 days with a 2 day STDEV This is a massive delay between an approval and notifying the customer with high variance A to C Assign to Close Average 2 hours This is too short for a full lifecycle Assign Evaluate Approve Notify Close suggesting premature closures or skipped steps E to N Evaluate to Notify Average 5 minutes with a 1 minute STDEV This is suspiciously fast likely bypassing the Approve step or indicating an automated bypass"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "R to P Low STDEV Hypothesis 1 Batch processing Approvals are run via an automated batch job at a specific time every day resulting in artificial uniformity Hypothesis 2 System clock manipulation or hardcoded timestamps in the approval system"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "P to N Long Delay and High STDEV Hypothesis 1 Manual notification backlog The system approves automatically but notifications require manual dispatch by a specific team that is understaffed or only works specific days Hypothesis 2 Notification system integration failure The API to send emails or letters fails queuing notifications for days until a manual retry or batch fix is applied"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "A to C Short Duration Hypothesis 1 Invalid or Duplicate claims Adjusters quickly close claims that are duplicates fraudulent or lack basic information immediately upon assignment Hypothesis 2 Process violation Adjusters are closing claims in the system without doing the actual work or closing means something else"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "E to N Short Duration Hypothesis 1 Skipped Approval step For low value claims the system automatically notifies the customer immediately after evaluation bypassing the formal Approve event logging Hypothesis 2 Automated straight through processing where evaluation and notification are part of the same script execution"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 1 Investigate R to P low STDEV Batch processing Hardcoded times Look at the exact time of day Approve events occur If they all happen at the exact same minute or hour it is a batch job Query 2 Investigate P to N long delays Backlogs Failures Find claims with Approve to Notify greater than a threshold Join with claims to see if specific claim types amounts or resources are affected Check additional_info for error logs Query 3 Investigate A to C short duration Premature closure Skipped steps Find claims where Assign to Close is less than 2 hours Check if they have Evaluate Approve Notify events If not they skipped steps Query 4 Investigate E to N short duration Skipped Approvals Find claims where Evaluate to Notify is less than 10 minutes Check if Approve exists for these claims Group by resource to see if a specific automated bot or user is doing this"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction during drafting Use CTEs or window functions to calculate time differences between specific events for the same claim_id Actually it is cleaner to use LEAD or specific joins for exact pairs or just conditional aggregation pivot Lets use conditional aggregation pivot to get timestamps for each activity per claim it makes the SQL much cleaner and easier to read"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is perfect and standard PostgreSQL Ensure SQL is valid PostgreSQL EXTRACT EPOCH FROM is correct for Postgres DATE_TRUNC is correct The CTE approach is clean and efficient Check for any hallucinated columns sticking strictly to the provided schema"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Self Correction on Adjuster Join Since claim_events resource is varchar and adjusters has name and adjuster_id joining them directly might be tricky if resource stores an ID or a name I will use resource directly from claim_events to avoid bad joins Lets refine Query 2 to avoid the tricky adjuster join"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

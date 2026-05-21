@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We have an event_log table with at least the following columns case_id activity timestamp We need to find cases that have a specific sequence of 3 activities in direct succession Approve Purchase Requisition Create Order Confirm Order Direct succession means no other event from the same case in between them Among those cases we further filter to only those where the time between Create Order and Confirm Order in that sequence is more than 5 days We then exclude those cases entirely from the final result Return all events from cases that do NOT match both criteria"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Let me think about how to approach this in DuckDB SQL Step 1 Order events within each case by timestamp I need to use window functions like LEAD or LAG to look at consecutive events within each case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 2 Identify the sequence For each event I can look at the current activity and the next two activities ordered by timestamp within the same case_id Using LEAD LEAD activity 1 OVER PARTITION BY case_id ORDER BY timestamp next activity LEAD activity 2 OVER PARTITION BY case_id ORDER BY timestamp activity after next LEAD timestamp 1 OVER PARTITION BY case_id ORDER BY timestamp next timestamp LEAD timestamp 2 OVER PARTITION BY case_id ORDER BY timestamp timestamp after next Then I check current activity Approve Purchase Requisition next activity Create Order activity after next Confirm Order time between next timestamp Create Order and timestamp after next Confirm Order more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Step 3 Find case_ids that match I can create a CTE that identifies matching case_ids then exclude them"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The direct succession requirement means no other event from the same case in between Using LEAD with offset 1 and 2 over the partition ordered by timestamp ensures this we are looking at literally the next and next next events in the case The time difference next next timestamp minus next timestamp gives us the interval between Create Order and Confirm Order We check if it is more than 5 days"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "What if there are multiple events with the same timestamp in a case The ORDER BY timestamp might not be deterministic I could add a secondary sort key but the problem does not mention one I will keep it as is or maybe add activity as a tiebreaker Actually let me just order by timestamp as specified"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "The NOT IN with a subquery should work If matching_cases is empty all events are returned If a case_id is NULL NOT IN could behave unexpectedly but case_id should not be NULL for meaningful data I could use NOT EXISTS instead to be safer Let me refine with NOT EXISTS"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Actually in DuckDB the subtraction of two timestamps gives an interval So next next timestamp minus next timestamp more than interval 5 days should work correctly"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Let me also think about whether I need to handle the case where the same case has the sequence multiple times The DISTINCT in matching_cases handles that we just need to know if the case has at least one such sequence"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
