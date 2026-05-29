@@ -2,50 +2,51 @@
 
 ## Model Scores
 
-| Model                                            | Score     |  C | PC | W |  PE | IND | NE |
-| :------------------------------------------------ | :--------- | ---: | ---: | ---: | ---: | ---: | ---: |
-| deepseekdeepseek-v3.2-speciale-thinking          | **19497** | 46 |  0 | 0 | 806 |  43 |  1 |
-| moonshotaikimi-k2.6                              | **18565** | 45 |  1 | 0 | 770 |  55 |  4 |
-| qwenqwen3.7-max                                  | **18559** | 46 |  0 | 0 | 712 |  61 |  0 |
-| z-aiglm-5                                        | **18527** | 44 |  2 | 0 | 812 |  73 |  1 |
-| qwenqwen3.6-27b                                  | **18427** | 45 |  1 | 0 | 749 |  43 |  1 |
-| mistral-medium-3.5-thinkhigh                     | **18339** | 42 |  4 | 0 | 904 | 121 |  4 |
-| moonshotaikimi-k2.5                              | **17909** | 44 |  2 | 0 | 748 |  71 |  0 |
-| deepseekdeepseek-v4-flash                        | **17638** | 46 |  0 | 0 | 618 |  42 |  0 |
-| deepseekdeepseek-v3.2-thinking                   | **17627** | 44 |  2 | 0 | 723 |  83 |  1 |
-| deepseekdeepseek-v4-pro                          | **17529** | 44 |  2 | 0 | 716 |  71 |  3 |
-| qwenqwen3.6-plusfree                             | **17481** | 46 |  0 | 0 | 604 |  59 |  0 |
-| qwenqwen3.5-27b                                  | **17454** | 45 |  1 | 0 | 653 |  56 |  1 |
-| arcee-aitrinity-large-thinking                   | **16997** | 45 |  1 | 0 | 610 |  63 |  2 |
-| qwenqwen3.5-397b-a17b                            | **16924** | 44 |  2 | 0 | 650 |  56 |  1 |
-| qwenqwen3.6-35b-a3b                              | **16903** | 43 |  3 | 0 | 704 |  77 |  3 |
-| z-aiglm-5.1                                      | **16900** | 44 |  2 | 0 | 654 |  80 |  3 |
-| qwenqwen3.6-max-preview                          | **16898** | 45 |  1 | 0 | 599 |  52 |  2 |
-| nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **16742** | 42 |  4 | 0 | 737 |  88 |  2 |
-| qwenqwen3.5-122b-a10b                            | **16740** | 43 |  3 | 0 | 684 |  80 |  1 |
-| z-aiglm-5v-turbo                                 | **16710** | 44 |  2 | 0 | 631 |  60 |  2 |
-| minimaxminimax-m2.7                              | **16550** | 44 |  2 | 0 | 623 |  80 |  5 |
-| mistral-small-2603-thinkhigh                     | **16538** | 42 |  4 | 0 | 728 |  82 |  8 |
-| phi4-reasoningplus                               | **16519** | 43 |  3 | 0 | 665 |  71 |  3 |
-| qwenqwen3.6-flash                                | **16493** | 43 |  3 | 0 | 657 |  57 |  1 |
-| z-aiglm-5-turbo                                  | **16407** | 45 |  1 | 0 | 554 |  53 |  4 |
-| prime-intellectintellect-3                       | **16231** | 40 |  6 | 0 | 803 |  99 | 10 |
-| xiaomimimo-v2.5-pro                              | **16184** | 43 |  3 | 0 | 632 |  76 |  3 |
-| phi4-reasoning                                   | **15664** | 44 |  2 | 0 | 534 |  76 |  5 |
-| xiaomimimo-v2-pro                                | **15470** | 43 |  3 | 0 | 559 |  80 |  2 |
-| xiaomimimo-v2.5                                  | **15454** | 43 |  3 | 0 | 558 |  86 |  2 |
-| qwenqwen3.5-35b-a3b                              | **15275** | 40 |  6 | 0 | 696 |  65 |  6 |
-| gpt-oss-20b                                      | **15183** | 44 |  2 | 0 | 476 |  77 |  0 |
-| minimaxminimax-m2.5                              | **14820** | 40 |  5 | 0 | 620 |  70 |  3 |
-| xiaomimimo-v2-omni                               | **14146** | 42 |  3 | 1 | 503 |  74 |  3 |
-| nousresearchhermes-4-70b                         | **13875** | 36 | 10 | 0 | 764 | 105 |  8 |
-| poolsidelaguna-xs.2free                          | **12858** | 38 |  8 | 0 | 558 |  62 |  8 |
-| nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | **11272** | 38 |  5 | 3 | 473 |  68 |  7 |
-| gpt-oss-120b                                     | **11129** | 40 |  6 | 0 | 273 |  81 |  1 |
-| poolsidelaguna-m.1free                           | **9384**  | 34 | 11 | 1 | 432 |  66 |  6 |
-| nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | **5954**  | 28 | 16 | 2 | 496 |  66 | 47 |
-| googlegemini-3.1-pro-preview                     | **5310**  | 28 | 17 | 1 | 361 | 130 | 21 |
-| grok-code-fast-1                                 | **1160**  | 20 | 25 | 1 | 323 |  80 | 12 |
+| Model                                            | Score     |  C | PC | W |   PE | IND | NE |
+| :------------------------------------------------ | :--------- | ---: | ---: | ---: | ----: | ---: | ---: |
+| deepseekdeepseek-v3.2-speciale-thinking          | **19497** | 46 |  0 | 0 |  806 |  43 |  1 |
+| moonshotaikimi-k2.6                              | **18565** | 45 |  1 | 0 |  770 |  55 |  4 |
+| qwenqwen3.7-max                                  | **18559** | 46 |  0 | 0 |  712 |  61 |  0 |
+| z-aiglm-5                                        | **18527** | 44 |  2 | 0 |  812 |  73 |  1 |
+| qwenqwen3.6-27b                                  | **18427** | 45 |  1 | 0 |  749 |  43 |  1 |
+| mistral-medium-3.5-thinkhigh                     | **18339** | 42 |  4 | 0 |  904 | 121 |  4 |
+| stepfunstep-3.7-flash                            | **18163** | 38 |  8 | 0 | 1093 | 107 |  8 |
+| moonshotaikimi-k2.5                              | **17909** | 44 |  2 | 0 |  748 |  71 |  0 |
+| deepseekdeepseek-v4-flash                        | **17638** | 46 |  0 | 0 |  618 |  42 |  0 |
+| deepseekdeepseek-v3.2-thinking                   | **17627** | 44 |  2 | 0 |  723 |  83 |  1 |
+| deepseekdeepseek-v4-pro                          | **17529** | 44 |  2 | 0 |  716 |  71 |  3 |
+| qwenqwen3.6-plusfree                             | **17481** | 46 |  0 | 0 |  604 |  59 |  0 |
+| qwenqwen3.5-27b                                  | **17454** | 45 |  1 | 0 |  653 |  56 |  1 |
+| arcee-aitrinity-large-thinking                   | **16997** | 45 |  1 | 0 |  610 |  63 |  2 |
+| qwenqwen3.5-397b-a17b                            | **16924** | 44 |  2 | 0 |  650 |  56 |  1 |
+| qwenqwen3.6-35b-a3b                              | **16903** | 43 |  3 | 0 |  704 |  77 |  3 |
+| z-aiglm-5.1                                      | **16900** | 44 |  2 | 0 |  654 |  80 |  3 |
+| qwenqwen3.6-max-preview                          | **16898** | 45 |  1 | 0 |  599 |  52 |  2 |
+| nvidiallama-3.3-nemotron-super-49b-v1.5-thinking | **16742** | 42 |  4 | 0 |  737 |  88 |  2 |
+| qwenqwen3.5-122b-a10b                            | **16740** | 43 |  3 | 0 |  684 |  80 |  1 |
+| z-aiglm-5v-turbo                                 | **16710** | 44 |  2 | 0 |  631 |  60 |  2 |
+| minimaxminimax-m2.7                              | **16550** | 44 |  2 | 0 |  623 |  80 |  5 |
+| mistral-small-2603-thinkhigh                     | **16538** | 42 |  4 | 0 |  728 |  82 |  8 |
+| phi4-reasoningplus                               | **16519** | 43 |  3 | 0 |  665 |  71 |  3 |
+| qwenqwen3.6-flash                                | **16493** | 43 |  3 | 0 |  657 |  57 |  1 |
+| z-aiglm-5-turbo                                  | **16407** | 45 |  1 | 0 |  554 |  53 |  4 |
+| prime-intellectintellect-3                       | **16231** | 40 |  6 | 0 |  803 |  99 | 10 |
+| xiaomimimo-v2.5-pro                              | **16184** | 43 |  3 | 0 |  632 |  76 |  3 |
+| phi4-reasoning                                   | **15664** | 44 |  2 | 0 |  534 |  76 |  5 |
+| xiaomimimo-v2-pro                                | **15470** | 43 |  3 | 0 |  559 |  80 |  2 |
+| xiaomimimo-v2.5                                  | **15454** | 43 |  3 | 0 |  558 |  86 |  2 |
+| qwenqwen3.5-35b-a3b                              | **15275** | 40 |  6 | 0 |  696 |  65 |  6 |
+| gpt-oss-20b                                      | **15183** | 44 |  2 | 0 |  476 |  77 |  0 |
+| minimaxminimax-m2.5                              | **14820** | 40 |  5 | 0 |  620 |  70 |  3 |
+| xiaomimimo-v2-omni                               | **14146** | 42 |  3 | 1 |  503 |  74 |  3 |
+| nousresearchhermes-4-70b                         | **13875** | 36 | 10 | 0 |  764 | 105 |  8 |
+| poolsidelaguna-xs.2free                          | **12858** | 38 |  8 | 0 |  558 |  62 |  8 |
+| nvidiaNVIDIA-Nemotron-3-Super-120B-A12B          | **11272** | 38 |  5 | 3 |  473 |  68 |  7 |
+| gpt-oss-120b                                     | **11129** | 40 |  6 | 0 |  273 |  81 |  1 |
+| poolsidelaguna-m.1free                           | **9384**  | 34 | 11 | 1 |  432 |  66 |  6 |
+| nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | **5954**  | 28 | 16 | 2 |  496 |  66 | 47 |
+| googlegemini-3.1-pro-preview                     | **5310**  | 28 | 17 | 1 |  361 | 130 | 21 |
+| grok-code-fast-1                                 | **1160**  | 20 | 25 | 1 |  323 |  80 | 12 |
 
 Here, **C**, **PC**, **W** refer to the number of correct, partially correct, and wrong conclusions. **PE**, **IND**, **NE** refer to the number of reasoning steps with positive, indifferent, and negative effect.
 
@@ -61,6 +62,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | z-aiglm-5                                        | 13.4 | 23.9 |  4.5 |  8.8 | 11.1 | 20.8 |  8.7 |  0.8 |    2 |    6 |
 | qwenqwen3.6-27b                                  | 14.8 | 25.3 |  2.8 |  6.4 | 13.6 | 21.6 |  7.7 |  0.8 |  0.8 |  6.3 |
 | mistral-medium-3.5-thinkhigh                     | 13.1 | 25.7 |  3.9 |  9.1 | 13.8 | 19.5 |  5.4 |  1.7 |  2.2 |  5.5 |
+| stepfunstep-3.7-flash                            | 12.9 | 26.5 |  4.1 |  8.5 | 15.5 | 17.1 |    6 |  1.7 |  2.6 |    5 |
 | moonshotaikimi-k2.5                              | 16.4 | 26.7 |  4.9 |  7.6 | 13.1 | 17.1 |  5.7 |  1.1 |    1 |  6.5 |
 | deepseekdeepseek-v4-flash                        | 16.4 | 31.8 |  7.3 |  9.1 |  9.1 | 13.9 |  0.6 |  1.1 |  1.5 |  9.2 |
 | deepseekdeepseek-v3.2-thinking                   | 14.5 | 28.4 |  4.1 | 10.2 | 12.8 | 17.3 |  1.5 |  1.7 |  2.4 |  7.2 |
@@ -121,6 +123,7 @@ Dictionary of activities:
 | z-aiglm-5                                        |  100 | 99.5 | 97.5 | 82.1 | 73.5 | 96.7 | 97.4 | 85.7 | 33.3 | 79.2 |
 | qwenqwen3.6-27b                                  | 95.7 | 98.5 |  100 | 86.3 | 91.7 | 97.7 | 95.1 |  100 | 83.3 |   76 |
 | mistral-medium-3.5-thinkhigh                     | 98.5 | 97.7 | 97.5 | 72.3 | 76.1 | 88.6 | 89.3 |  100 | 21.7 | 84.2 |
+| stepfunstep-3.7-flash                            | 99.4 | 99.1 |  100 | 88.3 | 73.8 | 94.2 | 81.9 |  100 | 62.5 | 78.7 |
 | moonshotaikimi-k2.5                              | 99.3 | 99.1 | 97.5 | 77.4 | 72.9 | 97.1 | 93.6 | 88.9 |   50 | 77.4 |
 | deepseekdeepseek-v4-flash                        | 97.2 |   99 | 95.8 | 83.3 | 78.3 |  100 |  100 |  100 |   40 | 90.2 |
 | deepseekdeepseek-v3.2-thinking                   | 97.4 |  100 |   97 | 79.3 | 79.6 | 92.9 |  100 | 78.6 | 26.3 | 74.1 |

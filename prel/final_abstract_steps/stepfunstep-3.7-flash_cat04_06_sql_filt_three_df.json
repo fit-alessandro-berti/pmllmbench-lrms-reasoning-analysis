@@ -1,0 +1,85 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First we need to find cases that have the exact consecutive sequence Approve Purchase Requisition Create Order Confirm Order no other events in between these three Then among those cases we only keep the ones where the time between Create Order and Confirm Order of that specific sequence is more than 5 days Then we exclude all events from those cases from the final result"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "One common way is to use window functions to assign a sequence number or to use LEAD LAG to check the next activities Wait but since we need three consecutive events in order LEAD would work here"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Because if those three are consecutive then that is exactly the sequence we need That makes sense because LEAD gives the next row in the ordered set per case so if the next two are exactly those activities then there is nothing in between"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We need to make sure that the events are ordered by timestamp per case right Because the sequence is based on the order they occurred"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "For each event in case_id ordered by timestamp get activity as current lead activity 1 as next1 lead activity 2 as next2 Then filter where current equals Approve Purchase Requisition and next1 equals Create Order and next2 equals Confirm Order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to get the timestamp of next1 and next2 for those rows where the sequence exists then calculate the difference between them and see if it is more than 5 days"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "What if a case has multiple such sequences Then do we exclude the case if any of those sequences have the time difference more than 5 days"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "If a case has at least one such sequence where the time between Create and Confirm is more than 5 days then the case is excluded"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First we need to find all case_ids that have the consecutive sequence and for those sequences calculate the time between Create Order and Confirm Order then filter those case_ids where that time is more than 5 days Then the final result is all events from event_log where case_id is not in that list of excluded case_ids"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "When we use LEAD we have the current rows timestamp then lead timestamp 1 is the Create Orders timestamp lead timestamp 2 is the Confirm Orders timestamp"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We can compute that as confirm timestamp minus create timestamp and compare whether that interval is more than 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "In DuckDB subtracting two timestamps gives an interval so comparing that interval to 5 days is the right check"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Create a CTE that identifies all the sequences all the rows where the current activity is the first of the sequence next1 is second next2 is third Then for those rows get the case_id the create timestamp the confirm timestamp compute the difference filter where difference is more than 5 days Then collect all the case_ids from that filtered set those are the cases we need to exclude"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If a case has the sequence but the time difference is less than or equal to 5 days then it is not in excluded cases so all its events are included which is correct Because we only exclude cases that have the sequence and the time difference more than 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If a case does not have the sequence at all then it is not in excluded cases so all events are included which is right"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "If there is any event between Create and Confirm then the next activity two rows ahead after Approve would not be Confirm so the sequence is not detected"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This is exactly the requirement of no other events in between because the LEAD checks that the next two are exactly Create and Confirm"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Use NOT EXISTS instead of NOT IN because it is better practice and avoids null issues"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Ordering the final result by case_id and timestamp makes sense for event logs and matches the requirement for proper ordering"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The query excludes exactly those cases that have the sequence and the timing condition and returns all events from the remaining cases"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

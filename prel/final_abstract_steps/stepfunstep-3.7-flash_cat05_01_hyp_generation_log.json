@@ -1,0 +1,197 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First I need to go through each of the 4 cases in the event log and spot anomalies compared to the normal process flow The normal flow is strictly Register Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment in that exact order"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Starting with case 1001 Wait lets check the order of events Lets list their activities in order Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment Oh thats exactly the normal flow"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1002 Lets list the activities in event order Register Order Confirm Shipment Ship Goods Perform Credit Check Validate Stock Issue Invoice Receive Payment Oh wow thats way off First Confirm Shipment and Ship Goods happen BEFORE Credit Check and Validate Stock"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Also Validate Stock is after Ship Goods Thats impossible you check stock before shipping right Also Credit Check is after shipping Thats a policy violation for sure"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Lets check the order_type for 1002 is priority Hmm maybe priority orders have a different flow But no the normal flow is given as the assumed one so deviating from that is an anomaly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Lets list activities Register Order Perform Credit Check Ship Goods Issue Invoice Confirm Shipment Receive Payment Here Ship Goods is BEFORE Confirm Shipment Thats backwards Also Validate Stock is missing entirely"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Confirm Shipment has late_confirmation Y which aligns with it being after shipping"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 Lets list activities Register Order Receive Payment Issue Invoice Confirm Shipment Ship Goods Receive Payment is right after Register Order before any credit check before any shipment confirmation before even issuing the invoice"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Missing steps Perform Credit Check Validate Stock are completely missing Also Confirm Shipment has shipment_scheduled N but they still shipped goods Thats another anomaly"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets check the resources for each activity Register Order should be Sales Perform Credit Check is Finance Validate Stock is Logistics Confirm Shipment is Logistics Ship Goods is Logistics Issue Invoice is Finance Receive Payment is Finance So resources are aligned with roles"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Now lets categorize anomalies Activity Sequence Anomalies Missing Mandatory Activity Anomalies Contextual Anomalies"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Case 1002 steps out of order Case 1003 steps out of order plus missing step Case 1004 severe sequence anomalies plus missing steps"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For sequence deviations possible causes include System Errors Policy Violations or Workarounds Training Issues Process Design Gaps Data Entry Errors"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Maybe the event logging system is not capturing events in real time or theres a clock synchronization issue between systems"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait but for case 1002 the activities are logged in order of event_id so even if timestamps are wrong the event order is out of sequence"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Staff might be bypassing mandatory steps to meet SLAs especially for priority orders or high value orders"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "The process does not have enforced guardrails like system checks that block Ship Goods if Credit Check or Validate Stock is not completed"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For missing mandatory steps possible causes include Process Skipping System Integration Failures Logging Oversight Process Exception Handling"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "For the contextual anomaly where shipment_scheduled N but goods are shipped possible causes include System Error Manual Override Process Failure"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Lets list the investigations we need to do then write the SQL for each"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Verify if activity sequence anomalies are due to timestamp errors or actual out of order events"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Investigate if missing steps are due to system integration failures or intentional skipping"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Investigate the case 1004 anomaly where payment is received before invoice"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Investigate case 1002 credit check after shipping"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Investigate case 1003 and 1004 missing Validate Stock step"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Investigate case 1004 Confirm Shipment with shipment_scheduled N but Ship Goods still happens"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "A simpler query to find cases where Ship Goods occurs before Confirm Shipment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then query to find cases where Receive Payment occurs before Issue Invoice"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query to find cases where Perform Credit Check occurs after Ship Goods"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query to find all cases missing any of the 7 mandatory activities"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis sequence deviations are due to priority order processing fast track"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So query to see if priority orders have more sequence deviations than standard orders"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis credit check after shipping is due to low credit scores being approved retroactively or staff bypassing credit check for priority orders"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So query to find all cases where credit check is done after shipping get their credit scores order types and check if they have payment issues"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis missing Validate Stock step is due to system integration failure or intentional skipping for expedited orders"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So query to see if missing Validate Stock correlates with order type or if these cases have subsequent stock related issues"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis payment before invoice is due to prepaid orders or logging delays"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So query to find all cases where payment is before invoice check if payment amount matches order value and check the time difference between payment and invoice"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypothesis shipment proceeds despite not being scheduled due to manual override or system error"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So query to find all cases where Confirm Shipment has shipment_scheduled N check if Ship Goods occurs afterward and check for override info"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Another query to check resource involvement in anomalies are certain resources involved in more sequence deviations That would point to training issues with that staff member"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "Also a query to check the average duration of each process step to see if any steps are abnormally fast indicating they are being skipped"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait also for case 1004 the timestamps are in order except that Receive Payment is before Issue Invoice so the sequence deviations are actual out of order activities not timestamp errors"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Another possible anomaly in case 1002 the Credit Check is done after shipping credit score 650 If the credit threshold is 700 then this order was approved even though it is below threshold"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So a query to check credit scores of orders where credit check is after shipping and compare that to the average credit score of orders where credit check is done before shipping"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Also another query to check if cases with missing credit check have higher order values which might indicate that staff are skipping credit checks for high value orders to expedite them"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets make sure we did not miss any anomalies Case 1001 all steps are present order is correct resources are correct additional_info makes sense No anomalies there Case 1002 all steps present but order is wrong Case 1003 missing Validate Stock order wrong Case 1004 missing Credit Check and Validate Stock order wrong shipment_scheduled N but shipped payment before invoice"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Another query to check for role mismatches activities performed by resources whose role or department does not match the expected role for the activity"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
