@@ -14,6 +14,7 @@
 | moonshotaikimi-k2.5                              | **17909** | 44 |  2 | 0 |  748 |  71 |  0 |
 | deepseekdeepseek-v4-flash                        | **17638** | 46 |  0 | 0 |  618 |  42 |  0 |
 | deepseekdeepseek-v3.2-thinking                   | **17627** | 44 |  2 | 0 |  723 |  83 |  1 |
+| qwenqwen3.7-plus                                 | **17587** | 46 |  0 | 0 |  613 |  43 |  0 |
 | deepseekdeepseek-v4-pro                          | **17529** | 44 |  2 | 0 |  716 |  71 |  3 |
 | qwenqwen3.6-plusfree                             | **17481** | 46 |  0 | 0 |  604 |  59 |  0 |
 | qwenqwen3.5-27b                                  | **17454** | 45 |  1 | 0 |  653 |  56 |  1 |
@@ -67,6 +68,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | moonshotaikimi-k2.5                              | 16.4 | 26.7 |  4.9 |  7.6 | 13.1 | 17.1 |  5.7 |  1.1 |    1 |  6.5 |
 | deepseekdeepseek-v4-flash                        | 16.4 | 31.8 |  7.3 |  9.1 |  9.1 | 13.9 |  0.6 |  1.1 |  1.5 |  9.2 |
 | deepseekdeepseek-v3.2-thinking                   | 14.5 | 28.4 |  4.1 | 10.2 | 12.8 | 17.3 |  1.5 |  1.7 |  2.4 |  7.2 |
+| qwenqwen3.7-plus                                 | 14.9 | 28.2 |  2.3 |  7.6 | 10.7 | 21.8 |  5.5 |  1.1 |  0.6 |  7.3 |
 | deepseekdeepseek-v4-pro                          | 16.3 | 29.6 |  2.5 |  8.1 | 17.5 | 15.3 |    1 |  0.8 |  2.7 |  6.2 |
 | qwenqwen3.6-plusfree                             | 15.4 | 23.8 |  4.4 |  7.2 |  9.5 | 22.6 |  8.4 |  0.6 |  0.6 |  7.4 |
 | qwenqwen3.5-27b                                  | 16.6 | 25.1 |  2.3 |  6.6 |  8.3 | 20.4 | 11.1 |  0.8 |  0.8 |  7.9 |
@@ -129,6 +131,7 @@ Dictionary of activities:
 | moonshotaikimi-k2.5                              | 99.3 | 99.1 | 97.5 | 77.4 | 72.9 | 97.1 | 93.6 | 88.9 |   50 | 77.4 |
 | deepseekdeepseek-v4-flash                        | 97.2 |   99 | 95.8 | 83.3 | 78.3 |  100 |  100 |  100 |   40 | 90.2 |
 | deepseekdeepseek-v3.2-thinking                   | 97.4 |  100 |   97 | 79.3 | 79.6 | 92.9 |  100 | 78.6 | 26.3 | 74.1 |
+| qwenqwen3.7-plus                                 |  100 | 99.5 |  100 |   82 |   80 | 96.5 | 94.4 |  100 |   50 | 79.2 |
 | deepseekdeepseek-v4-pro                          |  100 | 99.6 |  100 |   75 | 84.1 | 89.3 |   75 | 83.3 | 52.4 | 81.6 |
 | qwenqwen3.6-plusfree                             |   99 | 99.4 | 93.1 | 79.2 | 77.8 | 98.7 | 85.7 |  100 |   50 | 61.2 |
 | qwenqwen3.5-27b                                  | 98.3 | 98.9 | 93.8 | 85.1 | 71.2 | 93.8 |  100 | 83.3 | 33.3 |   75 |

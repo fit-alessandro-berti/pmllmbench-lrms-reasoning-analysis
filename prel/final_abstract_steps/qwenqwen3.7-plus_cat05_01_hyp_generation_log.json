@@ -1,0 +1,89 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The user wants me to act as an AI assistant that analyzes the provided database schema and event log data to 1 Identify anomalies and undesirable behaviors 2 Hypothesize the causes of these anomalies 3 Propose relevant SQL queries to investigate these hypotheses"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Assumed Normal Process Flow 1 Register Order Sales 2 Perform Credit Check Finance 3 Validate Stock Warehouse 4 Confirm Shipment Logistics 5 Ship Goods Logistics 6 Issue Invoice Finance 7 Receive Payment Finance"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Analyzing case id 1001 Register Order 0815 Perform Credit Check 0830 Validate Stock 0900 Confirm Shipment 0915 Ship Goods 0945 Issue Invoice 1000 Receive Payment 1500 Flow 1 2 3 4 5 6 7 This perfectly matches the normal process flow No anomalies"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing case id 1002 Register Order 0820 Confirm Shipment 0825 Anomaly Shipment confirmed before Credit Check Stock Validation and even before Invoice Ship Goods 0840 Anomaly Goods shipped before Credit Check and Stock Validation Perform Credit Check 0910 Anomaly Credit check performed after shipment Validate Stock 0915 Anomaly Stock validated after shipment Issue Invoice 0930 Receive Payment 1000 Flow 1 4 5 2 3 6 7"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis priority order type might allow bypassing or delaying credit stock checks but shipping before validating stock is risky Alternatively it is a policy violation where a sales rep or logistics manager pushed for early shipment without proper checks The additional info for Confirm Shipment says attempted early Y which strongly suggests this was a known deviation"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing case id 1003 Register Order 0845 Perform Credit Check 0900 Ship Goods 0910 Anomaly Goods shipped before Validate Stock and Confirm Shipment Issue Invoice 0930 Confirm Shipment 0945 Anomaly Shipment confirmed AFTER goods are shipped Receive Payment 1100 Flow 1 2 5 6 4 7 Missing Validate Stock 3"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis The warehouse clerk shipped the goods without validating stock or getting confirmation from logistics The additional info for Confirm Shipment says late confirmation Y indicating a process violation or retroactive paperwork Missing Validate Stock entirely could mean stock was not checked leading to potential inventory discrepancies"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyzing case id 1004 Register Order 0900 Receive Payment 0905 Anomaly Payment received before Credit Check Stock Validation Shipment Confirmation Shipping and Invoicing Issue Invoice 0920 Confirm Shipment 0925 Anomaly shipment scheduled N in additional info Ship Goods 0950 Anomaly Goods shipped even though shipment was scheduled as N Or maybe it was rescheduled Missing Perform Credit Check Validate Stock"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypothesis This might be a prepaid order or cash on delivery handled weirdly but receiving payment before even checking credit or stock is highly irregular Also Confirm Shipment has shipment scheduled N yet Ship Goods happens 25 minutes later This could indicate a system glitch a manual override or fraud"
+  },
+  {
+    "Name": "Inductive Reasoning - PE",
+    "Text": "General Anomalies to highlight 1 Out of Order Events Events happening in the wrong sequence for example shipping before credit check stock validation payment before invoice 2 Missing Events Validate Stock is missing for case 1003 and 1004 Perform Credit Check is missing for 1004 3 Suspicious Additional Info attempted early Y late confirmation Y shipment scheduled N followed by shipping"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Hypotheses for these anomalies Policy Violations or Rushed Orders Employees bypassing steps to meet SLAs or customer demands for example case 1002 priority order System or Process Gaps The system allows recording events out of order without blocking indicating a lack of workflow enforcement Fraud or Error Case 1004 receiving payment before invoice and credit check with a contradictory shipment status could be a data entry error or intentional manipulation Training Issues Staff might not understand the strict sequence required leading to retroactive logging for example case 1003 late confirmation"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 1 Identify out of order events for example Ship Goods before Validate Stock or Perform Credit Check We can use window functions or comparing timestamps of specific activities Better Find cases where Ship Goods timestamp is earlier than Perform Credit Check or Validate Stock Or generally check the sequence of activities"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait the HAVING clause with MAX might be tricky if some are NULL Let us write a cleaner version using conditional aggregation or CTEs"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is an excellent comprehensive query"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 2 Investigating Suspicious Additional Info"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 3 Role Department Mismatch or Unauthorized Actions Check if the department performing the action matches the expected department"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Query 4 Abnormally Fast Processing Times Potential automated fake entries or errors"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1004 has Register at 0900 and Payment at 0905 5 minutes This query would catch it"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Anomalies detailed 1 Case 1002 Priority Order Bypass Shipment and shipping occur before credit check and stock validation attempted early Y confirms this was intentional but violates the standard flow 2 Case 1003 Missing Validation and Retroactive Logging Goods are shipped before stock validation which is entirely missing and shipment confirmation happens after shipping late confirmation Y 3 Case 1004 Severe Sequence Violation and Contradiction Payment is received 5 minutes after order registration before any credit check stock validation or invoicing Furthermore Confirm Shipment states shipment scheduled N yet Ship Goods occurs 25 minutes later"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Hypotheses SLA Pressure or Policy Overrides Priority orders might have informal workarounds where staff ship first to meet delivery guarantees assuming credit or stock will clear Case 1002 Process Discipline or Training Gaps Staff may be executing tasks physically but logging them in the system retroactively or out of order due to poor training or cumbersome UI Case 1003 System Control Weaknesses The database application does not enforce state transitions for example blocking Ship Goods if Validate Stock is null Potential Fraud or Data Entry Errors Case 1004s 5 minute payment and contradictory shipment status could indicate a test transaction a cashier manually forcing a payment or a system integration bug"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Check if all constraints are met PostgreSQL syntax Yes No hints guidance provided in the prompt for the queries so I am generating them from scratch based on my analysis Clear and well formatted Looks solid Ready to generate the response"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

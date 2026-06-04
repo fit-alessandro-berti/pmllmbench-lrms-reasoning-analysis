@@ -1,0 +1,81 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The problem asks us to write a DuckDB SQL query that returns all events from the event_log table except those belonging to cases that meet a specific condition The condition for exclusion is 1 The case contains a sequence of three activities in direct succession Approve Purchase Requisition Create Order Confirm Order Direct succession means that if we order the events in a case by timestamp these three activities appear consecutively 2 The time elapsed between the Create Order and the Confirm Order event of that sequence is more than 5 days"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "First we need to identify cases that have this specific sequence To do this we can use window functions to look at the previous and next activities for each event ordered by timestamp Or we can use LEAD or LAG window functions"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "For each event we can get the activity the next activity and the next next activity"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Wait a simpler way is to find the Create Order events that have Approve Purchase Requisition as the immediately preceding activity and Confirm Order as the immediately succeeding activity"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We want prev activity Approve Purchase Requisition activity Create Order next activity Confirm Order"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "What if there are multiple events with the same timestamp The prompt says no other event from the same case in between them Ordering by timestamp is standard If timestamps are identical we might need a tie breaker but usually just ordering by timestamp is sufficient for such benchmarks unless a sequence ID is provided Lets assume ordering by timestamp is enough"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We also need to check the time elapsed between Create Order and Confirm Order We can get the timestamp of the Confirm Order event next timestamp lead timestamp over partition by case id order by timestamp So the condition for a Create Order event to be the middle of our target sequence is prev activity Approve Purchase Requisition and activity Create Order and next activity Confirm Order and next timestamp greater than timestamp plus interval 5 day"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "The prompt says more than 5 days So next timestamp greater than timestamp plus interval 5 day is correct"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets construct a CTE that identifies the case ids that meet this exclusion criteria"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "What if the sequence occurs multiple times in the same case The not in will correctly exclude the case The prompt says Identifies any case that contains the following sequence So if a case has it the whole case is excluded"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Is there any ambiguity about direct succession these three events must appear in this exact order with no other event from the same case in between them Yes lag and lead exactly capture no other event in between them"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Lets consider an alternative using match recognize which is available in DuckDB and specifically designed for this"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "But match recognize might be overkill and lag lead is more universally understood and less prone to syntax quirks Lets stick to the lag lead approach as it is robust and standard"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "This is safer against nulls and generally better practice To be absolutely safe we could use not exists"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Could also write datediff day timestamp next timestamp greater than 5 But interval is safer across different timestamp granularities for example if it is 5 days and 1 second datediff in days might be 5 whereas greater than interval 5 day correctly identifies it as greater than 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If next timestamp is exactly 5 days later it should not be excluded greater than handles this"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "If there were another event in between it would be the one returned by lead or lag not the target activity Thus checking prev activity and next activity strictly enforces direct succession with no other events in between"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "What if there are multiple events with the exact same timestamp The prompt does not specify a tie breaker like a sequence id Without a sequence column we can only assume order by timestamp is the intended way to define succession"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This perfectly answers the prompt"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

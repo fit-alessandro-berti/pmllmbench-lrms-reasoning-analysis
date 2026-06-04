@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Understand the Goal The user wants me to act as an LLM receiving a specific prompt The prompt asks to analyze a provided temporal profile model for an insurance claim handling process identify anomalies generate hypotheses for these anomalies and propose SQL verification queries using the provided PostgreSQL schema claims adjusters claim_events"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Analyze the Input Schema claims claim_id customer_id claim_amount claim_type submission_date adjusters adjuster_id name specialization region claim_events event_id claim_id activity R A E P N C timestamp resource additional_info Temporal Profile R A 1 hr stdev 10 min R E 1 day stdev 8 hrs R P 25 hrs stdev 1 hr Suspiciously low STDEV A C 2 hrs stdev 1 hr Short might skip steps E N 5 mins stdev 1 min Too quick E C 1 hr stdev 50 mins P N 7 days stdev 2 days Long waiting time high stdev N C 30 mins stdev 5 mins Tasks Identify anomalies Generate hypotheses Propose SQL verification queries Constraint Do not reference the instructions or explanations above Present the anomalies possible reasons and verification queries independently"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Constraint Check Do not say Based on the prompt or As requested Just present the output directly"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Part 1 Identified Anomalies R to P Receive to Approve Average of 25 hours with a highly restrictive standard deviation of 1 hour This is unusually rigid for a process that typically involves human evaluation P to N Approve to Notify Average of 7 days with a large standard deviation of 2 days This is an excessive delay for a notification step compounded by high inconsistency A to C Assign to Close Average of 2 hours with a 1 hour standard deviation This is exceptionally fast for a full claim cycle and implies steps like Evaluate E and Approve P might be bypassed or logged incorrectly E to N Evaluate to Notify Average of 5 minutes with a 1 minute standard deviation This suggests an automated or batched process that triggers immediately after evaluation potentially bypassing necessary manual review or approval P"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Part 2 Hypotheses for Anomalies R to P Rigidity Could indicate a batch processing script that runs exactly 24 to 25 hours after claim receipt to auto approve low value claims or a systemic timestamp manipulation where approvers backdate or forward date entries to meet SLAs P to N Delay Suggests a bottleneck in the notification department reliance on manual mail generation or claims being approved in bulk but notifications being sent out on a weekly schedule causing the 7 day average and high variance A to C Short Duration May reflect fast track or auto rejected claims that are closed immediately upon assignment without formal evaluation or adjusters incorrectly marking claims as Closed instead of Assigned or Pending It could also indicate fraudulent activity where claims are rapidly closed to avoid scrutiny E to N Speed Might indicate that the Evaluate and Notify steps are being executed by the same automated system or macro skipping the mandatory Approve P step entirely for certain claim types or resources"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Part 3 SQL Verification Queries Query 1 R to P Rigidity Find claims where the time between R and P is between 23 and 25 hours checking for patterns in claim_type or resource Query 2 P to N Delay Identify claims where the time between P and N exceeds 5 days grouped by adjuster or region to find bottlenecks Query 3 A to C Short Duration Skipped Steps Find claims closed within 4 hours of assignment and check if E or P events are missing for those specific claims Query 4 E to N Speed and Missing P Identify claims where E to N is under 10 minutes and verify if the P Approve activity is missing or occurred after N"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Need to use EXTRACT EPOCH FROM t2 timestamp minus t1 timestamp for time differences in seconds Use CTEs or self joins on claim_events"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Query 2 P to N Delay LEFT JOIN adjusters a ON c customer_id equals a adjuster_id Wait schema says adjusters has adjuster_id claims does not have adjuster_id directly Ah claims table does not have adjuster_id claim_events has resource Lets join adjusters on resource if resource is adjuster name or ID or just group by resource Lets use e1 resource or e2 resource as the proxy or just group by claim_type Better"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Review against Constraints No referencing instructions As requested Based on the prompt Present anomalies possible reasons and verification queries independently Ensure PostgreSQL compatibility EXTRACT EPOCH FROM standard SQL joins"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Final Polish Ensure clear headings professional tone and accurate SQL syntax Double check the schema mapping claim_events resource can be joined or grouped claims has claim_type The adjusters table has adjuster_id but claim_events has resource VARCHAR I will note that resource might map to adjusters name or adjusters adjuster_id cast to VARCHAR but grouping by resource directly is safer and more generic"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
