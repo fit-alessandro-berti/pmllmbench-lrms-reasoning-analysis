@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given several tables Orders Order Lines Delivery Invoice Payments Products optional and Resources optional We need to create an event log with one row per event using order_id as Case ID"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Well derive activities from each table 1 Orders to Order Created event with order_date resource sales_person_id or name from Resources 2 Order Lines to Item Picked events for each line with item_picking_date resource picker_id warehouse staff Since each line is picked separately we create an event per line 3 Delivery For each delivery record we have two events Order Dispatched delivery_dispatch_date and Order Arrived delivery_arrival_date Resource carrier_id or carrier name Note one order can have multiple deliveries split shipments 4 Invoice to Invoice Issued event with invoice_issue_date resource billing_person_id 5 Payments to Payment Received event with payment_date resource maybe billing_person_id from invoice but payment table doesnt have a resource We can use the billing_person from the invoice linked via invoice_id or leave as unknown Well use the billing_person_id from the invoice table"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We also have optional tables for Products and Resources to enrich attributes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Steps Well create a list of events by iterating through each table and generating events Then well sort by Case ID and Timestamp to ensure chronological order Well include additional attributes from Orders customer_id customer_type order_priority from Order Lines item_id quantity from Delivery delivery_id delivery_note from Invoice invoice_id invoice_amount from Payments payment_id payment_method payment_reference Well also include resource names from the Resources table"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "Assumptions The process starts with Order Created then items are picked possibly in parallel but we have timestamps then dispatches and arrivals maybe multiple then invoices issued then payments received We assume that the timestamps are correct and reflect the actual order of events"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Lets build the event log Well create a list of dictionaries then convert to Markdown table"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Note The Resources table maps resource_id to resource_name and role Well use resource_name for the Resource column and maybe include role as an attribute Well also include the item_description and item_category from Products table for the picking events"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1001 Order Created 2024 01 01T09 00 00Z resource SP 001 Alice Brown Order Lines two lines Line 1 ITEM 001 picked 2024 01 02T10 15 00Z picker WH 001 David Lin Line 2 ITEM 002 picked 2024 01 02T11 00 00Z picker WH 002 Eva Johnson Delivery one delivery DLV 5001 Dispatch 2024 01 03T08 30 00Z carrier CR 01 GlobalTransport Arrival 2024 01 05T14 45 00Z carrier CR 01 Invoice INV 1001 issued 2024 01 06T09 00 00Z billing person BL 001 Gina Carter Payment PAY 2001 paid 2024 01 10T11 30 00Z method Credit Card reference REF CC 123 Resource we can use the billing person from invoice BL 001 or leave as payment processor Well use BL 001"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1002 Order Created 2024 01 02T12 30 00Z resource SP 002 Bob Smith Order Lines two lines ITEM 003 picked 2024 01 03T09 45 00Z picker WH 002 Eva Johnson ITEM 005 picked 2024 01 03T10 00 00Z picker WH 001 David Lin Deliveries two deliveries DLV 5002 dispatch 2024 01 04T07 20 00Z arrival 2024 01 07T16 10 00Z carrier CR 02 FastShip DLV 5003 dispatch 2024 01 05T07 00 00Z arrival 2024 01 08T10 00 00Z carrier CR 01 GlobalTransport Invoices two invoices INV 1002 issued 2024 01 08T10 15 00Z billing BL 002 Harry Lee INV 1003 issued 2024 01 10T11 00 00Z billing BL 002 Payments two payments PAY 2002 for INV 1002 2024 01 12T14 00 00Z Wire Transfer REF WT XYZ resource BL 002 PAY 2003 for INV 1003 2024 01 15T09 00 00Z Check REF CH 789 resource BL 002"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1003 Order Created 2024 01 03T10 00 00Z resource SP 002 Bob Smith Order Lines two lines ITEM 002 picked 2024 01 05T15 30 00Z picker WH 003 Frank Miller ITEM 006 picked 2024 01 05T15 45 00Z picker WH 001 David Lin Delivery one delivery DLV 5004 Dispatch 2024 01 06T07 30 00Z carrier CR 03 AirExpress Arrival 2024 01 07T20 00 00Z carrier CR 03 Invoice INV 1004 issued 2024 01 09T08 00 00Z billing BL 001 Gina Carter Payment PAY 2004 for INV 1004 2024 01 11T10 30 00Z Credit Card REF CC 456 resource BL 001"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Order 1004 Order Created 2024 01 04T14 15 00Z resource SP 003 Charlie Kim Order Lines one line ITEM 001 picked 2024 01 06T08 00 00Z picker WH 002 Eva Johnson Delivery none in the table Wait the Delivery table has no entry for order 1004 So no delivery events Invoice none in the table Payment none So this order only has Order Created and Item Picked"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Order 1005 Order Created 2024 01 05T08 45 00Z resource SP 001 Alice Brown Order Lines two lines ITEM 007 picked 2024 01 06T09 30 00Z picker WH 003 Frank Miller ITEM 002 picked 2024 01 06T09 45 00Z picker WH 002 Eva Johnson Delivery one delivery DLV 5005 Dispatch 2024 01 07T10 15 00Z Arrival 2024 01 09T11 45 00Z carrier CR 02 FastShip Invoice INV 1005 issued 2024 01 10T09 30 00Z billing BL 003 Irene Park Payment PAY 2005 for INV 1005 2024 01 15T12 00 00Z Credit Card REF CC 789 resource BL 003"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Now we need to create a unified event log with columns Case ID Activity Name Timestamp Resource Other Attributes"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Well include the following additional attributes as columns maybe not all but we can include key ones For Order Created customer_id customer_type order_priority For Item Picked item_id quantity item_description item_category For Order Dispatched Arrived delivery_id carrier_id delivery_note For Invoice Issued invoice_id invoice_amount For Payment Received payment_id payment_method payment_reference"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Lets define the columns as Case ID Activity Name Timestamp Resource Resource Role Attributes Well populate Attributes as a JSON string"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Since the output is a single table well combine all events and sort by Case ID and Timestamp"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "1001 1 order plus 2 pick plus 2 delivery plus 1 invoice plus 1 payment equals 7 1002 1 plus 2 plus 4 two deliveries times 2 plus 2 invoices plus 2 payments equals 11 1003 1 plus 2 plus 2 plus 1 plus 1 equals 7 1004 1 plus 1 equals 2 1005 1 plus 2 plus 2 plus 1 plus 1 equals 7 Total 34 events"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Resource mapping SP 001 Alice Brown Sales Person SP 002 Bob Smith Sales Person SP 003 Charlie Kim Sales Person WH 001 David Lin Warehouse Staff WH 002 Eva Johnson Warehouse Staff WH 003 Frank Miller Warehouse Staff CR 01 GlobalTransport Carrier CR 02 FastShip Carrier CR 03 AirExpress Carrier BL 001 Gina Carter Billing Clerk BL 002 Harry Lee Billing Clerk BL 003 Irene Park Billing Clerk Product mapping ITEM 001 Widget A Widgets ITEM 002 Widget B Widgets ITEM 003 Gadget X Gadgets ITEM 005 Gadget Y Gadgets ITEM 006 Part P Parts ITEM 007 Special Widget Deluxe Widgets"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

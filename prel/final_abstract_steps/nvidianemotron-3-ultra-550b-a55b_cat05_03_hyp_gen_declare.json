@@ -1,0 +1,125 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "We are given a DECLARE model with constraints Let s first understand the constraints"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "init R must be the first activity support 1 0 confidence 1 0"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "existence C must occur exactly once Actually existence constraint means that the activity must occur at least once Here C has support 1 0 confidence 1 0 so every trace must have C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "responded existence E with activities A means that if E occurs then A must occur or vice versa In DECLARE responded existence A B means if A occurs then B must occur Here it s E activities A so if E occurs then A must occur Support 1 0 confidence 1 0"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "precedence C with activities R means that for C to occur R must have occurred before Actually precedence A B means if B occurs then A must have occurred before Here C activities R so if C occurs then R must have occurred before Since R is init that s already satisfied"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "noncoexistence E with activities C means that E and C cannot both occur in the same trace Support 1 0 confidence 1 0"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Now the intended process flow is R A E P N C"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The noncoexistence constraint between E and C says they cannot coexist But in the intended flow both E and C occur Evaluate then Close So this constraint directly contradicts the intended process"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The responded existence constraint says if E occurs then A must occur That s consistent with intended flow A before E However note that the model does not have a constraint that A must be before E precedence or that A must occur if E occurs Actually responded existence only says if E occurs then A must occur at some point not necessarily before"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The model lacks a precedence constraint for A before E"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The model does not have constraints for P and N at all So they are optional But intended flow includes them"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The noncoexistence between E and C is the biggest anomaly it forbids the normal process where a claim is evaluated and then closed"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "In DECLARE noncoexistence A B means A and B cannot both occur in the same trace So if a trace has E it cannot have C and vice versa"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The model says every trace must have C existence and if it has E then it cannot have C Therefore no trace can have E"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Because if a trace has E then it cannot have C but existence requires C So E is effectively forbidden"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We have responded existence that says if E occurs then A must occur Since E cannot occur that constraint is vacuously true"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "So the model essentially forces C and forbids E That means the process is R C without E That contradicts the intended flow"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Misinterpretation The noncoexistence might have been intended to mean that Evaluation and Closing cannot happen at the same time concurrently but in DECLARE noncoexistence means they cannot both appear in the trace at all So maybe they meant not concurrently but used wrong constraint"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Incremental changes Initially the process might not have evaluation then evaluation was added but noncoexistence was not removed"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Technical issues The model was learned from data where evaluation and closing never co occurred because of a bug for example evaluation step was skipped for closed claims So the learned model shows noncoexistence"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "Pressure to handle claims quickly Maybe they want to allow closing without evaluation fast track so they added noncoexistence to allow that But noncoexistence forbids both so if you evaluate you cannot close and if you close you cannot evaluate That would mean you can either evaluate or close not both That does not make sense for fast track"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Alternatively maybe the noncoexistence is between E and C meaning that if a claim is evaluated it cannot be closed That would be weird"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "We need to write queries to check if the anomalies occur in practice That is we need to see if there are traces that violate the intended flow but satisfy the model or traces that satisfy the intended flow but violate the model"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can reconstruct traces per claim id"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We ll write SQL queries to find claims that were closed C without any evaluation E According to the model this is allowed since E is forbidden But intended flow requires E So we can check for claims with C but no E"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Find claims that have both E and C which violates the model s noncoexistence If such claims exist the model is not accurate"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Find claims where E occurs but A does not occur violates responded existence"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Find claims where C occurs but R does not occur before violates precedence"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Find claims that have the full intended sequence R A E P N C in order"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Check if evaluation steps correspond with assigned adjusters that is when activity E occurs the resource should be an adjuster maybe from adjusters table And that adjuster should have been assigned activity A with same adjuster We can join claim_events for A and E"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

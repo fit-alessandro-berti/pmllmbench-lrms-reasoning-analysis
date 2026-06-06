@@ -1,0 +1,41 @@
+[
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "We need to write a DuckDB query that 1 For each case_id get ordered sequence of activities by timestamp 2 Group cases by their complete activity sequence to find unique variants 3 Count cases per variant get top K variants by frequency 4 Return all events from original log for cases belonging to top K variants"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "We can use LIST_AGG to aggregate activities in order or STRING_AGG with a delimiter Since we need to group by sequence we can create a string representation Use LIST_AGG activity ORDER BY timestamp to get a list then convert to string for grouping Or use STRING_AGG activity with ORDER BY timestamp as variant key"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Steps CTE variant_per_case select case_id STRING_AGG activity ORDER BY timestamp as variant from event_log group by case_id CTE variant_counts select variant count as case_count from variant_per_case group by variant CTE top_k_variants select variant from variant_counts order by case_count desc limit K Final select from event_log joined to top_k_variants"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "But that would recompute per row Better join via variant_per_case"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Better WITH variant_per_case AS SELECT case_id STRING_AGG activity ORDER BY timestamp AS variant FROM event_log GROUP BY case_id variant_counts AS SELECT variant COUNT as case_count FROM variant_per_case GROUP BY variant top_k_variants AS SELECT variant FROM variant_counts ORDER BY case_count DESC LIMIT 10 SELECT e all columns FROM event_log e JOIN variant_per_case vpc ON e case_id equals vpc case_id JOIN top_k_variants tkv ON vpc variant equals tkv variant"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This returns all events for cases in top K variants"
+  },
+  {
+    "Name": "Abductive Reasoning - IND",
+    "Text": "We need to ensure ordering The final result does not require ordering but we can keep original order"
+  },
+  {
+    "Name": "Hypothesis Generation - IND",
+    "Text": "We will write the query with a parameter for K using a DuckDB parameter like k or question mark"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "There might be multiple events with same timestamp The order is determined by timestamp if ties maybe we need a tie breaker But not specified"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
