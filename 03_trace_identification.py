@@ -22,12 +22,14 @@ DEFAULT_QUESTIONS_FOLDER = DEFAULT_PM_BENCHMARK_ROOT / "questions"
 DEFAULT_INPUT_FOLDER = DEFAULT_PM_BENCHMARK_ROOT / "answers"
 DEFAULT_PREL_FOLDER = Path("prel") / "final_abstract_steps"
 DEFAULT_PATTERNS_FILE = Path("lrms_list.txt")
+DEFAULT_BLACKLIST_FILE = Path("blacklist.txt")
 DEFAULT_API_KEY_PATH = Path("../api_openai.txt")
 
 ALLOWED_CATEGORIES = ("cat01", "cat02", "cat03", "cat04", "cat05", "cat06")
 REQUEST_MODEL = "gpt-5.4"
 API_URL = "https://api.openai.com/v1/"
 MAX_WORKERS = 25
+MAX_ATTEMPTS = 4
 SCAN_INTERVAL_SECONDS = 60
 MANUAL_MODE = False
 
@@ -40,6 +42,7 @@ class ProcessingConfig:
     api_key_path: Path = DEFAULT_API_KEY_PATH
     allowed_categories: Sequence[str] = ALLOWED_CATEGORIES
     max_workers: int = MAX_WORKERS
+    max_attempts: int = MAX_ATTEMPTS
     request_model: str = REQUEST_MODEL
     api_url: str = API_URL
     manual_mode: bool = MANUAL_MODE
@@ -177,6 +180,13 @@ def load_patterns(patterns_file: Union[str, Path]) -> Tuple[str, ...]:
         return tuple(line.strip() for line in f if line.strip())
 
 
+def load_optional_patterns(patterns_file: Union[str, Path]) -> Tuple[str, ...]:
+    path = Path(patterns_file)
+    if not path.exists():
+        return tuple()
+    return load_patterns(path)
+
+
 def normalize_patterns(patterns: PatternInput) -> Tuple[str, ...]:
     if isinstance(patterns, str):
         return (patterns,)
@@ -205,9 +215,13 @@ def question_filename_for(answer_filename: str) -> str:
     return "cat" + answer_filename.split("_cat", 1)[1]
 
 
+def model_name_from_filename(filename: str) -> str:
+    return filename.split("_cat", 1)[0]
+
+
 def matching_model_pattern(filename: str, patterns: Sequence[str]) -> Optional[str]:
     for pattern in patterns:
-        if filename.startswith(pattern):
+        if filename.startswith(f"{pattern}_"):
             return pattern
     return None
 
@@ -217,11 +231,19 @@ def is_allowed_category(filename: str, allowed_categories: Sequence[str]) -> boo
     return any(category in lower_filename for category in allowed_categories)
 
 
-def discover_pending_jobs(config: ProcessingConfig, patterns: Sequence[str]) -> Tuple[TraceJob, ...]:
+def discover_pending_jobs(
+    config: ProcessingConfig,
+    patterns: Sequence[str],
+    blacklist: Sequence[str] = tuple(),
+) -> Tuple[TraceJob, ...]:
+    blacklisted_models = set(blacklist)
     jobs = []
     for input_path in sorted(config.input_folder.iterdir(), key=lambda path: path.name):
         filename = input_path.name
         if not input_path.is_file() or input_path.suffix != ".txt":
+            continue
+
+        if model_name_from_filename(filename) in blacklisted_models:
             continue
 
         model_pattern = matching_model_pattern(filename, patterns)
@@ -312,8 +334,12 @@ def write_final_json(job: TraceJob, contents: object) -> None:
         pass
 
 
+def write_empty_final_json(job: TraceJob) -> None:
+    write_final_json(job, [])
+
+
 def process_file_task(job: TraceJob, schema: dict, api_key: str, config: ProcessingConfig) -> None:
-    while True:
+    for attempt in range(1, config.max_attempts + 1):
         try:
             if job.final_output_path.exists():
                 print(f"Skipping '{job.filename}' because '{job.final_output_path}' already exists.")
@@ -341,7 +367,19 @@ def process_file_task(job: TraceJob, schema: dict, api_key: str, config: Process
 
         except Exception:
             traceback.print_exc()
-            print(f"Validation or file reading/writing failed for '{job.filename}'. Retrying...")
+            if attempt >= config.max_attempts:
+                write_empty_final_json(job)
+                print(
+                    f"Validation or file reading/writing failed for '{job.filename}' "
+                    f"after {config.max_attempts} attempt(s). "
+                    f"Empty JSON saved as '{job.final_output_path}'."
+                )
+                return
+
+            print(
+                f"Validation or file reading/writing failed for '{job.filename}'. "
+                f"Retrying ({attempt + 1}/{config.max_attempts})..."
+            )
             time.sleep(2)
 
 
@@ -353,13 +391,18 @@ def summarize_models(jobs: Iterable[TraceJob]) -> str:
     return ", ".join(f"{model}: {count}" for model, count in sorted(counts.items()))
 
 
-def process_pending_files(config: ProcessingConfig, patterns: Sequence[str]) -> int:
+def process_pending_files(
+    config: ProcessingConfig,
+    patterns: Sequence[str],
+    blacklist: Sequence[str] = tuple(),
+) -> int:
     if not patterns:
         print("No model patterns configured.")
         return 0
 
     config.prel_folder.mkdir(parents=True, exist_ok=True)
-    jobs = interleave_jobs_by_model(discover_pending_jobs(config, patterns))
+    active_patterns = tuple(pattern for pattern in patterns if pattern not in set(blacklist))
+    jobs = interleave_jobs_by_model(discover_pending_jobs(config, active_patterns, blacklist))
     if not jobs:
         print("No pending matching files found.")
         return 0
@@ -388,32 +431,39 @@ def main(
     patterns: PatternInput,
     prel_folder: Union[str, Path],
     questions_folder: Union[str, Path],
+    blacklist: PatternInput = tuple(),
 ) -> int:
     config = ProcessingConfig(
         input_folder=Path(input_folder),
         prel_folder=Path(prel_folder),
         questions_folder=Path(questions_folder),
     )
-    return process_pending_files(config, normalize_patterns(patterns))
+    return process_pending_files(config, normalize_patterns(patterns), normalize_patterns(blacklist))
 
 
 def run_loop(
     config: ProcessingConfig,
     patterns_file: Union[str, Path],
     *,
+    blacklist_file: Union[str, Path] = DEFAULT_BLACKLIST_FILE,
     exit_on_no_changes: bool = False,
 ) -> None:
     while True:
         patterns = load_patterns(patterns_file)
-        processed_count = process_pending_files(config, patterns)
+        blacklist = load_optional_patterns(blacklist_file)
+        processed_count = process_pending_files(config, patterns, blacklist)
         if processed_count == 0 and exit_on_no_changes:
             print("No pending matching files found, exiting.")
             return
         time.sleep(SCAN_INTERVAL_SECONDS)
 
 
-def run_forever(config: ProcessingConfig, patterns_file: Union[str, Path]) -> None:
-    run_loop(config, patterns_file, exit_on_no_changes=False)
+def run_forever(
+    config: ProcessingConfig,
+    patterns_file: Union[str, Path],
+    blacklist_file: Union[str, Path] = DEFAULT_BLACKLIST_FILE,
+) -> None:
+    run_loop(config, patterns_file, blacklist_file=blacklist_file, exit_on_no_changes=False)
 
 
 if __name__ == "__main__":
@@ -424,11 +474,29 @@ if __name__ == "__main__":
         default=False,
         help="Exit instead of waiting for the next scan when no pending files are found.",
     )
+    parser.add_argument(
+        "--blacklist-file",
+        default=DEFAULT_BLACKLIST_FILE,
+        type=Path,
+        help="Optional file containing model names to exclude even when present in lrms_list.txt.",
+    )
+    parser.add_argument(
+        "--max-attempts",
+        default=MAX_ATTEMPTS,
+        type=int,
+        help="Maximum attempts per file before writing an empty JSON array.",
+    )
     args = parser.parse_args()
 
     default_config = ProcessingConfig(
         input_folder=DEFAULT_INPUT_FOLDER,
         prel_folder=DEFAULT_PREL_FOLDER,
         questions_folder=DEFAULT_QUESTIONS_FOLDER,
+        max_attempts=args.max_attempts,
     )
-    run_loop(default_config, DEFAULT_PATTERNS_FILE, exit_on_no_changes=args.exit_on_no_changes)
+    run_loop(
+        default_config,
+        DEFAULT_PATTERNS_FILE,
+        blacklist_file=args.blacklist_file,
+        exit_on_no_changes=args.exit_on_no_changes,
+    )
