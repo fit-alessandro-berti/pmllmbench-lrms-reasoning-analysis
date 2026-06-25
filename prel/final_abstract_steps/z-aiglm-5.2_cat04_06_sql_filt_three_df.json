@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The user wants a DuckDB SQL query Table event_log Columns case_id activity timestamp datetime"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goal 1 Identify cases containing the sequence in direct succession Approve Purchase Requisition Create Order Confirm Order These three events must appear exactly in this order with no other event from the same case in between them"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Wait no other event from the same case in between them means they are consecutive events for that case based on timestamp Or it means consecutive rows when ordered by timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "We can use LAG and LEAD window functions partitioned by case_id ordered by timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets find the cases that have this sequence"
+  },
+  {
+    "Name": "Validation - IND",
+    "Text": "Wait if the elapsed time between Create Order and Confirm Order is more than 5 days it should be excluded If its exactly 5 days is it more than 5 days No strictly greater"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "In DuckDB epoch next_timestamp minus epoch timestamp greater than 5 times 24 times 60 times 60 or date_diff day timestamp next_timestamp greater than 5 Wait date_diff day timestamp next_timestamp returns the difference in full days or does it truncate Its safer to use next_timestamp minus timestamp greater than INTERVAL 5 DAY"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "DuckDB supports next_timestamp minus timestamp greater than INTERVAL 5 days"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets double check the no other event from the same case in between them part Using LAG and LEAD partitioned by case_id ordered by timestamp ensures that we look at the immediately preceding and immediately succeeding events for that case"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "What if there are simultaneous events Usually timestamp ordering might have ties but standard process mining assumes distinct timestamps or uses an event id Well just order by timestamp"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Lets refine the query"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Lets review the prompt no other event from the same case in between them This means they are consecutive time elapsed between Create Order and Confirm Order more than 5 days next_timestamp minus timestamp greater than INTERVAL 5 days exclude them from your final result WHERE case_id NOT IN SELECT case_id FROM CasesToExclude final query should return all events from event_log except those that belong to cases matching both"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "Is there any edge case What if event_log doesnt have a primary key The query returns all columns from event_log which fits the prompt"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Wait DuckDBs INTERVAL 5 days works Or INTERVAL 5 DAY Lets use INTERVAL 5 days Also is date_diff better next_timestamp minus timestamp greater than INTERVAL 5 days works perfectly in DuckDB"
+  },
+  {
+    "Name": "Counterfactual Reasoning - IND",
+    "Text": "What if we want to handle ties in timestamp The prompt does not specify Standard ORDER BY timestamp is sufficient"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This is valid DuckDB SQL The prompt asks to return all events from event_log except those that belong to cases matching both The NOT IN clause works well NOT EXISTS is also a good option NOT IN is very readable"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Lets quickly check the wording no other event from the same case in between them Yes LAG and LEAD exactly capture the immediately preceding and succeeding events for that case"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]
