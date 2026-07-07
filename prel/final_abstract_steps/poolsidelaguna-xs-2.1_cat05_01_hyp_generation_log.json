@@ -1,0 +1,137 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "First I need to understand the normal process flow as given The steps are Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice and Receive Payment Any deviation from this sequence might be an anomaly"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Looking at the example data lets check each case Case 1001 seems normal All steps are in order"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "But case 1002 has some issues The Credit Check comes after Confirm Shipment and Ship Goods Thats out of order Normally you should do Credit Check before shipping So thats an anomaly Also Validate Stock is after Ship Goods which is wrong The process should Validate Stock before shipping"
+  },
+  {
+    "Name": "Backtracking - PE",
+    "Text": "Case 1003 has Ship Goods before Confirm Shipment Wait no Wait in the data case 1003s Ship Goods is at 0910 then Confirm Shipment at 0945"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "But according to the normal flow Confirm Shipment should come before Ship Goods So thats another anomaly So the sequence is reversed here"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1004 is even worse They received payment before even shipping The order of events is Register Order then Receive Payment then Issue Invoice That doesnt make sense Normally you have to ship then invoice then receive payment So this is a major anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now possible reasons For case 1002 maybe missing steps Maybe the system didnt log the Credit Check and Validate Stock properly Or maybe the user skipped those steps Or maybe theres a system error where the Credit Check wasnt triggered"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For case 1003 maybe the Confirm Shipment was done manually after shipping Or perhaps theres a data entry error in the timestamp"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "For case 1004 its possible that the payment was received without the order being processed through the normal steps Maybe a data entry mistake or a system glitch"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Now how to write SQL queries to find these First I need to check the order of events in each case For each case_id we need to see the order of activities So for example for each case check if the Credit Check comes before Ship Goods Or if Validate Stock comes before Ship Goods"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "So a query could be to find cases where any of the required steps are out of order For example for Credit Check and Ship Goods"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "But to find all cases where Credit Check comes after Ship Goods we can use a subquery or window function Maybe using lead or lag to compare consecutive activities"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively for each case check if the timestamp of Perform Credit Check is after Ship Goods Similarly for other steps"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Another approach is to check for each case the sequence of activities and see if they follow the normal order For example ensuring that Register Order is first then Credit Check etc"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Also check if any steps are missing For example if a case doesnt have Validate Stock or Confirm Shipment at all"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Additionally in case 1004 the Receive Payment is way too early So checking if the Receive Payment happens before Ship Goods or before the Invoice"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Possible SQL queries Find cases where Credit Check is done after Ship Goods Find cases where Validate Stock is done after Ship Goods Find cases where Confirm Shipment is done after Ship Goods Find cases where Receive Payment is before Ship Goods Check for missing activities in a case like missing Credit Check or Validate Stock"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "For example using window functions to track the order Select case_id activity timestamp Row Number Over Partition By case_id Order By timestamp as step_order From order_event_log"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Then for each case check if the step_order aligns with the expected sequence For example Register Order should be step 1 Credit Check step 2 etc If a case has step_order that doesnt follow this its an anomaly"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively using a self join to compare timestamps between different activities For example to check if Credit Check is after Ship Goods"
+  },
+  {
+    "Name": "Validation - NE",
+    "Text": "This would find cases where Credit Check is after Ship Goods which is an anomaly"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "Similarly for other steps Also checking for missing steps"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "But maybe some activities are optional The problem says to assume the normal process flow so all steps should be present So cases missing any of the steps would be anomalies"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Another query could check if Ship Goods happens before Confirm Shipment Using a similar self join"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "That would find cases where Confirm Shipment is after Ship Goods which is wrong"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Also check if Receive Payment is before Ship Goods"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "This would show cases where payment was received before shipping"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Additionally check for Receive Payment before Invoice"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "These queries would help identify the anomalies Also checking for the order of activities in a case by using the step_order as mentioned earlier"
+  },
+  {
+    "Name": "Heuristic Reasoning - NE",
+    "Text": "Another approach is to use a CTE with window functions to get the order of activities per case then check if the order matches the expected sequence"
+  },
+  {
+    "Name": "Deductive Reasoning - IND",
+    "Text": "This would check if the step orders are out of the expected sequence For example credit_order step order for Credit Check should be before ship_order Ship Goods If credit_order is after ship_order thats an issue"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Alternatively using the expected sequence numbers Assign each activity an order number Register Order 1 Credit Check 2 etc then check if the actual step_order matches the expected order"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Another thing to check is if some steps are skipped For example in case 1004 they might have skipped several steps So checking for missing activities in the case So combining all these queries would help identify the anomalies"
+  },
+  {
+    "Name": "Conclusion - PC"
+  }
+]
