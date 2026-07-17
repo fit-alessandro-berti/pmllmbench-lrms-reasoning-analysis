@@ -1,5 +1,6 @@
 import os
 import json
+from file_utils import read_file_with_fallback
 
 
 def count_evaluations(directory):
@@ -12,15 +13,14 @@ def count_evaluations(directory):
         if filename.endswith(".json"):
             file_path = os.path.join(directory, filename)
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    evaluation_list = json.load(f)
-                    # Each file contains a JSON list of evaluations (each element is "Y", "P", or "N")
-                    for evaluation in evaluation_list:
-                        if evaluation in counts:
-                            counts[evaluation] += 1
-                            total_steps += 1
-                        else:
-                            print(f"Unexpected value '{evaluation}' in file {filename}")
+                evaluation_list = json.loads(read_file_with_fallback(file_path))
+                # Each file contains a JSON list of evaluations (each element is "Y", "P", or "N")
+                for evaluation in evaluation_list:
+                    if evaluation in counts:
+                        counts[evaluation] += 1
+                        total_steps += 1
+                    else:
+                        print(f"Unexpected value '{evaluation}' in file {filename}")
             except Exception as e:
                 print(f"Error reading {filename}: {e}")
 

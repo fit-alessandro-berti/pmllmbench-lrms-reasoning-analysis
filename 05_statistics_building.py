@@ -3,6 +3,7 @@ import os
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from file_utils import read_file_with_fallback
 
 
 FOLDER = Path("prel/final_abstract_steps")
@@ -90,8 +91,7 @@ def load_file_stats(path):
     file_stats = new_model_stats()
     model = path.name.split("_cat", 1)[0]
 
-    with path.open("r", encoding="utf-8") as fp:
-        steps = json.load(fp)
+    steps = json.loads(read_file_with_fallback(path))
 
     if not steps:
         return model, file_stats

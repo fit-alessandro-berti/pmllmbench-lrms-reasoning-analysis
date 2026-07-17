@@ -3,6 +3,7 @@ import json
 import pm4py
 from pm4py.objects.log.obj import EventLog, Trace, Event
 from datetime import datetime
+from file_utils import read_file_with_fallback
 
 folder = "prel/final_abstract_steps"
 
@@ -13,7 +14,7 @@ log = EventLog()
 timer = 100000
 
 for file in results:
-    res = json.load(open(os.path.join(folder, file), "r", encoding="utf-8"))
+    res = json.loads(read_file_with_fallback(os.path.join(folder, file)))
 
     trace = Trace()
     trace.attributes["model"] = file.split("_cat")[0]

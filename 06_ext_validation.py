@@ -5,6 +5,7 @@ import traceback
 import time
 import pm4py  # assumes pm4py.llm.google_query is available
 from concurrent.futures import ThreadPoolExecutor
+from file_utils import read_file_with_fallback
 
 
 DEFAULT_API_KEY_PATH = "../api_grok.txt"
@@ -12,8 +13,7 @@ DEFAULT_API_KEY_ENV_VAR = "GROK_API_KEY"
 
 
 def read_json_file(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    return json.loads(read_file_with_fallback(file_path))
 
 
 def read_api_key(
@@ -24,8 +24,7 @@ def read_api_key(
     if api_key:
         return api_key
 
-    with open(api_key_path, "r", encoding="utf-8") as f:
-        return f.read().strip()
+    return read_file_with_fallback(api_key_path).strip()
 
 
 def extract_json_from_response(response_str):

@@ -4,6 +4,7 @@ import re
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from file_utils import read_file_with_fallback
 
 
 FOLDER = Path("prel/final_abstract_steps")
@@ -103,8 +104,7 @@ def read_category_file(path):
         return None
 
     try:
-        with path.open("r", encoding="utf-8") as fp:
-            steps = json.load(fp)
+        steps = json.loads(read_file_with_fallback(path))
     except (json.JSONDecodeError, OSError):
         return None
 

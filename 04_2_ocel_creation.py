@@ -4,6 +4,7 @@ from pm4py.objects.ocel.obj import OCEL
 from datetime import datetime
 import pandas as pd
 import pm4py
+from file_utils import read_file_with_fallback
 
 folder = "prel/final_abstract_steps"
 
@@ -18,7 +19,7 @@ relations = []
 obj_ids = set()
 
 for file in results:
-    res = json.load(open(os.path.join(folder, file), "r", encoding="utf-8"))
+    res = json.loads(read_file_with_fallback(os.path.join(folder, file)))
 
     model = "MOD_" + file.split("_cat")[0]
     question = "QUE_" + file.split("_cat")[1].split(".")[0]

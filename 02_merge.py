@@ -1,5 +1,6 @@
 import os
 import pyperclip
+from file_utils import read_file_with_fallback
 
 
 def merge_txt_files(folder_path, delimiter="\n\n---\n\n"):
@@ -11,12 +12,7 @@ def merge_txt_files(folder_path, delimiter="\n\n---\n\n"):
         # Process only .txt files
         if filename.endswith(".txt"):
             input_path = os.path.join(folder_path, filename)
-            try:
-                with open(input_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-            except:
-                with open(input_path, "r") as f:
-                    content = f.read()
+            content = read_file_with_fallback(input_path)
 
             # Append file content to the final content with the delimiter
             final_content += content + delimiter

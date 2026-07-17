@@ -2,6 +2,7 @@ import os
 import json
 import math
 from collections import Counter
+from file_utils import read_file_with_fallback
 
 
 def parse_step(step):
@@ -67,8 +68,7 @@ def analyze_transitions(directory, model):
         if filename.endswith(".json") and filename.startswith(model):
             filepath = os.path.join(directory, filename)
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+                data = json.loads(read_file_with_fallback(filepath))
             except Exception as e:
                 print(f"Error reading {filename}: {e}")
                 continue

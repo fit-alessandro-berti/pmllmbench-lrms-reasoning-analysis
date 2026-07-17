@@ -15,6 +15,7 @@ from typing import Iterable, Optional, Sequence, Tuple, Union
 import pm4py
 import pyperclip
 from jsonschema import ValidationError, validate
+from file_utils import read_file_with_fallback
 
 
 REPO_ROOT = Path(__file__).resolve().parent
@@ -65,13 +66,7 @@ PatternInput = Union[str, Sequence[str]]
 
 
 def read_file_contents(input_path: Union[str, Path]) -> str:
-    path = Path(input_path)
-    try:
-        content = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        content = path.read_text()
-
-    return extract_thought_content(content)
+    return extract_thought_content(read_file_with_fallback(input_path))
 
 
 def extract_thought_content(content: str) -> str:
@@ -179,8 +174,7 @@ def build_schema() -> dict:
 
 
 def load_patterns(patterns_file: Union[str, Path]) -> Tuple[str, ...]:
-    with Path(patterns_file).open("r", encoding="utf-8") as f:
-        return tuple(line.strip() for line in f if line.strip())
+    return tuple(line.strip() for line in read_file_with_fallback(patterns_file).splitlines() if line.strip())
 
 
 def load_optional_patterns(patterns_file: Union[str, Path]) -> Tuple[str, ...]:
@@ -204,7 +198,7 @@ def read_api_key(
     if api_key:
         return api_key
 
-    return Path(api_key_path).read_text(encoding="utf-8").strip()
+    return read_file_with_fallback(api_key_path).strip()
 
 
 def build_prompt(question: str, reasoning_trace: str) -> str:

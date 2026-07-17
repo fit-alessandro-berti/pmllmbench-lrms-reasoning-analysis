@@ -2,6 +2,7 @@ import os
 import sys
 import pyperclip
 import subprocess
+from file_utils import read_file_with_fallback
 
 def main(input_folder, pattern, prel_folder):
     """
@@ -25,14 +26,7 @@ def main(input_folder, pattern, prel_folder):
     for filename in txt_files:
         input_path = os.path.join(input_folder, filename)
 
-        try:
-            f = open(input_path, "r", encoding="utf-8")
-            content = f.read()
-            f.close()
-        except:
-            f = open(input_path, "r")
-            content = f.read()
-            f.close()
+        content = read_file_with_fallback(input_path)
         # Read input file content
 
         content = content.split("<think>")[-1].split("</think>")[0]
