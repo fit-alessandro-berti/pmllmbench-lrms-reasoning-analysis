@@ -21,6 +21,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Execute pmllmbench-lrms-reasoning-analysis without model-specific arguments."
     )
+    parser.add_argument(
+        "--disable-git-clean",
+        action="store_true",
+        help="Skip git clean during repository preflight. Disabled by default.",
+    )
     parser.add_argument("--python", default=sys.executable, help="Python executable for subprocess phases.")
     parser.add_argument("--dry-run", action="store_true", help="Print actions without executing them.")
     return parser
@@ -33,15 +38,17 @@ def run_subprocess(command: list[str], cwd: Path, dry_run: bool) -> None:
     subprocess.run(command, cwd=str(cwd), check=True)
 
 
-def sync_repository(dry_run: bool) -> None:
+def sync_repository(dry_run: bool, disable_git_clean: bool = False) -> None:
     if not (REPO_ROOT / ".git").exists():
         return
 
-    for command in (
-        ["git", "reset", "--hard", "HEAD"],
-        ["git", "clean", "-x", "-f"],
-        ["git", "pull"],
-    ):
+    git_commands = [["git", "reset", "--hard", "HEAD"]]
+    if disable_git_clean:
+        print("# git clean disabled")
+    else:
+        git_commands.append(["git", "clean", "-x", "-f"])
+    git_commands.append(["git", "pull"])
+    for command in git_commands:
         run_subprocess(command, cwd=REPO_ROOT, dry_run=dry_run)
 
 
@@ -95,7 +102,7 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    sync_repository(args.dry_run)
+    sync_repository(args.dry_run, args.disable_git_clean)
     refresh_lrm_patterns(args.python, args.dry_run)
     execute_pipeline(args.python, args.dry_run)
     publish_results(args.dry_run)
