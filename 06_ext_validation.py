@@ -7,9 +7,25 @@ import pm4py  # assumes pm4py.llm.google_query is available
 from concurrent.futures import ThreadPoolExecutor
 
 
+DEFAULT_API_KEY_PATH = "../api_grok.txt"
+DEFAULT_API_KEY_ENV_VAR = "GROK_API_KEY"
+
+
 def read_json_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def read_api_key(
+    api_key_path=DEFAULT_API_KEY_PATH,
+    api_key_env_var=DEFAULT_API_KEY_ENV_VAR,
+):
+    api_key = os.environ.get(api_key_env_var, "").strip()
+    if api_key:
+        return api_key
+
+    with open(api_key_path, "r", encoding="utf-8") as f:
+        return f.read().strip()
 
 
 def extract_json_from_response(response_str):
@@ -102,9 +118,7 @@ def main(input_folder, output_folder):
         return 0
 
     # Read API key only when there is work to submit.
-    api_key_path = "../api_grok.txt"
-    with open(api_key_path, "r") as f:
-        api_key = f.read().strip()
+    api_key = read_api_key()
 
     with ThreadPoolExecutor(max_workers=150) as executor:
         futures = []

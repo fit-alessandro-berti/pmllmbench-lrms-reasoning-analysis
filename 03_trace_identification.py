@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import time
 import traceback
@@ -24,6 +25,7 @@ DEFAULT_PREL_FOLDER = Path("prel") / "final_abstract_steps"
 DEFAULT_PATTERNS_FILE = Path("lrms_list.txt")
 DEFAULT_BLACKLIST_FILE = Path("blacklist.txt")
 DEFAULT_API_KEY_PATH = Path("../api_openai.txt")
+DEFAULT_API_KEY_ENV_VAR = "OPENAI_API_KEY"
 
 ALLOWED_CATEGORIES = ("cat01", "cat02", "cat03", "cat04", "cat05", "cat06")
 REQUEST_MODEL = "gpt-5.4"
@@ -40,6 +42,7 @@ class ProcessingConfig:
     prel_folder: Path
     questions_folder: Path
     api_key_path: Path = DEFAULT_API_KEY_PATH
+    api_key_env_var: str = DEFAULT_API_KEY_ENV_VAR
     allowed_categories: Sequence[str] = ALLOWED_CATEGORIES
     max_workers: int = MAX_WORKERS
     max_attempts: int = MAX_ATTEMPTS
@@ -193,7 +196,14 @@ def normalize_patterns(patterns: PatternInput) -> Tuple[str, ...]:
     return tuple(pattern for pattern in patterns if pattern)
 
 
-def read_api_key(api_key_path: Union[str, Path]) -> str:
+def read_api_key(
+    api_key_path: Union[str, Path],
+    api_key_env_var: str = DEFAULT_API_KEY_ENV_VAR,
+) -> str:
+    api_key = os.environ.get(api_key_env_var, "").strip()
+    if api_key:
+        return api_key
+
     return Path(api_key_path).read_text(encoding="utf-8").strip()
 
 
@@ -408,7 +418,11 @@ def process_pending_files(
         return 0
 
     schema = build_schema()
-    api_key = "" if config.manual_mode else read_api_key(config.api_key_path)
+    api_key = (
+        ""
+        if config.manual_mode
+        else read_api_key(config.api_key_path, config.api_key_env_var)
+    )
 
     print(f"Submitting {len(jobs)} files across {len(set(job.model_pattern for job in jobs))} model(s).")
     print(f"Pending by model: {summarize_models(jobs)}")
