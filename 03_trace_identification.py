@@ -3,7 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
+import shutil
 import subprocess
+import sys
 import time
 import traceback
 from collections import deque
@@ -306,8 +309,32 @@ def write_manual_request(prompt: str, job: TraceJob) -> None:
     print(f"Copied content of '{job.filename}' to clipboard with a prepended request.")
 
     job.temp_output_path.write_text("", encoding="utf-8")
-    print(f"Opening '{job.temp_output_path}' in Notepad. Please edit, save, and close.")
-    subprocess.call(["notepad", str(job.temp_output_path)])
+    print(f"Opening '{job.temp_output_path}' in a text editor. Please edit, save, and close.")
+    open_text_editor(job.temp_output_path)
+
+
+def open_text_editor(file_path: Union[str, Path]) -> None:
+    configured_editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
+    if configured_editor:
+        subprocess.run(shlex.split(configured_editor) + [str(file_path)])
+        return
+
+    if sys.platform.startswith("linux"):
+        editor_candidates = ["mousepad", "xdg-open"]
+    elif os.name == "nt":
+        editor_candidates = ["notepad++.exe", "notepad.exe"]
+    else:
+        editor_candidates = ["open"]
+
+    for editor in editor_candidates:
+        if shutil.which(editor):
+            subprocess.run([editor, str(file_path)])
+            return
+
+    raise RuntimeError(
+        "No supported text editor found. Install mousepad on Linux, "
+        "Notepad++/Notepad on Windows, or set VISUAL/EDITOR."
+    )
 
 
 def extract_json_from_response(raw_response: str) -> str:

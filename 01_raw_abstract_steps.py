@@ -1,15 +1,41 @@
 import os
-import sys
 import pyperclip
+import shlex
+import shutil
 import subprocess
+import sys
 from file_utils import read_file_with_fallback
+
+
+def open_text_editor(file_path):
+    configured_editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
+    if configured_editor:
+        subprocess.run(shlex.split(configured_editor) + [file_path])
+        return
+
+    if sys.platform.startswith("linux"):
+        editor_candidates = ["mousepad", "xdg-open"]
+    elif os.name == "nt":
+        editor_candidates = ["notepad++.exe", "notepad.exe"]
+    else:
+        editor_candidates = ["open"]
+
+    for editor in editor_candidates:
+        if shutil.which(editor):
+            subprocess.run([editor, file_path])
+            return
+
+    raise RuntimeError(
+        "No supported text editor found. Install mousepad on Linux, "
+        "Notepad++/Notepad on Windows, or set VISUAL/EDITOR."
+    )
 
 def main(input_folder, pattern, prel_folder):
     """
     For every .txt file in `input_folder` that starts with `pattern`,
     copy "Analyze this content" + file content into the clipboard.
     Then open the corresponding file in `prel_folder` (same filename)
-    in Notepad, and wait for the user to edit/save/close before moving on.
+    in a text editor, and wait for the user to edit/save/close before moving on.
     """
     # Ensure the prel_folder exists (create it if it doesn't)
     if not os.path.exists(prel_folder):
@@ -46,9 +72,9 @@ def main(input_folder, pattern, prel_folder):
             with open(prel_path, "w", encoding="utf-8") as f:
                 f.write("")  # create empty file
 
-            # Open in Notepad (blocking call until user closes)
-            print(f"Opening '{prel_path}' in Notepad. Please edit, save, and close.")
-            subprocess.call(["notepad", prel_path])
+            # Open in a text editor (blocking call until user closes)
+            print(f"Opening '{prel_path}' in a text editor. Please edit, save, and close.")
+            open_text_editor(prel_path)
 
         print(f"Finished processing '{filename}'. Moving on...\n")
 
