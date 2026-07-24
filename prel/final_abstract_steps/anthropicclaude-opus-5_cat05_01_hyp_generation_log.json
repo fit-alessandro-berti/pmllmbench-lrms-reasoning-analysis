@@ -1,0 +1,177 @@
+[
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "The normative sequence is Register Order Perform Credit Check Validate Stock Confirm Shipment Ship Goods Issue Invoice Receive Payment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This ordering encodes control objectives not just convenience Credit Check before fulfillment protects against non payment Validate Stock before Confirm Shipment prevents promising unavailable goods Invoice before Payment guarantees a documented reconcilable receivable"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1001 Register Credit Stock Confirm Ship Invoice Payment Conformant happy path"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1002 Register Confirm Ship Credit Stock Invoice Payment Severe fulfillment before financial inventory control"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1003 Register Credit Ship Invoice Confirm Payment Severe missing Validate Stock shipment confirmed after goods left"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Case 1004 Register Payment Invoice Confirm Ship Severe missing Credit Check and Validate Stock payment before invoice no Receive Payment closure after shipment"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Goods shipped at 0840 credit check completed 0910 30 minutes after the truck left The credit score returned was 650 the lowest in the log This is the textbook definition of an ineffective control the check occurred but too late to influence the decision it was designed to govern Note the order is priority type suggesting expedite pressure may be the driver"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Goods were shipped with no recorded stock verification Either the activity happened outside the system invisible work or shipment proceeded on unverified availability risking partial shipments backorders and downstream credit notes"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "The highest value order in the log 300000 received no credit assessment Value based risk exposure is inversely correlated with control application here the opposite of what a risk based policy would produce"
+  },
+  {
+    "Name": "Pattern Recognition - PE",
+    "Text": "Case 1003 Confirm Shipment logged at 0945 35 minutes after Ship Goods at 0910 the additional_info literally records late_confirmation Y the system captured its own violation Case 1004 shipment_scheduled N yet Ship Goods executed 25 minutes later A negative confirmation did not block fulfillment"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "This is the most diagnostically interesting pattern the control activity is being executed retroactively to satisfy a completeness check not prospectively to make a decision"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "Payment recorded 0905 invoice issued 0920 Cash arrived against no receivable Likely prepayment deposit being mis mapped to the Receive Payment activity but if genuine it creates an unapplied cash reconciliation problem"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Trace ends at Ship Goods Whether the 300000 at event 22 was full settlement or a deposit is unknowable from the log an open exposure of up to 300000 with no credit check behind it"
+  },
+  {
+    "Name": "Heuristic Reasoning - IND",
+    "Text": "Case 1004 Register Order 0900 Receive Payment 0905 Five minutes for order intake plus cash receipt Case 1002 Register 0820 Ship 0840 twenty minutes to fulfillment These durations are too short for genuine review speed here is a symptom of control omission"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "FinanceTeam 02 Cashier performs Receive Payment across all four cases a single point of dependency and if the same individual can also issue invoices a fraud relevant combination LogisticsMgr 2 appears in both retroactive confirmation cases 1002 1003 Worth testing at scale"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H1 Priority expedite orders systematically bypass gates Mechanism An expedite path or informal pressure lets Sales Logistics trigger fulfillment before Finance clears the order Case 1002 priority shipped in 20 min fits Prediction Violation rate correlates with order_type priority violations cluster on specific sales resources"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H2 Retroactive data entry backfilling is normalized practice Mechanism Staff perform work in the physical world in a different order than the system expects then enter events later to close the case The late_confirmation Y annotation suggests staff are aware and documenting it Prediction Out of order events show unnaturally short inter event gaps or batch clustered timestamps and additional_info contains self flagging keywords"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H3 The system lacks hard blocking constraints no enforced gating Mechanism Activities are recordable in any order sequence is advisory enforced only by training and habit Prediction Violations are diffuse across resources and time rather than concentrated the signature of an absent control rather than a rogue actor shipment_scheduled N followed by Ship Goods is strong evidence even an explicit negative did not stop the flow"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H4 Activity labels are overloaded process is mis modeled Mechanism Receive Payment may cover prepayments deposits and settlement Validate Stock may be automated and simply not logged for some channels If so some anomalies are modelling artifacts not misbehavior Prediction Payment before invoice cases share a channel or customer segment missing Validate Stock correlates with a specific channel or resource group"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H5 Role authorization drift Mechanism Activities executed by resources outside the owning department indicating workarounds or shared credentials Prediction Joining resources reveals department mismatches"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H6 Capacity pressure and load shedding Mechanism When Finance queues are long downstream teams skip the gate to protect delivery service levels Prediction Violation rate rises with concurrent case volume and during specific hours shifts Credit Check waiting times spike on violation days"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H7 Training tenure gap Mechanism Newer or occasional resources deviate more Prediction Violations concentrate in resources with low event volume"
+  },
+  {
+    "Name": "Hypothesis Generation - PE",
+    "Text": "H8 Customer specific side agreements Mechanism Certain customers have negotiated credit check waivers that exist informally rather than as a modelled variant Prediction Skipped credit check cases cluster on a small set of customer ids"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Foundation build a reusable conformance view Variant frequency how much of the volume is actually conformant"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Pivot each case to first occurrence timestamps This single query powers most ordering tests"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Violation scorecard tests H1 H3 H8 simultaneously Risk exposure roll up quantify the control gap in currency"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Direct succession matrix discover the real process Edges absent from the reference model are the deviation hot paths The min gap minutes column doubles as an H2 probe near zero gaps suggest batch backfilling rather than real work"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing H2 retroactive entry and self flagging Explicit admissions in the free text field Burst entry one resource logging many events in a tight window The strongest single test of H2 does event_id order diverge from timestamp order event_id reflects insertion sequence a mismatch is direct evidence of backdating"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing H5 role and department conformance Segregation of duties same resource on both invoicing and cash receipt"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing H7 and resource level attribution Low cases touched combined with high pct violating supports H7 training high volume with high rate suggests entrenched local practice or authorization drift"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing H6 load pressure Also worth measuring does Credit Check waiting time predict bypass"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Testing H4 and H8 is the anomaly actually a legitimate variant Concentration on a handful of customers supports H8 unmodelled side agreements or H4 prepay variant Uniform spread supports H3 no enforcement"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Payment integrity check This distinguishes Case 1004 deposit vs settlement ambiguity and surfaces partial payments masquerading as complete cases"
+  },
+  {
+    "Name": "Abductive Reasoning - PE",
+    "Text": "What the data most likely shows Three of four cases deviate and the deviations are not random noise they share a signature control activities are recorded but positioned so they cannot influence the outcome they govern late_confirmation Y and shipment_scheduled N followed by shipment are self documenting evidence that the system permits and staff routinely perform retroactive or ineffective gating"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "This points primarily to H3 no enforced sequencing as the enabling condition with H1 H6 expedite and load pressure as the motive and H2 backfilling as the coping mechanism"
+  },
+  {
+    "Name": "Validation - PE",
+    "Text": "Four cases is far too small to support any conclusion everything above is hypothesis generation and the queries exist precisely because the sample cannot settle these questions"
+  },
+  {
+    "Name": "Counterfactual Reasoning - PE",
+    "Text": "If H2 holds timestamps record data entry rather than work so ordering analysis is measuring the wrong thing and the log must be validated against source systems first if H4 holds some violations are legitimate variants that belong in an enriched process model rather than a remediation plan"
+  },
+  {
+    "Name": "Deductive Reasoning - PE",
+    "Text": "Query 35 event_id vs timestamp test and query 39 clustering test should be run before any enforcement change"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Immediate risk containment Run exposure roll up to size the value shipped without effective credit assessment If material apply a hard block Ship Goods cannot be recorded unless a completed Perform Credit Check with an approved outcome exists at an earlier timestamp"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Fix the degenerate control Confirm Shipment with shipment_scheduled N must block fulfillment Retroactive confirmation should be either rejected or captured as an explicit approved exception with a reason code making the exception visible rather than laundering it as conformance"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Resolve data quality If event_id timestamp mismatches are widespread introduce separate work_completed_at and recorded_at fields Without this no downstream conformance metric is trustworthy"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Model the real process Legitimate prepayment and automated stock verification paths should be added as sanctioned variants so that genuine violations stand out instead of drowning in false positives"
+  },
+  {
+    "Name": "Heuristic Reasoning - PE",
+    "Text": "Ongoing monitoring Promote the violation scorecard into a daily dashboard tracking conformance rate value at risk from skipped credit checks and retroactive confirmation count with attribution by resource and order type"
+  },
+  {
+    "Name": "Conclusion - C"
+  }
+]

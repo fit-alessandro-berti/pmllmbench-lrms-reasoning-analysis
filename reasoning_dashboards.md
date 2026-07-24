@@ -54,6 +54,7 @@
 | poolsidelaguna-m.1free                           | **9384**  | 34 | 11 | 1 |  432 |  66 |  6 |
 | nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | **5954**  | 28 | 16 | 2 |  496 |  66 | 47 |
 | googlegemini-3.1-pro-preview                     | **5310**  | 28 | 17 | 1 |  361 | 130 | 21 |
+| anthropicclaude-opus-5                           | **5190**  | 28 | 16 | 2 |  349 |  80 | 11 |
 | grok-code-fast-1                                 | **1160**  | 20 | 25 | 1 |  323 |  80 | 12 |
 | x-aigrok-4.5                                     | **-3664** | 16 | 23 | 7 |  203 |  24 | 21 |
 
@@ -115,6 +116,7 @@ Here, **C**, **PC**, **W** refer to the number of correct, partially correct, an
 | poolsidelaguna-m.1free                           | 23.4 | 28.4 |  4.8 |  6.3 | 12.5 | 13.5 |    4 |  0.8 |  1.4 |    5 |
 | nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | 17.1 | 29.6 |  3.1 | 10.2 | 14.1 | 16.4 |  2.5 |  1.8 |  1.3 |  3.9 |
 | googlegemini-3.1-pro-preview                     | 15.2 | 27.1 |  2.3 |  6.2 | 10.4 | 24.2 |  5.3 |    1 |  0.8 |  7.4 |
+| anthropicclaude-opus-5                           | 16.1 | 25.7 |  2.3 |  7.7 | 19.1 | 16.4 |  0.5 |  1.4 |  1.6 |  9.3 |
 | grok-code-fast-1                                 | 28.4 |   34 |  2.7 |  5.5 | 10.8 | 10.6 |  1.2 |  0.2 |  0.2 |  6.3 |
 | x-aigrok-4.5                                     | 25.8 | 42.3 |  3.6 |  5.6 |  6.5 |  8.9 |  0.8 |    2 |  0.8 |  3.6 |
 
@@ -185,5 +187,6 @@ Dictionary of activities:
 | poolsidelaguna-m.1free                           | 97.5 |   93 | 79.2 |   75 | 66.7 | 80.9 |  100 |  100 | 85.7 |   56 |
 | nvidiaNemotron-3-Nano-Omni-30B-A3B-Reasoning     | 94.2 | 88.3 | 78.9 | 77.4 | 70.9 |   75 | 66.7 | 90.9 |   75 | 58.3 |
 | googlegemini-3.1-pro-preview                     |   91 | 80.6 | 83.3 | 59.4 | 47.2 | 62.1 | 74.1 |  100 |   25 | 55.3 |
+| anthropicclaude-opus-5                           | 94.4 | 89.4 |   90 | 67.6 | 65.5 | 80.6 |  100 |  100 | 57.1 | 58.5 |
 | grok-code-fast-1                                 | 79.7 | 89.4 | 81.8 | 56.5 | 66.7 | 70.5 |  100 |  100 |    0 | 53.8 |
 | x-aigrok-4.5                                     |  100 | 88.6 | 77.8 | 57.1 | 43.8 | 45.5 |    0 |  100 |   50 | 88.9 |
